@@ -1,3 +1,5 @@
+@import "./css/mobile-shell.css";
+
 /* EMOTA — 8-bit CRT depth + subtle motion */
 :root {
   --bg: #000806;

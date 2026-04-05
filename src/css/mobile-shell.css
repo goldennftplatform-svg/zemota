@@ -1,0 +1,98 @@
+/* Mobile / Add-to-Home-Screen shell — safe areas, touch, no horizontal wobble */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: clip;
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+/* Safe area: notches + home indicator */
+.app-layout {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
+  padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+}
+
+.app-footer {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Tap targets: iOS HIG ~44pt */
+@media (max-width: 640px) {
+  .screen .choices li {
+    min-height: 2.75rem;
+    padding: 0.55rem 0.6rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 255, 119, 0.12);
+  }
+
+  .screen .block {
+    font-size: clamp(1.05rem, 0.95rem + 1vw, 1.28rem);
+    line-height: 1.5;
+  }
+
+  .screen {
+    padding: 0.75rem 0.65rem;
+    min-height: min(70dvh, 22rem);
+  }
+
+  .footer-hint {
+    font-size: clamp(0.88rem, 0.82rem + 0.5vw, 1.05rem);
+    line-height: 1.35;
+    padding: 0 0.25rem;
+  }
+
+  .mp-strip {
+    font-size: clamp(0.92rem, 0.85rem + 0.4vw, 1.05rem);
+  }
+
+  .app-header__inner {
+    padding-top: 0.5rem;
+    padding-bottom: 0.6rem;
+  }
+
+  .app-brand__sub {
+    font-size: 1.02rem;
+  }
+
+  .land-view-frame {
+    max-width: 100%;
+  }
+
+  #land-view-canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Bigboard page (no .app-layout) */
+.bb-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Coarse pointer: slightly larger hit areas */
+@media (hover: none) and (pointer: coarse) {
+  .screen .choices li:active {
+    border-color: var(--border-hi);
+    background: var(--bg-mid);
+  }
+
+  .emota-popup__ok {
+    min-height: 2.75rem;
+    touch-action: manipulation;
+  }
+}
