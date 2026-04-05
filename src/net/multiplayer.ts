@@ -51,6 +51,7 @@ export class TrailMultiplayer {
       transports: ["websocket", "polling"] as const,
       reconnectionAttempts: 5,
       timeout: 4000,
+      withCredentials: false,
     };
     const s = origin ? io(origin, opts) : io(opts);
     this.socket = s;

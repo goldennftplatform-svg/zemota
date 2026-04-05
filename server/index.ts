@@ -14,7 +14,8 @@ const app = express();
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
-  cors: { origin: true, credentials: true },
+  // Allow Vercel + tunnel origins; credentials off matches default Socket.IO client (no cookies).
+  cors: { origin: true, credentials: false, methods: ["GET", "POST"] },
   path: "/socket.io",
 });
 

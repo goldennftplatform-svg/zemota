@@ -48,7 +48,17 @@ let peers: TrailPeer[] = [];
 let feed: TrailFeedEvent[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
 let connState: "ok" | "warn" | "bad" = "warn";
+let lastSocketError = "";
 let roomRenderTimer: ReturnType<typeof setTimeout> | null = null;
+
+function socketTargetDisplay(): string {
+  const o = trailServerOrigin();
+  if (o) return o;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin} (no trail URL — cannot use Socket.IO here)`;
+  }
+  return "";
+}
 
 const app = document.getElementById("app")!;
 
@@ -62,6 +72,12 @@ function render(): void {
   const connClass = conn === "ok" ? "bb-live--ok" : conn === "bad" ? "" : "bb-live--warn";
   const connLabel =
     conn === "ok" ? "LIVE · SOCKET" : conn === "bad" ? "OFFLINE" : "CONNECTING…";
+  const connDetail =
+    conn !== "ok"
+      ? `<div class="bb-live__detail">${escapeHtml(socketTargetDisplay())}${
+          lastSocketError ? ` · ${escapeHtml(lastSocketError.slice(0, 140))}` : ""
+        }</div>`
+      : "";
 
   const feedHtml = feed
     .slice(0, FEED_MAX_DOM)
@@ -127,7 +143,10 @@ function render(): void {
         </div>
         <div class="bb-live ${connClass}">
           <span class="bb-live__dot" aria-hidden="true"></span>
-          <span>${connLabel}</span>
+          <div class="bb-live__text">
+            <span>${connLabel}</span>
+            ${connDetail}
+          </div>
         </div>
       </header>
       <div class="bb-main">
@@ -234,24 +253,26 @@ function setConn(s: "ok" | "warn" | "bad"): void {
 
 render();
 
-const bbOrigin = trailServerOrigin();
-const socket = bbOrigin
-  ? io(bbOrigin, {
-      path: "/socket.io",
-      transports: ["websocket", "polling"],
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 800,
-    })
-  : io({
-      path: "/socket.io",
-      transports: ["websocket", "polling"],
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 800,
-    });
+const socketOpts = {
+  path: "/socket.io",
+  transports: ["websocket", "polling"] as const,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 800,
+  withCredentials: false,
+};
 
-socket.on("connect", () => setConn("ok"));
+const bbOrigin = trailServerOrigin();
+const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
+
+socket.on("connect", () => {
+  lastSocketError = "";
+  setConn("ok");
+});
 socket.on("disconnect", () => setConn("bad"));
-socket.on("connect_error", () => setConn("warn"));
+socket.on("connect_error", (err: Error) => {
+  lastSocketError = err?.message || String(err);
+  setConn("warn");
+});
 
 socket.on("trail:room", (list: TrailPeer[]) => {
   peers = Array.isArray(list) ? list : [];

@@ -111,10 +111,30 @@ body {
 
 .bb-live {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   font-family: var(--font-pixel);
   font-size: clamp(0.45rem, 1vw, 0.6rem);
+  max-width: min(52vw, 520px);
+  text-align: right;
+}
+
+.bb-live__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bb-live__detail {
+  font-family: var(--font-term);
+  font-size: clamp(0.75rem, 1.4vw, 0.95rem);
+  font-weight: normal;
+  line-height: 1.25;
+  color: var(--bb-warn);
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .bb-live__dot {
