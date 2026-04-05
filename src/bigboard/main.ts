@@ -96,12 +96,20 @@ function render(): void {
   const connClass = conn === "ok" ? "bb-live--ok" : conn === "bad" ? "" : "bb-live--warn";
   const connLabel =
     conn === "ok" ? "LIVE · SOCKET" : conn === "bad" ? "OFFLINE" : "CONNECTING…";
+  const trailTarget =
+    lastResolvedOrigin ??
+    trailServerOrigin() ??
+    (conn === "ok" && typeof window !== "undefined" ? window.location.origin : undefined);
+  const connDetailOk =
+    conn === "ok" && trailTarget
+      ? `<div class="bb-live__detail bb-live__detail--muted">${escapeHtml(trailTarget)}</div>`
+      : "";
   const connDetail =
     conn !== "ok"
       ? `<div class="bb-live__detail">${escapeHtml(socketTargetDisplay())}${
           lastSocketError ? ` · ${escapeHtml(lastSocketError.slice(0, 140))}` : ""
         }</div>`
-      : "";
+      : connDetailOk;
 
   const feedHtml = feed
     .slice(0, FEED_MAX_DOM)

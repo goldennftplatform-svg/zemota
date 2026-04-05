@@ -123,6 +123,11 @@ body {
   max-width: 100%;
 }
 
+.bb-live__detail--muted {
+  color: var(--bb-fg);
+  opacity: 0.72;
+}
+
 .bb-live__dot {
   width: 10px;
   height: 10px;
