@@ -202,7 +202,7 @@ const mp = new TrailMultiplayer(
   },
 );
 
-mp.connect();
+void mp.connect();
 
 function renderChoiceLead(phase: string, n: number): string {
   if (["travel_menu", "river", "store", "land_pick"].includes(phase)) {

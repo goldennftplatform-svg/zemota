@@ -8,7 +8,7 @@ import { initMobileShellClass } from "../mobile-detect";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
-import { trailServerOrigin } from "../net/socketUrl";
+import { resolveTrailOrigin, trailServerOrigin } from "../net/socketUrl";
 import "./bigboard.css";
 
 initMobileShellClass();
@@ -57,6 +57,8 @@ let lastPeerIds = new Set<string>();
 let roomSyncCount = 0;
 let joinToast: string | null = null;
 let joinToastTimer: ReturnType<typeof setTimeout> | null = null;
+/** Set after `resolveTrailOrigin()` so the status line can show tunnel URL from `/trail.json`. */
+let lastResolvedOrigin: string | undefined;
 
 /** Simple covered-wagon icon (reads on projector / wall). */
 function wagonIconSvg(): string {
@@ -70,12 +72,12 @@ function wagonIconSvg(): string {
 }
 
 function socketTargetDisplay(): string {
-  const o = trailServerOrigin();
+  const o = lastResolvedOrigin ?? trailServerOrigin();
   if (o) return o;
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (/\.vercel\.app$/i.test(host)) {
-      return "No VITE_TRAIL_SERVER_URL in this build — Project → Env Vars → add it (tunnel https URL) → Redeploy. Or ?trail=https://….trycloudflare.com";
+      return "No trail URL — set Vercel VITE_TRAIL_SERVER_URL, or public/trail.json origin, or ?trail=https://…";
     }
     return `${window.location.origin} — use ?trail=http://127.0.0.1:3333 with npm run server, or npm run dev`;
   }
@@ -280,53 +282,55 @@ const socketOpts = {
   reconnectionDelay: 800,
 };
 
-const bbOrigin = trailServerOrigin();
-const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
-
-socket.on("connect", () => {
-  lastSocketError = "";
-  setConn("ok");
-});
-socket.on("disconnect", () => setConn("bad"));
-socket.on("connect_error", (err: Error) => {
-  lastSocketError = err?.message || String(err);
-  setConn("warn");
-});
-
-socket.on("trail:room", (list: TrailPeer[]) => {
-  const next = Array.isArray(list) ? list : [];
-  roomSyncCount += 1;
-  if (roomSyncCount > 1) {
-    const newly = next.filter((p) => !lastPeerIds.has(p.id));
-    if (newly.length === 1) {
-      joinToast = `Wagon on the wire: ${newly[0].displayName}`;
-    } else if (newly.length > 1) {
-      joinToast =
-        `${newly.length} wagons on the wire: ${newly.map((p) => p.displayName).join(" · ")}`.slice(
-          0,
-          220,
-        );
-    }
-    if (joinToast) {
-      if (joinToastTimer) clearTimeout(joinToastTimer);
-      joinToastTimer = setTimeout(() => {
-        joinToast = null;
-        render();
-      }, 5000);
-    }
-  }
-  lastPeerIds = new Set(next.map((p) => p.id));
-  peers = next;
+void resolveTrailOrigin().then((bbOrigin) => {
+  lastResolvedOrigin = bbOrigin;
   render();
-});
+  const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
 
-socket.on("trail:feed:sync", (list: TrailFeedEvent[]) => {
-  feed = Array.isArray(list) ? [...list].reverse() : [];
-  render();
-});
+  socket.on("connect", () => {
+    lastSocketError = "";
+    setConn("ok");
+  });
+  socket.on("disconnect", () => setConn("bad"));
+  socket.on("connect_error", (err: Error) => {
+    lastSocketError = err?.message || String(err);
+    setConn("warn");
+  });
 
-socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
-  if (!ev?.id) return;
-  prependFeed(ev);
-});
+  socket.on("trail:room", (list: TrailPeer[]) => {
+    const next = Array.isArray(list) ? list : [];
+    roomSyncCount += 1;
+    if (roomSyncCount > 1) {
+      const newly = next.filter((p) => !lastPeerIds.has(p.id));
+      if (newly.length === 1) {
+        joinToast = `Wagon on the wire: ${newly[0].displayName}`;
+      } else if (newly.length > 1) {
+        joinToast =
+          `${newly.length} wagons on the wire: ${newly.map((p) => p.displayName).join(" · ")}`.slice(
+            0,
+            220,
+          );
+      }
+      if (joinToast) {
+        if (joinToastTimer) clearTimeout(joinToastTimer);
+        joinToastTimer = setTimeout(() => {
+          joinToast = null;
+          render();
+        }, 5000);
+      }
+    }
+    lastPeerIds = new Set(next.map((p) => p.id));
+    peers = next;
+    render();
+  });
 
+  socket.on("trail:feed:sync", (list: TrailFeedEvent[]) => {
+    feed = Array.isArray(list) ? [...list].reverse() : [];
+    render();
+  });
+
+  socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
+    if (!ev?.id) return;
+    prependFeed(ev);
+  });
+});

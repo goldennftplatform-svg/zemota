@@ -2,7 +2,7 @@ import { io, type Socket } from "socket.io-client";
 import { MULTIPLAYER_CAP } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
-import { trailServerOrigin } from "./socketUrl";
+import { resolveTrailOrigin } from "./socketUrl";
 
 export type { TrailPeer, TrailFeedEvent };
 
@@ -41,9 +41,9 @@ export class TrailMultiplayer {
     this.onStatus = onStatus;
   }
 
-  connect(): void {
+  async connect(): Promise<void> {
     if (this.socket?.connected) return;
-    const origin = trailServerOrigin();
+    const origin = await resolveTrailOrigin();
     this.onStatus(
       origin ? `Connecting to trail server…` : "Connecting to local trail server…",
     );

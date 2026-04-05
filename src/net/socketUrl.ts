@@ -1,7 +1,10 @@
 /**
  * Trail server origin for Socket.IO (Express + server/index.ts).
  * Priority: VITE_TRAIL_SERVER_URL → ?trail= → localStorage emota_trail_server
- * Vercel has no Socket.IO; set env or open with ?trail=https://your-tunnel.trycloudflare.com
+ *
+ * Async `resolveTrailOrigin()` also reads `/trail.json` { "origin": "https://..." } so you can
+ * push a URL change without editing Vercel env (still one deploy per change).
+ * For a URL that never changes: use a named Cloudflare Tunnel + your domain, set env once.
  */
 function normalizeOrigin(s: string): string {
   return s.trim().replace(/\/$/, "");
@@ -26,4 +29,21 @@ export function trailServerOrigin(): string | undefined {
     return normalizeOrigin(v);
   }
   return trailOverrideFromBrowser();
+}
+
+/** Use for Socket.IO connect — includes optional `/trail.json` when env + browser overrides are empty. */
+export async function resolveTrailOrigin(): Promise<string | undefined> {
+  const sync = trailServerOrigin();
+  if (sync) return sync;
+  if (typeof window === "undefined") return undefined;
+  try {
+    const r = await fetch("/trail.json", { cache: "no-store" });
+    if (!r.ok) return undefined;
+    const j = (await r.json()) as { origin?: string };
+    const o = j?.origin?.trim?.();
+    if (o) return normalizeOrigin(o);
+  } catch {
+    return undefined;
+  }
+  return undefined;
 }
