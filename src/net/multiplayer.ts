@@ -1,6 +1,7 @@
 import { io, type Socket } from "socket.io-client";
 import { MULTIPLAYER_CAP } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "./trailProtocol";
+import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
 import { trailServerOrigin } from "./socketUrl";
 
 export type { TrailPeer, TrailFeedEvent };
@@ -47,11 +48,8 @@ export class TrailMultiplayer {
       origin ? `Connecting to trail server…` : "Connecting to local trail server…",
     );
     const opts = {
-      path: "/socket.io",
-      transports: ["websocket", "polling"] as const,
+      ...EMOTA_SOCKET_BASE,
       reconnectionAttempts: 5,
-      timeout: 4000,
-      withCredentials: false,
     };
     const s = origin ? io(origin, opts) : io(opts);
     this.socket = s;

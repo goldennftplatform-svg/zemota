@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
+import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { trailServerOrigin } from "../net/socketUrl";
 import "./bigboard.css";
 
@@ -274,11 +275,9 @@ function setConn(s: "ok" | "warn" | "bad"): void {
 render();
 
 const socketOpts = {
-  path: "/socket.io",
-  transports: ["websocket", "polling"] as const,
+  ...EMOTA_SOCKET_BASE,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 800,
-  withCredentials: false,
 };
 
 const bbOrigin = trailServerOrigin();
