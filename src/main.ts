@@ -1,4 +1,5 @@
 import "./style.css";
+import { initMobileShellClass } from "./mobile-detect";
 import { GameEngine } from "./game/engine";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
@@ -6,6 +7,8 @@ import { TrailMultiplayer, getDisplayName } from "./net/multiplayer";
 import { randomHistoricPartyLine } from "./data/historicNames";
 import { buildDashboardSidebar, choiceLeadingIcon } from "./ui/dashboard";
 import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
+
+initMobileShellClass();
 
 const HS_KEY = "emota_high_scores";
 
@@ -459,5 +462,5 @@ document.addEventListener("keydown", (e) => {
 render();
 
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
+  navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
 }

@@ -1,32 +1,95 @@
-/* Mobile / Add-to-Home-Screen shell — safe areas, touch, no horizontal wobble */
+/* Mobile / Add-to-Home-Screen — loaded first; .app-layout safe-area lives in style.css (cascade). */
 
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  overflow-x: clip;
-  min-height: 100%;
-  min-height: 100dvh;
-}
-
-/* Safe area: notches + home indicator */
-.app-layout {
+/* Bigboard page (no .app-layout) */
+.bb-root {
   min-height: 100vh;
   min-height: 100dvh;
-  padding-left: max(0.65rem, env(safe-area-inset-left, 0px));
-  padding-right: max(0.65rem, env(safe-area-inset-right, 0px));
-  padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
-  padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .app-footer {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Tap targets: iOS HIG ~44pt */
+/* Visible mobile mode (see mobile-detect.ts + html.emota-mobile) */
+html.emota-mobile {
+  font-size: 17px;
+}
+
+html.emota-mobile body {
+  touch-action: manipulation;
+}
+
+html.emota-mobile .app-brand__tagline {
+  display: none;
+}
+
+html.emota-mobile .app-header__inner {
+  padding: 0.45rem 0 0.55rem;
+}
+
+html.emota-mobile .app-brand__topline {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+html.emota-mobile .screen .choices {
+  gap: 0.45rem;
+}
+
+html.emota-mobile .screen .choices li {
+  min-height: 3rem;
+  padding: 0.62rem 0.65rem;
+  font-size: 1.1rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 255, 119, 0.15);
+}
+
+html.emota-mobile .screen .block {
+  font-size: 1.12rem;
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+html.emota-mobile .screen {
+  padding: 0.75rem 0.6rem;
+  min-height: min(72dvh, 24rem);
+}
+
+html.emota-mobile .footer-hint {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  padding: 0 0.35rem 0.35rem;
+}
+
+html.emota-mobile .mp-strip {
+  font-size: 0.95rem;
+  max-height: 4.5rem;
+}
+
+html.emota-mobile .land-view-frame {
+  max-width: 100%;
+}
+
+html.emota-mobile #land-view-canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+html.emota-mobile .overhead-canvas {
+  width: 100%;
+  max-width: min(100%, 100vw);
+}
+
+/* Tap targets: narrow width without emota-mobile class (resize-only users) */
 @media (max-width: 640px) {
   .screen .choices li {
     min-height: 2.75rem;
@@ -74,17 +137,7 @@ body {
   }
 }
 
-/* Bigboard page (no .app-layout) */
-.bb-root {
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-top: env(safe-area-inset-top, 0px);
-}
-
-/* Coarse pointer: slightly larger hit areas */
+/* Coarse pointer: active state */
 @media (hover: none) and (pointer: coarse) {
   .screen .choices li:active {
     border-color: var(--border-hi);

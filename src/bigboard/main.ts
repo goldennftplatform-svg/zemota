@@ -4,10 +4,13 @@
  */
 
 import { io } from "socket.io-client";
+import { initMobileShellClass } from "../mobile-detect";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { trailServerOrigin } from "../net/socketUrl";
 import "./bigboard.css";
+
+initMobileShellClass();
 
 const FEED_MAX_DOM = 48;
 const POPUP_MS = 8200;
@@ -329,5 +332,5 @@ socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
 });
 
 if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").catch(() => {});
+  navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
 }
