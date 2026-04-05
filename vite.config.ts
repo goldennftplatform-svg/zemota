@@ -4,7 +4,18 @@ import { defineConfig } from "vite";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  if (
+    mode === "production" &&
+    process.env.VERCEL &&
+    !String(process.env.VITE_TRAIL_SERVER_URL ?? "").trim()
+  ) {
+    console.warn(
+      "\n[emota] VITE_TRAIL_SERVER_URL is not set in Vercel — bigboard / multiplayer will not connect. Add your tunnel HTTPS origin (no trailing slash), then redeploy.\n",
+    );
+  }
+
+  return {
   root: ".",
   publicDir: "public",
   build: {
@@ -26,4 +37,5 @@ export default defineConfig({
       },
     },
   },
+};
 });

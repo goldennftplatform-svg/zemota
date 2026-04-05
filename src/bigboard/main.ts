@@ -55,7 +55,11 @@ function socketTargetDisplay(): string {
   const o = trailServerOrigin();
   if (o) return o;
   if (typeof window !== "undefined") {
-    return `${window.location.origin} (no trail URL — cannot use Socket.IO here)`;
+    const host = window.location.hostname;
+    if (/\.vercel\.app$/i.test(host)) {
+      return "No VITE_TRAIL_SERVER_URL in this build — Project → Env Vars → add it (tunnel https URL) → Redeploy. Or ?trail=https://….trycloudflare.com";
+    }
+    return `${window.location.origin} — use ?trail=http://127.0.0.1:3333 with npm run server, or npm run dev`;
   }
   return "";
 }
@@ -116,27 +120,10 @@ function render(): void {
     })
     .join("");
 
-  const onDeployedHost =
-    typeof window !== "undefined" &&
-    !["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
-  const noTrailUrl =
-    import.meta.env.PROD &&
-    !trailServerOrigin() &&
-    typeof window !== "undefined" &&
-    onDeployedHost;
-  const setupHint = noTrailUrl
-    ? `<div class="bb-setup-hint" role="status">
-        No trail API URL — static hosts (e.g. Vercel) do not run Socket.IO. Set <code>VITE_TRAIL_SERVER_URL</code> to your tunnel HTTPS origin (no trailing slash), redeploy, or use
-        <code>?trail=https://….trycloudflare.com</code> · or once in the console:
-        <code>localStorage.setItem('emota_trail_server','https://…'); location.reload()</code>
-      </div>`
-    : "";
-
   app.innerHTML = `
     <div class="bb-root">
       <div class="bb-vignette" aria-hidden="true"></div>
       <div class="bb-crt" aria-hidden="true"></div>
-      ${setupHint}
       <header class="bb-header">
         <div class="bb-brand">
           <img src="/meeker-mark.svg" width="40" height="52" alt="" />
