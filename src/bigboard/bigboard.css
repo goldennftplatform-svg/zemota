@@ -262,6 +262,59 @@ body {
   pointer-events: none;
 }
 
+.bb-lobby {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  transform: translateX(-50%);
+  z-index: 5;
+  max-width: min(92%, 36rem);
+  padding: 0.65rem 1rem;
+  font-size: clamp(0.8rem, 1.35vw, 1.05rem);
+  line-height: 1.35;
+  color: var(--bb-warn);
+  background: rgba(0, 12, 8, 0.94);
+  border: 1px solid var(--bb-border);
+  border-radius: 2px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.bb-lobby strong {
+  color: var(--bb-hi);
+}
+
+.bb-join-banner {
+  flex: 0 0 auto;
+  padding: 0.45rem 1rem;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.38rem, 0.85vw, 0.55rem);
+  line-height: 1.4;
+  color: #020806;
+  background: linear-gradient(180deg, #39ff7a 0%, #2acf62 100%);
+  border-bottom: 2px solid #001a0d;
+  animation: bb-join-pulse 0.6s ease-out 1;
+}
+
+@keyframes bb-join-pulse {
+  from {
+    opacity: 0.5;
+    transform: scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.bb-wagon-svg {
+  width: clamp(2rem, 4.2vw, 3rem);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 .bb-wagon {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -270,7 +323,6 @@ body {
 }
 
 .bb-wagon__icon {
-  font-size: clamp(1.1rem, 2.2vw, 1.8rem);
   filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.45));
 }
 

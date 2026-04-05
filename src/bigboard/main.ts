@@ -49,7 +49,21 @@ let feed: TrailFeedEvent[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
 let connState: "ok" | "warn" | "bad" = "warn";
 let lastSocketError = "";
-let roomRenderTimer: ReturnType<typeof setTimeout> | null = null;
+let lastPeerIds = new Set<string>();
+let roomSyncCount = 0;
+let joinToast: string | null = null;
+let joinToastTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Simple covered-wagon icon (reads on projector / wall). */
+function wagonIconSvg(): string {
+  return `<svg class="bb-wagon-svg" viewBox="0 0 56 36" aria-hidden="true" focusable="false">
+    <ellipse cx="14" cy="28" rx="10" ry="6" fill="#1a1814" stroke="#39ff7a" stroke-width="1.2"/>
+    <ellipse cx="40" cy="28" rx="10" ry="6" fill="#1a1814" stroke="#39ff7a" stroke-width="1.2"/>
+    <path fill="#2a2218" stroke="#39ff7a" stroke-width="1.5" d="M8 14 L44 14 L48 22 L6 22 Z"/>
+    <path fill="#39ff7a" fill-opacity="0.25" d="M10 14 L32 6 L44 14 Z"/>
+    <rect x="22" y="8" width="6" height="6" fill="#39ff7a" fill-opacity="0.5" rx="1"/>
+  </svg>`;
+}
 
 function socketTargetDisplay(): string {
   const o = trailServerOrigin();
@@ -112,13 +126,24 @@ function render(): void {
       const alive = p.alive != null ? `${p.alive} alive` : "";
       const lm = p.landmark ? p.landmark.slice(0, 28) : "";
       return `<div class="bb-wagon" style="left:${pos.left};top:${pos.top};--h:${h}">
-        <div class="bb-wagon__icon" style="filter:hue-rotate(${h % 60}deg) drop-shadow(0 0 8px rgba(0,255,120,0.5))">🛞</div>
+        <div class="bb-wagon__icon" style="filter:hue-rotate(${h % 80}deg) drop-shadow(0 0 10px rgba(57,255,120,0.55))">${wagonIconSvg()}</div>
         <div class="bb-wagon__name">${escapeHtml(p.displayName)}</div>
         <div class="bb-wagon__meta">${Math.round(p.miles)} mi · d${p.day}${alive ? ` · ${alive}` : ""}</div>
         ${lm ? `<div class="bb-wagon__meta">${escapeHtml(lm)}</div>` : ""}
       </div>`;
     })
     .join("");
+
+  const lobbyHint =
+    conn === "ok" && peers.length === 0
+      ? `<div class="bb-lobby" role="status">
+          <strong>No wagons on the wire yet.</strong> Open the <em>game</em> on this site (same trail server) — each player appears here as a wagon when they start a run.
+        </div>`
+      : "";
+
+  const joinBanner = joinToast
+    ? `<div class="bb-join-banner" role="status">${escapeHtml(joinToast)}</div>`
+    : "";
 
   app.innerHTML = `
     <div class="bb-root">
@@ -140,6 +165,7 @@ function render(): void {
           </div>
         </div>
       </header>
+      ${joinBanner}
       <div class="bb-main">
         <aside class="bb-feed">
           <div class="bb-feed__head">// SIGNAL FEED</div>
@@ -178,7 +204,7 @@ function render(): void {
             <text x="260" y="290" fill="#8fffaa" font-family="monospace" font-size="14" opacity="0.55">Oregon</text>
             <text x="780" y="400" fill="#39ff7a" font-family="monospace" font-size="14" opacity="0.5">Independence</text>
           </svg>
-          <div class="bb-markers" id="markers">${markersHtml}</div>
+          <div class="bb-markers" id="markers">${lobbyHint}${markersHtml}</div>
           <div class="bb-map-labels">
             <span>Oregon · west</span>
             <span>THE OREGON TRAIL · ${TOTAL_TRAIL_MILES} mi</span>
@@ -266,12 +292,30 @@ socket.on("connect_error", (err: Error) => {
 });
 
 socket.on("trail:room", (list: TrailPeer[]) => {
-  peers = Array.isArray(list) ? list : [];
-  if (roomRenderTimer) return;
-  roomRenderTimer = setTimeout(() => {
-    roomRenderTimer = null;
-    render();
-  }, 120);
+  const next = Array.isArray(list) ? list : [];
+  roomSyncCount += 1;
+  if (roomSyncCount > 1) {
+    const newly = next.filter((p) => !lastPeerIds.has(p.id));
+    if (newly.length === 1) {
+      joinToast = `Wagon on the wire: ${newly[0].displayName}`;
+    } else if (newly.length > 1) {
+      joinToast =
+        `${newly.length} wagons on the wire: ${newly.map((p) => p.displayName).join(" · ")}`.slice(
+          0,
+          220,
+        );
+    }
+    if (joinToast) {
+      if (joinToastTimer) clearTimeout(joinToastTimer);
+      joinToastTimer = setTimeout(() => {
+        joinToast = null;
+        render();
+      }, 5000);
+    }
+  }
+  lastPeerIds = new Set(next.map((p) => p.id));
+  peers = next;
+  render();
 });
 
 socket.on("trail:feed:sync", (list: TrailFeedEvent[]) => {

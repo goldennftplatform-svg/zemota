@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
-import type { TrailFeedEvent } from "../src/net/trailProtocol";
+import type { TrailFeedEvent, TrailPeer } from "../src/net/trailProtocol";
 import { MULTIPLAYER_CAP } from "../src/game/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,8 +35,8 @@ let scores: ScoreRow[] = [];
 const FEED_CAP = 200;
 const feed: TrailFeedEvent[] = [];
 
-function broadcastRoom(): void {
-  const list = [...peers.entries()].map(([id, v]) => ({
+function roomSnapshotList(): TrailPeer[] {
+  return [...peers.entries()].map(([id, v]) => ({
     id,
     displayName: v.displayName,
     miles: v.miles,
@@ -45,7 +45,10 @@ function broadcastRoom(): void {
     landmark: v.landmark,
     phase: v.phase,
   }));
-  io.emit("trail:room", list);
+}
+
+function broadcastRoom(): void {
+  io.emit("trail:room", roomSnapshotList());
 }
 
 function pushFeed(ev: TrailFeedEvent): void {
@@ -64,6 +67,8 @@ app.get("/bigboard", (_req, res) => {
 io.on("connection", (socket) => {
   socket.emit("scores:list", scores);
   socket.emit("trail:feed:sync", feed.slice(-120));
+  /** So bigboard / late clients see wagons already on the trail */
+  socket.emit("trail:room", roomSnapshotList());
 
   socket.on("trail:hello", (payload: { displayName?: string }) => {
     if (peers.size >= MULTIPLAYER_CAP) {
