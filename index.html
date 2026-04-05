@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ezra Meeker’s Oregon Trail Adventure (EMOTA)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="app-layout" class="app-layout">
+    <div class="crt-overlay" aria-hidden="true"></div>
+
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-brand">
+          <div class="app-brand__seal" role="img" aria-label="Stylized Ezra Meeker portrait mark">
+            <img
+              class="app-brand__portrait"
+              src="/meeker-mark.svg"
+              width="40"
+              height="52"
+              alt=""
+              decoding="async"
+            />
+          </div>
+          <div class="app-brand__copy">
+            <div class="app-brand__topline">
+              <h1 class="app-brand__title">EMOTA</h1>
+              <span class="app-brand__chip">Trail · hops · memory</span>
+            </div>
+            <p class="app-brand__sub">Ezra Meeker’s Oregon Trail Adventure</p>
+            <p class="app-brand__tagline">8-bit classroom terminal — wagon days to hop-king Puyallup</p>
+          </div>
+        </div>
+      </div>
+      <div class="app-header__glow" aria-hidden="true"></div>
+    </header>
+
+    <div id="multiplayer-strip" class="mp-strip" hidden></div>
+
+    <section id="land-view-slot" class="land-view-slot" hidden aria-label="Trail vista ahead">
+      <div class="land-view-frame">
+        <p class="land-view-label">View of the land</p>
+        <canvas id="land-view-canvas" width="640" height="180" aria-hidden="true"></canvas>
+        <p id="land-view-caption" class="land-view-caption"></p>
+      </div>
+    </section>
+
+    <div class="app-body">
+      <aside id="sidebar" class="sidebar" hidden aria-label="Trail dashboard"></aside>
+      <main class="main-panel">
+        <div id="screen" class="screen" aria-live="polite"></div>
+        <canvas id="overhead" class="overhead-canvas" width="320" height="240" hidden></canvas>
+      </main>
+    </div>
+
+    <footer class="app-footer">
+      <p id="hint-text" class="footer-hint"></p>
+    </footer>
+
+    <div id="emota-popups" class="emota-popups" hidden aria-live="assertive"></div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
