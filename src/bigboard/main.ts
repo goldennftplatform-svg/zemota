@@ -331,6 +331,3 @@ socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
   prependFeed(ev);
 });
 
-if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
-}

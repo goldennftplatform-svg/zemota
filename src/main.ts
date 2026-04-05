@@ -461,6 +461,3 @@ document.addEventListener("keydown", (e) => {
 
 render();
 
-if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {});
-}

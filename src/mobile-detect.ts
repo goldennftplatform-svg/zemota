@@ -1,4 +1,4 @@
-/** Sets `html.emota-mobile` for coarse pointers / narrow viewports — drives stronger mobile CSS. */
+/** Sets `html.emota-mobile` for touch / narrow viewports — stronger mobile browser layout. */
 export function initMobileShellClass(): void {
   if (typeof window === "undefined") return;
   const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");

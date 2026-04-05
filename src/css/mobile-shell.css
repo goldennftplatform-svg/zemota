@@ -1,4 +1,4 @@
-/* Mobile / Add-to-Home-Screen — loaded first; .app-layout safe-area lives in style.css (cascade). */
+/* Mobile browser layout — .app-layout safe-area is merged in style.css */
 
 html {
   -webkit-text-size-adjust: 100%;
