@@ -10,7 +10,10 @@
     "server": "tsx server/index.ts",
     "verify": "node scripts/verify-stack.mjs",
     "tunnel": "node scripts/run-quick-tunnel.mjs",
-    "dev:stack": "concurrently -k -n server,vite,tunnel -c blue,green,magenta \"npm run server\" \"npm run dev\" \"node scripts/run-quick-tunnel.mjs\""
+    "live": "concurrently -k -n server,tunnel -c blue,magenta \"npm run server\" \"node scripts/run-quick-tunnel.mjs\"",
+    "live:build": "npm run build && npm run live",
+    "live:dev": "concurrently -k -n server,vite,tunnel -c blue,green,magenta \"npm run server\" \"npm run dev\" \"node scripts/run-quick-tunnel.mjs\"",
+    "dev:stack": "npm run live:dev"
   },
   "dependencies": {
     "express": "^4.21.2",
