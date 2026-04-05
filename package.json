@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "server": "tsx server/index.ts"
+    "server": "tsx server/index.ts",
+    "verify": "node scripts/verify-stack.mjs",
+    "tunnel": "node scripts/run-quick-tunnel.mjs",
+    "dev:stack": "concurrently -k -n server,vite,tunnel -c blue,green,magenta \"npm run server\" \"npm run dev\" \"node scripts/run-quick-tunnel.mjs\""
   },
   "dependencies": {
     "express": "^4.21.2",
@@ -17,6 +20,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
+    "concurrently": "^9.2.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.6"
