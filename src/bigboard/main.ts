@@ -116,14 +116,18 @@ function render(): void {
     })
     .join("");
 
+  const onDeployedHost =
+    typeof window !== "undefined" &&
+    !["localhost", "127.0.0.1", "[::1]"].includes(window.location.hostname);
   const noTrailUrl =
     import.meta.env.PROD &&
     !trailServerOrigin() &&
-    typeof window !== "undefined";
+    typeof window !== "undefined" &&
+    onDeployedHost;
   const setupHint = noTrailUrl
     ? `<div class="bb-setup-hint" role="status">
-        No trail API URL — Vercel cannot host Socket.IO. Set <code>VITE_TRAIL_SERVER_URL</code> in Vercel (your tunnel HTTPS origin, no slash at end), redeploy, or open this page with
-        <code>?trail=https://your-tunnel.trycloudflare.com</code> · or run once in the console:
+        No trail API URL — static hosts (e.g. Vercel) do not run Socket.IO. Set <code>VITE_TRAIL_SERVER_URL</code> to your tunnel HTTPS origin (no trailing slash), redeploy, or use
+        <code>?trail=https://….trycloudflare.com</code> · or once in the console:
         <code>localStorage.setItem('emota_trail_server','https://…'); location.reload()</code>
       </div>`
     : "";
