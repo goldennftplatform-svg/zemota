@@ -36,8 +36,9 @@ const ico = {
   quiz: `<svg class="dash-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 17h-2v-2h2v2zm2.7-7.3l-.9.9c-.5.5-.7 1.1-.7 1.7h-2c0-1.1.4-2.1 1.2-2.9l1.2-1.2c.4-.4.6-.9.6-1.4 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.2 1.8-4 4-4s4 1.8 4 4c0 .9-.4 1.7-1.3 2.6z"/></svg>`,
 };
 
-function tile(label: string, value: string, icon: string): string {
-  return `<div class="dash-tile"><span class="dash-tile__ico">${icon}</span><div class="dash-tile__meta"><span class="dash-tile__lab">${label}</span><span class="dash-tile__val">${value}</span></div></div>`;
+function tile(label: string, value: string, icon: string, prime = false): string {
+  const mod = prime ? " dash-tile--prime" : "";
+  return `<div class="dash-tile${mod}"><span class="dash-tile__ico">${icon}</span><div class="dash-tile__meta"><span class="dash-tile__lab">${label}</span><span class="dash-tile__val">${value}</span></div></div>`;
 }
 
 export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): string {
@@ -56,23 +57,43 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
     .join("");
 
   return `
-    <div class="dash-chip">${escapeHtml(chip)}</div>
-    <div class="dash-minimap-host">${minimap}</div>
-    <p class="dash-loc">${escapeHtml(s.landmark)}</p>
-    <div class="dash-grid">
-      ${tile("Day", `${s.day} / ${s.maxDays}`, ico.day)}
-      ${tile("Miles", `${Math.round(s.miles)} / ${s.totalMiles}`, ico.miles)}
-      ${tile("Cash", s.money, ico.money)}
-      ${tile("Food", `${s.food} lb`, ico.food)}
-      ${tile("Ammo", String(s.ammo), ico.ammo)}
-      ${tile("Oxen", String(s.oxen), ico.oxen)}
-      ${tile("Pace", s.pace, ico.pace)}
-      ${tile("Rations", s.rations, ico.food)}
-      ${tile("Party", `${s.alive}/${s.partyCap}`, ico.people)}
-      ${tile("Quiz ✓", String(s.triviaStreak), ico.quiz)}
+    <div class="dash-wrap">
+      <header class="dash-head">
+        <div class="dash-head__top">
+          <span class="dash-chip">${escapeHtml(chip)}</span>
+          <p class="dash-loc">${escapeHtml(s.landmark)}</p>
+        </div>
+        <div class="dash-minimap-host" aria-hidden="true">${minimap}</div>
+      </header>
+
+      <section class="dash-section" aria-label="Trail snapshot">
+        <h2 class="dash-section__title">Trail snapshot</h2>
+        <div class="dash-primary">
+          ${tile("Day", `${s.day} / ${s.maxDays}`, ico.day, true)}
+          ${tile("Miles", `${Math.round(s.miles)} / ${s.totalMiles}`, ico.miles, true)}
+          ${tile("Party", `${s.alive}/${s.partyCap}`, ico.people, true)}
+        </div>
+      </section>
+
+      <section class="dash-section" aria-label="Supplies and pace">
+        <h2 class="dash-section__title">Supplies &amp; pace</h2>
+        <div class="dash-grid">
+          ${tile("Cash", s.money, ico.money)}
+          ${tile("Food", `${s.food} lb`, ico.food)}
+          ${tile("Ammo", String(s.ammo), ico.ammo)}
+          ${tile("Oxen", String(s.oxen), ico.oxen)}
+          ${tile("Pace", s.pace, ico.pace)}
+          ${tile("Rations", s.rations, ico.food)}
+          ${tile("Quiz ✓", String(s.triviaStreak), ico.quiz)}
+        </div>
+      </section>
+
+      <p class="dash-profile">${escapeHtml(s.profileTitle)} · ${escapeHtml(s.spareParts)}</p>
+      <section class="dash-section dash-section--party" aria-label="Party health">
+        <h2 class="dash-section__title">Party</h2>
+        <div class="dash-party">${partyHtml}</div>
+      </section>
     </div>
-    <p class="dash-profile">${escapeHtml(s.profileTitle)} · ${escapeHtml(s.spareParts)}</p>
-    <div class="dash-party">${partyHtml}</div>
   `.trim();
 }
 

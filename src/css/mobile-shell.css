@@ -133,26 +133,55 @@ html.emota-mobile #land-view-canvas {
 html.emota-mobile .sidebar {
   border-radius: var(--mobile-panel-r);
   border-width: 3px;
-  padding: 0.6rem 0.55rem;
+  padding: 0.7rem 0.6rem;
   margin-top: 0;
-  max-height: min(38dvh, 20rem);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  max-height: none;
+  overflow: visible;
   box-shadow: 4px 4px 0 var(--shadow), var(--panel-inset), var(--mobile-glow);
 }
 
-html.emota-mobile .dash-grid {
+html.emota-mobile .dash-head__top {
+  gap: 0.45rem;
+}
+
+html.emota-mobile .dash-section__title {
+  font-size: clamp(0.48rem, 2.2vw, 0.55rem);
+  letter-spacing: 0.14em;
+}
+
+html.emota-mobile .dash-primary {
   gap: 0.4rem;
 }
 
-html.emota-mobile .dash-tile {
-  padding: 0.38rem 0.4rem;
-  min-height: 3rem;
-  border-radius: 8px;
+html.emota-mobile .dash-tile--prime {
+  min-height: 4.5rem;
+  padding: 0.6rem 0.4rem;
+}
+
+html.emota-mobile .dash-tile--prime .dash-tile__val {
+  font-size: 1.28rem;
+}
+
+html.emota-mobile .dash-grid {
+  gap: 0.45rem;
+}
+
+html.emota-mobile .dash-tile:not(.dash-tile--prime) {
+  padding: 0.45rem 0.5rem;
+  min-height: 3.1rem;
 }
 
 html.emota-mobile .dash-tile__val {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
+}
+
+html.emota-mobile .dash-profile {
+  font-size: 0.98rem;
+}
+
+html.emota-mobile .party-row {
+  min-height: 2.5rem;
+  font-size: 1rem;
 }
 
 html.emota-mobile .minimap-svg {
