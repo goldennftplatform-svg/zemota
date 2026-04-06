@@ -136,14 +136,22 @@
   box-sizing: border-box;
 }
 
+/* Mobile-first type scale; desktop at 800px+ */
 html {
-  font-size: 18px;
+  font-size: 17px;
+}
+
+@media (min-width: 800px) {
+  html {
+    font-size: 18px;
+  }
 }
 
 body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
+  min-height: -webkit-fill-available;
   overflow-x: clip;
   color-scheme: dark;
   background: var(--bg);
@@ -168,17 +176,28 @@ body {
 .app-layout {
   min-height: 100vh;
   min-height: 100dvh;
+  min-height: -webkit-fill-available;
   display: flex;
   flex-direction: column;
   position: relative;
-  max-width: 1100px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  /* Safe-area + horizontal gutter (mobile-shell was overridden here before) */
+  /* Safe-area + horizontal gutter */
   padding-top: max(0.35rem, env(safe-area-inset-top, 0px));
-  padding-left: max(clamp(0.65rem, 2vw, 1rem), env(safe-area-inset-left, 0px));
-  padding-right: max(clamp(0.65rem, 2vw, 1rem), env(safe-area-inset-right, 0px));
-  padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+  padding-left: max(0.55rem, env(safe-area-inset-left, 0px));
+  padding-right: max(0.55rem, env(safe-area-inset-right, 0px));
+  padding-bottom: max(0.65rem, env(safe-area-inset-bottom, 0px));
   image-rendering: pixelated;
+}
+
+@media (min-width: 800px) {
+  .app-layout {
+    max-width: 1100px;
+    padding-left: max(clamp(0.65rem, 2vw, 1rem), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(0.65rem, 2vw, 1rem), env(safe-area-inset-right, 0px));
+    padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .app-layout::before {
@@ -435,9 +454,11 @@ body {
   background: rgba(0, 10, 6, 0.35);
 }
 
+/* Mobile-first: story (main) first, dashboard (sidebar) below — DOM order aside,main is irrelevant */
 .app-body {
   display: grid;
   grid-template-columns: 1fr;
+  grid-template-areas: "main" "sidebar";
   gap: 0.65rem;
   flex: 1;
   min-height: 0;
@@ -448,17 +469,25 @@ body {
 @media (min-width: 800px) {
   .app-body:not(.app-body--solo) {
     grid-template-columns: minmax(220px, 260px) 1fr;
+    grid-template-areas: "sidebar main";
     align-items: start;
   }
 }
 
 .sidebar {
+  grid-area: sidebar;
   background: linear-gradient(180deg, var(--bg-tile-hi) 0%, var(--bg-panel) 45%, var(--bg-panel) 100%);
   border: 4px solid var(--border);
   padding: 0.55rem 0.5rem;
-  position: sticky;
-  top: 0.35rem;
+  position: static;
   box-shadow: 4px 4px 0 var(--shadow), var(--panel-inset), 0 0 28px rgba(0, 255, 119, 0.05);
+}
+
+@media (min-width: 800px) {
+  .sidebar {
+    position: sticky;
+    top: 0.35rem;
+  }
 }
 
 .sidebar[hidden] {
@@ -713,24 +742,41 @@ body {
 }
 
 .main-panel {
+  grid-area: main;
   min-width: 0;
 }
 
+/* Mobile-first screen: flexible height; desktop gets min bar */
 .screen {
   background: linear-gradient(175deg, var(--bg-tile-hi) 0%, var(--bg-panel) 22%, var(--bg-panel) 100%);
   border: 4px solid var(--border);
-  padding: 0.7rem 0.8rem;
-  min-height: 14rem;
+  padding: 0.75rem 0.65rem;
+  min-height: min(52dvh, 26rem);
   animation: screen-pulse 5s ease-in-out infinite;
+}
+
+@media (min-width: 800px) {
+  .screen {
+    padding: 0.7rem 0.8rem;
+    min-height: 14rem;
+  }
 }
 
 .screen .block {
   margin: 0 0 0.75rem;
-  font-size: 1.22rem;
-  line-height: 1.45;
+  font-size: 1.12rem;
+  line-height: 1.5;
   color: var(--text);
-  max-width: 48ch;
+  max-width: 100%;
   animation: phosphor-hum 5.5s ease-in-out infinite;
+}
+
+@media (min-width: 800px) {
+  .screen .block {
+    font-size: 1.22rem;
+    line-height: 1.45;
+    max-width: 48ch;
+  }
 }
 
 .screen .choices {
@@ -739,7 +785,7 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
+  gap: 0.4rem;
 }
 
 .screen .choices li {
@@ -747,13 +793,28 @@ body {
   align-items: center;
   gap: 0.45rem;
   cursor: pointer;
-  padding: 0.42rem 0.48rem;
+  min-height: 2.85rem;
+  padding: 0.55rem 0.6rem;
   border: 3px solid var(--border);
   background: linear-gradient(180deg, var(--bg-tile-hi) 0%, var(--bg-tile) 100%);
-  font-size: 1.12rem;
+  font-size: 1.08rem;
   box-shadow: 3px 3px 0 var(--shadow), inset 0 1px 0 rgba(0, 255, 119, 0.07);
   transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease,
     background 0.14s ease, color 0.14s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 255, 119, 0.12);
+}
+
+@media (min-width: 800px) {
+  .screen .choices {
+    gap: 0.28rem;
+  }
+
+  .screen .choices li {
+    min-height: unset;
+    padding: 0.42rem 0.48rem;
+    font-size: 1.12rem;
+  }
 }
 
 .screen .choices li:hover,
@@ -868,6 +929,7 @@ body {
 
 .app-layout.is-title .app-body {
   grid-template-columns: 1fr;
+  grid-template-areas: "main";
 }
 
 .app-layout.is-title .sidebar {
