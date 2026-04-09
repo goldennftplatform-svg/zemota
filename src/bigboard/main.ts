@@ -48,8 +48,11 @@ function wagonPosition(miles: number): { left: string; top: string } {
   return { left: `${left}%`, top: `${top}%` };
 }
 
+type ScoreRow = { name: string; score: number; at: string };
+
 let peers: TrailPeer[] = [];
 let feed: TrailFeedEvent[] = [];
+let scoreRows: ScoreRow[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
 let connState: "ok" | "warn" | "bad" = "warn";
 let lastSocketError = "";
@@ -159,6 +162,22 @@ function render(): void {
     ? `<div class="bb-join-banner" role="status">${escapeHtml(joinToast)}</div>`
     : "";
 
+  const top = scoreRows[0];
+  const boardHighHtml = top
+    ? `<div class="bb-high__num">${escapeHtml(String(top.score))}</div>
+       <div class="bb-high__who">${escapeHtml(top.name)}</div>`
+    : `<div class="bb-high__empty">—</div>`;
+  const boardRunners =
+    scoreRows.length > 1
+      ? scoreRows
+          .slice(1, 6)
+          .map(
+            (r, i) =>
+              `<div class="bb-high__row"><span>${i + 2}.</span><span>${escapeHtml(r.name)}</span><span>${escapeHtml(String(r.score))}</span></div>`,
+          )
+          .join("")
+      : "";
+
   app.innerHTML = `
     <div class="bb-root">
       <div class="bb-vignette" aria-hidden="true"></div>
@@ -170,6 +189,11 @@ function render(): void {
             <div class="bb-brand__title">EMOTA · LIVE TRAIL</div>
             <div class="bb-brand__sub">Oregon Trail · classroom · projector wall</div>
           </div>
+        </div>
+        <div class="bb-high" aria-label="Server leaderboard high score">
+          <div class="bb-high__label">// SERVER HIGH</div>
+          ${boardHighHtml}
+          ${boardRunners ? `<div class="bb-high__list">${boardRunners}</div>` : ""}
         </div>
         <div class="bb-live ${connClass}">
           <span class="bb-live__dot" aria-hidden="true"></span>
@@ -340,5 +364,20 @@ void resolveTrailOrigin().then((bbOrigin) => {
   socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
     if (!ev?.id) return;
     prependFeed(ev);
+  });
+
+  socket.on("scores:list", (list: unknown) => {
+    const rows = Array.isArray(list) ? list : [];
+    scoreRows = rows
+      .map((r) => {
+        const o = r as Record<string, unknown>;
+        const name = String(o?.name ?? "").slice(0, 40);
+        const score = Number(o?.score);
+        const at = String(o?.at ?? "");
+        if (!name || !Number.isFinite(score)) return null;
+        return { name, score, at };
+      })
+      .filter((x): x is ScoreRow => x != null);
+    render();
   });
 });

@@ -5,9 +5,14 @@ import { MULTIPLAYER_CAP } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
 import { TrailMultiplayer, getDisplayName } from "./net/multiplayer";
-import type { TrailPeer } from "./net/trailProtocol";
+import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
-import { buildDashboardSidebar, choiceLeadingIcon, trailPhaseLabel } from "./ui/dashboard";
+import {
+  buildDashboardSidebar,
+  buildTravelMenuMobileHud,
+  choiceLeadingIcon,
+  trailPhaseLabel,
+} from "./ui/dashboard";
 import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
 import {
   clearRunSave,
@@ -17,6 +22,26 @@ import {
 } from "./game/runSave";
 
 initMobileShellClass();
+
+declare global {
+  interface Window {
+    /** Playwright / load tests — push fake miles + scores onto the trail socket. */
+    __emotaTrailStress?: {
+      applySimulationStep: (o: {
+        miles: number;
+        day: number;
+        phase?: string;
+        landmark?: string;
+        alive?: number;
+        partyCap?: number;
+        profileTitle?: string;
+        party?: TrailPeerPartyRow[];
+      }) => void;
+      submitScore: (name: string, score: number) => void;
+      emitTrailFeed: (kind: string, text: string, miles?: number, day?: number) => void;
+    };
+  }
+}
 
 const HS_KEY = "emota_high_scores";
 
@@ -81,6 +106,7 @@ const hintEl = document.getElementById("hint-text")!;
 const stripEl = document.getElementById("multiplayer-strip")!;
 const peerSheetEl = document.getElementById("mp-peer-sheet")!;
 const sidebarEl = document.getElementById("sidebar")!;
+const travelMenuHudEl = document.getElementById("travel-menu-mobile-hud")!;
 const canvas = document.getElementById("overhead") as HTMLCanvasElement;
 const popupRoot = document.getElementById("emota-popups")!;
 const landSlot = document.getElementById("land-view-slot")!;
@@ -327,6 +353,25 @@ const mp = new TrailMultiplayer(
 
 void mp.connect();
 
+window.__emotaTrailStress = {
+  applySimulationStep: (o) => {
+    mp.updateProgress(o.miles, o.day, {
+      phase: o.phase ?? "travel_menu",
+      landmark: o.landmark ?? "",
+      alive: o.alive,
+      partyCap: o.partyCap,
+      profileTitle: o.profileTitle ?? "",
+      party: o.party,
+    });
+  },
+  submitScore: (name, score) => {
+    mp.submitScore(name, score, { stress: true });
+  },
+  emitTrailFeed: (kind, text, miles, day) => {
+    mp.emitTrailEvent({ kind, text, miles, day });
+  },
+};
+
 stripEl.addEventListener("click", (e) => {
   const btn = (e.target as HTMLElement).closest(".mp-chip");
   if (!btn) return;
@@ -401,10 +446,23 @@ function render(): void {
   if (isTitle) {
     sidebarEl.hidden = true;
     landSlot.hidden = true;
+    travelMenuHudEl.hidden = true;
+    travelMenuHudEl.innerHTML = "";
   } else {
     sidebarEl.hidden = false;
     sidebarEl.innerHTML = buildDashboardSidebar(engine.getDashboardSnapshot(), sc.phase);
     landSlot.hidden = false;
+    const showTravelHud =
+      sc.phase === "travel_menu" &&
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 799px)").matches;
+    if (showTravelHud) {
+      travelMenuHudEl.hidden = false;
+      travelMenuHudEl.innerHTML = buildTravelMenuMobileHud(engine.getDashboardSnapshot());
+    } else {
+      travelMenuHudEl.hidden = true;
+      travelMenuHudEl.innerHTML = "";
+    }
     const landState: LandViewState = {
       miles: engine.miles,
       day: engine.day,
