@@ -18,6 +18,7 @@
 
     <header class="app-header">
       <div class="app-header__inner">
+        <div class="app-header__row">
         <div class="app-brand">
           <div class="app-brand__seal" role="img" aria-label="Stylized Ezra Meeker portrait mark">
             <img
@@ -38,11 +39,14 @@
             <p class="app-brand__tagline">8-bit classroom terminal — wagon days to hop-king Puyallup</p>
           </div>
         </div>
+        <div id="today-high-score" class="today-high-score" role="status" aria-live="polite" hidden></div>
+        </div>
       </div>
       <div class="app-header__glow" aria-hidden="true"></div>
     </header>
 
-    <div id="multiplayer-strip" class="mp-strip" hidden></div>
+    <div id="multiplayer-strip" class="mp-strip" hidden role="group" aria-label="Travelers on trail server"></div>
+    <div id="mp-peer-sheet" class="mp-peer-sheet" hidden aria-hidden="true"></div>
 
     <section id="land-view-slot" class="land-view-slot" hidden aria-label="Trail vista ahead">
       <div class="land-view-frame">

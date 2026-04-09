@@ -1,12 +1,30 @@
 import { io, type Socket } from "socket.io-client";
 import { MULTIPLAYER_CAP } from "../game/config";
-import type { TrailFeedEvent, TrailPeer } from "./trailProtocol";
+import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
 import { resolveTrailOrigin } from "./socketUrl";
 
-export type { TrailPeer, TrailFeedEvent };
+export type { TrailPeer, TrailFeedEvent, TrailPeerPartyRow };
 
 const LS_NAME = "emota_display_name";
+const LS_CLIENT = "emota_trail_client_id";
+
+/** Stable id across refreshes so the trail server can drop duplicate ghost peers. */
+export function getTrailClientId(): string {
+  try {
+    let id = localStorage.getItem(LS_CLIENT);
+    if (!id || id.length < 8) {
+      id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+      localStorage.setItem(LS_CLIENT, id);
+    }
+    return id.slice(0, 36);
+  } catch {
+    return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  }
+}
 
 export function getDisplayName(): string {
   return (
@@ -23,6 +41,9 @@ export interface TrailUpdateExtras {
   alive?: number;
   landmark?: string;
   phase?: string;
+  partyCap?: number;
+  profileTitle?: string;
+  party?: TrailPeerPartyRow[];
 }
 
 export class TrailMultiplayer {
@@ -56,7 +77,7 @@ export class TrailMultiplayer {
 
     s.on("connect", () => {
       this.onStatus("Trail room connected (max " + MULTIPLAYER_CAP + " players).");
-      s.emit("trail:hello", { displayName: getDisplayName() });
+      s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
     });
 
     s.on("trail:room", (peers: TrailPeer[]) => this.onPeers(peers ?? []));

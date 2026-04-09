@@ -23,6 +23,11 @@ const PHASE_LABEL: Record<string, string> = {
   victory: "Score",
 };
 
+/** Readable phase for trail room / multiplayer UI. */
+export function trailPhaseLabel(phase: string): string {
+  return PHASE_LABEL[phase] ?? phase.replace(/_/g, " ");
+}
+
 /** Inline SVG icons (24×24 viewBox). */
 const ico = {
   day: `<svg class="dash-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm11 8H6v10h12V10z"/></svg>`,

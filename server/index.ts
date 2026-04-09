@@ -4,7 +4,8 @@ import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import type { TrailFeedEvent, TrailPeer } from "../src/net/trailProtocol";
-import { MULTIPLAYER_CAP } from "../src/game/config";
+import { MAX_PARTY, MULTIPLAYER_CAP } from "../src/game/config";
+import type { TrailPeerPartyRow } from "../src/net/trailProtocol";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,7 +27,27 @@ type Peer = {
   alive?: number;
   landmark?: string;
   phase?: string;
+  partyCap?: number;
+  profileTitle?: string;
+  party?: TrailPeerPartyRow[];
+  /** Same browser profile across refresh — dedupe before adding a new socket. */
+  clientId: string;
 };
+
+function sanitizePartyRows(raw: unknown): TrailPeerPartyRow[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const out: TrailPeerPartyRow[] = [];
+  for (const row of raw.slice(0, MAX_PARTY)) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    out.push({
+      name: String(r.name ?? "").slice(0, 48),
+      health: Math.max(0, Math.min(100, Math.floor(Number(r.health) || 0))),
+      alive: Boolean(r.alive),
+    });
+  }
+  return out;
+}
 const peers = new Map<string, Peer>();
 
 type ScoreRow = { name: string; score: number; at: string; meta?: unknown };
@@ -44,7 +65,16 @@ function roomSnapshotList(): TrailPeer[] {
     alive: v.alive,
     landmark: v.landmark,
     phase: v.phase,
+    partyCap: v.partyCap,
+    profileTitle: v.profileTitle,
+    party: v.party,
   }));
+}
+
+function removePeersWithClientId(clientId: string): void {
+  for (const [sid, peer] of [...peers.entries()]) {
+    if (peer.clientId === clientId) peers.delete(sid);
+  }
 }
 
 function broadcastRoom(): void {
@@ -70,14 +100,16 @@ io.on("connection", (socket) => {
   /** So bigboard / late clients see wagons already on the trail */
   socket.emit("trail:room", roomSnapshotList());
 
-  socket.on("trail:hello", (payload: { displayName?: string }) => {
+  socket.on("trail:hello", (payload: { displayName?: string; clientId?: string }) => {
+    const displayName = String(payload?.displayName ?? "Traveler").slice(0, 24);
+    const clientId = String(payload?.clientId ?? socket.id).slice(0, 36) || socket.id;
+    removePeersWithClientId(clientId);
     if (peers.size >= MULTIPLAYER_CAP) {
       socket.emit("trail:error", { message: `Room full (${MULTIPLAYER_CAP} travelers max).` });
       socket.disconnect(true);
       return;
     }
-    const displayName = String(payload?.displayName ?? "Traveler").slice(0, 24);
-    peers.set(socket.id, { displayName, miles: 0, day: 1 });
+    peers.set(socket.id, { displayName, miles: 0, day: 1, clientId });
     broadcastRoom();
   });
 
@@ -90,6 +122,9 @@ io.on("connection", (socket) => {
       alive?: number;
       landmark?: string;
       phase?: string;
+      partyCap?: number;
+      profileTitle?: string;
+      party?: unknown;
     }) => {
       const p = peers.get(socket.id);
       if (!p) return;
@@ -102,6 +137,15 @@ io.on("connection", (socket) => {
       if (payload.landmark !== undefined)
         p.landmark = String(payload.landmark ?? "").slice(0, 80);
       if (payload.phase !== undefined) p.phase = String(payload.phase ?? "").slice(0, 40);
+      if (typeof payload.partyCap === "number" && Number.isFinite(payload.partyCap)) {
+        p.partyCap = Math.max(1, Math.min(10, Math.floor(payload.partyCap)));
+      }
+      if (payload.profileTitle !== undefined)
+        p.profileTitle = String(payload.profileTitle ?? "").slice(0, 48);
+      if (payload.party !== undefined) {
+        const rows = sanitizePartyRows(payload.party);
+        p.party = rows && rows.length > 0 ? rows : [];
+      }
       broadcastRoom();
     },
   );
