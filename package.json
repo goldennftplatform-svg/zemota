@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,7 +17,8 @@
     "live:build": "npm run build && npm run live",
     "live:dev": "concurrently -k -n server,vite,tunnel -c blue,green,magenta \"npm run server\" \"npm run dev\" \"node scripts/run-quick-tunnel.mjs\"",
     "dev:stack": "npm run live:dev",
-    "test:stress": "playwright test tests/stress/instances.spec.ts"
+    "test:stress": "playwright test tests/stress/instances.spec.ts -g \"gameplay\"",
+    "test:stress:hammer": "playwright test tests/stress/instances.spec.ts -g \"hammer:\""
   },
   "dependencies": {
     "express": "^4.21.2",

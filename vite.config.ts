@@ -16,26 +16,26 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-  root: ".",
-  publicDir: "public",
-  build: {
-    outDir: "dist",
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, "index.html"),
-        bigboard: path.resolve(__dirname, "bigboard.html"),
+    root: ".",
+    publicDir: "public",
+    build: {
+      outDir: "dist",
+      sourcemap: true,
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, "index.html"),
+          bigboard: path.resolve(__dirname, "bigboard.html"),
+        },
       },
     },
-  },
-  server: {
-    port: 5173,
-    proxy: {
-      "/socket.io": {
-        target: "http://127.0.0.1:3333",
-        ws: true,
+    server: {
+      port: 5173,
+      proxy: {
+        "/socket.io": {
+          target: "http://127.0.0.1:3333",
+          ws: true,
+        },
       },
     },
-  },
-};
+  };
 });
