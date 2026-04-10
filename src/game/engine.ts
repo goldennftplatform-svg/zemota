@@ -346,6 +346,7 @@ export class GameEngine {
           lines: [
             "Party of 5 — comma-separated first names.",
             "A period suggestion is filled in; edit or replace, then press Enter.",
+            "After Enter: you’ll choose a leader’s job, then the general store, then the open trail.",
           ],
           coach: "Click the box (or Tab to it), type names separated by commas, then Enter. Five travelers will fill in automatically.",
           inputLine: {
@@ -354,21 +355,32 @@ export class GameEngine {
           },
         };
 
-      case "profile":
+      case "profile": {
+        const roster = this.party.map((p) => p.name).join(" · ");
         return {
           phase: "profile",
           lines: [
+            "Names locked in — here’s your company:",
+            roster,
+            "",
+            "What to do next (keys 1–9 or tap a line):",
+            "• Now: choose a leader’s job from the list below (starting cash & store prices).",
+            "• Next screen: general store — buy gear, then 7 Leave.",
+            "• Then: trail camp — Travel spends a day; Rest recovers; Hunt / games optional.",
+            "",
             "Lead profession (affects prices, risk, foraging).",
             ...PROFILE_ORDER.map(
               (id, i) => `${i + 1}. ${PROFILES[id].title} · ${formatMoney(PROFILES[id].startCashCents)}`,
             ),
           ],
-          coach: "Each job tweaks the store — there’s no wrong pick. Choose a number (or tap a line) that fits your story.",
+          coach:
+            "Press the number for one job (or tap that line). Next screen is the store — stock up, then 7 Leave to reach the trail.",
           choices: PROFILE_ORDER.map((id, i) => ({
             n: i + 1,
             text: `${PROFILES[id].title} · ${formatMoney(PROFILES[id].startCashCents)}`,
           })),
         };
+      }
 
       case "store": {
         const ideal = idealOutfitCostCents(this.profile);

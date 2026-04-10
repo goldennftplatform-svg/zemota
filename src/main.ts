@@ -54,7 +54,7 @@ const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
   training_text: "No timer — Next or 1 when you’re ready.",
   training_quiz: "Warm-up quiz; any pick advances.",
   party_names: "Names + Enter, or tap the field first.",
-  profile: "One number picks your job.",
+  profile: "Pick your leader’s job: 1–5 or tap a line → then store → 7 Leave → trail.",
   store: "Buy with 1–6, then 7 Leave — watch the sidebar.",
   travel_menu: "Camp hub: Travel, Rest, Hunt, Games…",
 };

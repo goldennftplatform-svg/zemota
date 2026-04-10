@@ -30,6 +30,9 @@
  * Hammer also calls `window.__emotaTrailStress` every few steps so wagons **move**, the **signal feed**
  * gets milestones, and **scores:submit** fills the bigboard **SERVER HIGH** panel (needs deployed build
  * with this hook — local `npm run build` + `npm run server` for smoke).
+ *
+ * If the test throws "Stress hook missing", your `PLAYWRIGHT_BASE_URL` site is still serving an old
+ * `main` bundle — redeploy, hard-refresh, or run `npm run preview` locally with `PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173`.
  */
 
 import { test, expect, type Browser, type Page } from "@playwright/test";
@@ -220,7 +223,19 @@ async function runOneInstance(
   const entry = buildGameEntryUrl(baseURL);
   await page.goto(entry, { waitUntil: "domcontentloaded" });
   if (simulateTrail) {
-    await page.waitForTimeout(1600);
+    await page
+      .waitForFunction(
+        () =>
+          typeof (window as unknown as { __emotaTrailStress?: { applySimulationStep?: unknown } })
+            .__emotaTrailStress?.applySimulationStep === "function",
+        { timeout: 25_000 },
+      )
+      .catch(() => {
+        throw new Error(
+          "Stress hook missing: deploy a build that includes window.__emotaTrailStress (see src/main.ts), or you opened an old cached bundle.",
+        );
+      });
+    await page.waitForTimeout(600);
   }
 
   let steps = 0;
