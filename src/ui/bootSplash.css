@@ -1,10 +1,14 @@
 /* Full-viewport boot — ASCII logo + phosphor bar (above title choices) */
 
+.emota-boot--intro {
+  cursor: wait;
+}
+
 .emota-boot {
   position: fixed;
   inset: 0;
   z-index: 100000;
-  cursor: pointer;
+  cursor: default;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,6 +164,75 @@
   opacity: 0.85;
 }
 
+.emota-boot__hint--cta {
+  margin-top: 0.55rem;
+  font-size: clamp(0.78rem, 1.75vw, 0.92rem);
+  opacity: 0.65;
+}
+
+.emota-boot__cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: min(22rem, 92vw);
+  margin: 1rem auto 0;
+  padding: 0.85rem 1rem 0.95rem;
+  cursor: pointer;
+  font-family: var(--font-head);
+  color: var(--shadow-deep);
+  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 38%, #00aa55 100%);
+  border: 3px solid var(--border-hi);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 4px 0 var(--shadow), 0 0 28px rgba(57, 255, 122, 0.35);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: emota-boot-cta-pulse 1.8s ease-in-out infinite;
+}
+
+.emota-boot__cta:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.emota-boot__cta:focus {
+  outline: 3px solid var(--hi);
+  outline-offset: 3px;
+}
+
+.emota-boot__cta:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.emota-boot__cta:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4), 0 2px 0 var(--shadow);
+}
+
+.emota-boot__cta-main {
+  font-size: clamp(0.42rem, min(1.35vw, 2.2vh), 0.62rem);
+  letter-spacing: 0.1em;
+  line-height: 1.35;
+}
+
+.emota-boot__cta-sub {
+  font-family: var(--font);
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  letter-spacing: 0.06em;
+  opacity: 0.88;
+}
+
+@keyframes emota-boot-cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 4px 0 var(--shadow), 0 0 22px rgba(57, 255, 122, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 4px 0 var(--shadow), 0 0 36px rgba(143, 255, 170, 0.45);
+  }
+}
+
 .emota-boot.emota-boot--exit {
   pointer-events: none;
   animation: emota-boot-fade 0.65s ease forwards;
@@ -176,7 +249,8 @@
   .emota-boot__scan,
   .emota-boot__ascii,
   .emota-boot__bar,
-  .emota-boot__status {
+  .emota-boot__status,
+  .emota-boot__cta {
     animation: none !important;
   }
   .emota-boot.emota-boot--exit {

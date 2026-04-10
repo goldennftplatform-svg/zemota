@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div id="emota-boot" class="emota-boot" aria-busy="true" aria-live="polite">
+  <div id="emota-boot" class="emota-boot emota-boot--intro" aria-busy="true" aria-live="polite">
     <div class="emota-boot__scan" aria-hidden="true"></div>
     <div class="emota-boot__vignette" aria-hidden="true"></div>
     <div class="emota-boot__inner">
@@ -23,7 +23,14 @@
         <p class="emota-boot__tag">8-bit classroom terminal — wagon days to hop country</p>
         <div class="emota-boot__bar-wrap" aria-hidden="true"><div class="emota-boot__bar"></div></div>
         <p class="emota-boot__status">Booting…</p>
-        <p class="emota-boot__hint">Tap / click / Space / Enter to skip · title menu is next.</p>
+        <p class="emota-boot__hint emota-boot__hint--wait">Preparing the trailhead…</p>
+        <button type="button" class="emota-boot__cta" id="emota-boot-cta" hidden>
+          <span class="emota-boot__cta-main">ENTER · THE TRAIL</span>
+          <span class="emota-boot__cta-sub">Click to open the title menu</span>
+        </button>
+        <p class="emota-boot__hint emota-boot__hint--cta" hidden>
+          Keyboard: keep focus on the button — Enter or Space also enters.
+        </p>
       </div>
     </div>
   </div>

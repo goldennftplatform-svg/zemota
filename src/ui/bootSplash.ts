@@ -1,13 +1,13 @@
-import { BOOT_SPLASH_MIN_MS } from "../game/config";
+import { BOOT_LANDING_INTRO_MS } from "../game/config";
 import "./bootSplash.css";
 
-function bootMinMs(): number {
+function bootIntroMs(): number {
   try {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 280;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 240;
   } catch {
     /* ignore */
   }
-  return BOOT_SPLASH_MIN_MS;
+  return BOOT_LANDING_INTRO_MS;
 }
 
 /** Block-letter EMOTA (UTF-8 box drawing); monospace in CSS */
@@ -40,25 +40,31 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-function waitForSkip(el: HTMLElement, signal: AbortSignal): Promise<void> {
+/** Resolves when the player activates the landing CTA (click or keyboard on button). */
+function waitForLandingContinue(cta: HTMLButtonElement, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
-    const done = () => resolve();
-    const onKeyCap = (e: KeyboardEvent) => {
-      if (e.key === " " || e.key === "Enter") {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        done();
-      }
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
     };
-    el.addEventListener("click", done, { once: true, signal });
-    document.addEventListener("keydown", onKeyCap, { capture: true, signal });
-    signal.addEventListener("abort", () => resolve(), { once: true });
+    cta.addEventListener("click", finish, { once: true, signal });
+    cta.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          finish();
+        }
+      },
+      { signal },
+    );
   });
 }
 
 /**
- * Blocks until fonts + minimum dwell, then animates the boot layer away.
- * Title `render()` should run after this resolves.
+ * Full-screen landing: short CRT intro, then **click required** to reach the title menu.
  */
 export async function runBootSplash(): Promise<void> {
   const el = document.getElementById("emota-boot");
@@ -74,6 +80,14 @@ export async function runBootSplash(): Promise<void> {
 
   const statusEl = el.querySelector<HTMLElement>(".emota-boot__status");
   const bar = el.querySelector<HTMLElement>(".emota-boot__bar");
+  const cta = el.querySelector<HTMLButtonElement>("#emota-boot-cta");
+  const hintWait = el.querySelector<HTMLElement>(".emota-boot__hint--wait");
+  const hintCta = el.querySelector<HTMLElement>(".emota-boot__hint--cta");
+
+  if (!cta) {
+    el.remove();
+    return;
+  }
 
   let i = 0;
   const tick = window.setInterval(() => {
@@ -81,29 +95,34 @@ export async function runBootSplash(): Promise<void> {
     i++;
   }, 440);
 
-  const skipAc = new AbortController();
-  const t0 = performance.now();
   const fonts = document.fonts?.ready?.catch(() => undefined) ?? Promise.resolve();
-  const minWait = (async () => {
-    await fonts;
-    const minMs = bootMinMs();
-    const elapsed = performance.now() - t0;
-    const rest = Math.max(0, minMs - elapsed);
-    await wait(rest);
-  })();
-  await Promise.race([minWait, waitForSkip(el, skipAc.signal)]);
-  skipAc.abort();
+  await fonts;
+
+  const introMs = bootIntroMs();
+  await wait(introMs);
 
   window.clearInterval(tick);
-  el.classList.add("emota-boot--finishing");
-  if (bar) bar.style.width = "100%";
+  el.classList.remove("emota-boot--intro");
+  if (bar) {
+    bar.style.width = "100%";
+  }
   if (statusEl) {
-    statusEl.textContent = "Ready — keys 1–9 or click the list to play.";
+    statusEl.textContent = "Jump-off ready.";
     statusEl.style.animation = "none";
   }
+  if (hintWait) hintWait.hidden = true;
+  cta.hidden = false;
+  if (hintCta) hintCta.hidden = false;
 
-  await wait(320);
   el.setAttribute("aria-busy", "false");
+  cta.focus({ preventScroll: true });
+
+  const continueAc = new AbortController();
+  await waitForLandingContinue(cta, continueAc.signal);
+  continueAc.abort();
+
+  el.classList.add("emota-boot--finishing");
+  await wait(200);
   el.classList.add("emota-boot--exit");
 
   await Promise.race([
