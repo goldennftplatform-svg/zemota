@@ -28,6 +28,37 @@ export function trailPhaseLabel(phase: string): string {
   return PHASE_LABEL[phase] ?? phase.replace(/_/g, " ");
 }
 
+/** Compact crew + pace/rations readout for mobile camp menu (above “What next?”). */
+export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
+  const crew = s.party
+    .map((p) => {
+      const pct = p.alive ? Math.max(4, p.health) : 0;
+      const st = p.alive ? "alive" : "gone";
+      const rawShort = p.name.length > 10 ? `${p.name.slice(0, 9)}…` : p.name;
+      return `<div class="tmh-member tmh-member--${st}" title="${escapeAttr(p.name)}">
+        <span class="tmh-member__name">${escapeHtml(rawShort)}</span>
+        <span class="tmh-member__bar" role="presentation"><i style="width:${pct}%"></i></span>
+      </div>`;
+    })
+    .join("");
+
+  return `
+    <div class="tmh-inner" role="region" aria-label="Camp status">
+      <p class="tmh-title">Wagon status</p>
+      <div class="tmh-grid">
+        <div class="tmh-stat"><span class="tmh-k">Pace</span><span class="tmh-v">${escapeHtml(s.pace)}</span></div>
+        <div class="tmh-stat"><span class="tmh-k">Rations</span><span class="tmh-v">${escapeHtml(s.rations)}</span></div>
+        <div class="tmh-stat"><span class="tmh-k">Food</span><span class="tmh-v">${s.food} lb</span></div>
+        <div class="tmh-stat"><span class="tmh-k">Ammo</span><span class="tmh-v">${escapeHtml(String(s.ammo))}</span></div>
+        <div class="tmh-stat"><span class="tmh-k">Day</span><span class="tmh-v">${s.day}/${s.maxDays}</span></div>
+        <div class="tmh-stat"><span class="tmh-k">Party</span><span class="tmh-v">${s.alive}/${s.partyCap}</span></div>
+      </div>
+      <p class="tmh-crew-label">Crew</p>
+      <div class="tmh-crew">${crew}</div>
+    </div>
+  `.trim();
+}
+
 /** Inline SVG icons (24×24 viewBox). */
 const ico = {
   day: `<svg class="dash-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm11 8H6v10h12V10z"/></svg>`,
