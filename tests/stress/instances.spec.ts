@@ -33,10 +33,14 @@
  *
  * If the test throws "Stress hook missing", your `PLAYWRIGHT_BASE_URL` site is still serving an old
  * `main` bundle — redeploy, hard-refresh, or run `npm run preview` locally with `PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173`.
+ *
+ * ### Event simulation (30–100 “players” on the wall)
+ *   `STRESS_INSTANCES` is capped by `MULTIPLAYER_CAP` in `src/game/config.ts` (100).
+ *   Example: `STRESS_INSTANCES=80 npm run test:stress:event` (same as hammer; alias for clarity).
  */
 
 import { test, expect, type Browser, type Page } from "@playwright/test";
-import { TOTAL_TRAIL_MILES } from "../../src/game/config";
+import { MULTIPLAYER_CAP, TOTAL_TRAIL_MILES } from "../../src/game/config";
 
 const DEFAULT_GAMEPLAY_INSTANCES = 30;
 const DEFAULT_HAMMER_INSTANCES = 50;
@@ -52,12 +56,12 @@ function stressHoldOpenMs(): number {
 
 function gameplayInstanceCount(): number {
   const n = parseInt(process.env.STRESS_INSTANCES ?? String(DEFAULT_GAMEPLAY_INSTANCES), 10);
-  return Number.isFinite(n) && n >= 1 ? Math.min(80, n) : DEFAULT_GAMEPLAY_INSTANCES;
+  return Number.isFinite(n) && n >= 1 ? Math.min(MULTIPLAYER_CAP, n) : DEFAULT_GAMEPLAY_INSTANCES;
 }
 
 function hammerInstanceCount(): number {
   const n = parseInt(process.env.STRESS_INSTANCES ?? String(DEFAULT_HAMMER_INSTANCES), 10);
-  return Number.isFinite(n) && n >= 1 ? Math.min(80, n) : DEFAULT_HAMMER_INSTANCES;
+  return Number.isFinite(n) && n >= 1 ? Math.min(MULTIPLAYER_CAP, n) : DEFAULT_HAMMER_INSTANCES;
 }
 
 /** Game page URL; adds `trail` query when PLAYWRIGHT_TRAIL_ORIGIN / EMOTA_STRESS_TRAIL is set. */
@@ -122,7 +126,7 @@ async function stressSimulateTrailPulse(page: Page, index: number, steps: number
   const alive = Math.max(1, 5 - Math.floor((steps / 180 + index) % 4));
   const phase = steps % 110 < 55 ? "travel_menu" : "trail_event";
   const botName = `Stress-${String(1000 + index).slice(-4)}`;
-  const doScore = steps % 95 === 0;
+  const doScore = steps === 9 || steps % 28 === 0;
   const doFeed = steps % 48 === 0;
   await page.evaluate(
     ({
@@ -330,6 +334,44 @@ async function runOneInstance(
   return { steps, reason };
 }
 
+/** Shared trail-room flood for hammer + event tests (bigboard + leaderboard). */
+async function runTrailEventHammer(browser: Browser, baseURL: string | undefined): Promise<void> {
+  const trail =
+    process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim() || process.env.EMOTA_STRESS_TRAIL?.trim();
+  test.skip(!trail, "Set PLAYWRIGHT_TRAIL_ORIGIN (or EMOTA_STRESS_TRAIL) to your live trail server origin.");
+
+  expect(browser).toBeTruthy();
+  const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173";
+  const count = hammerInstanceCount();
+
+  const holdMs = stressHoldOpenMs();
+  console.log(
+    `Event / hammer: ${count} concurrent travelers (cap ${MULTIPLAYER_CAP}) → ${origin} ?trail=${trail}`,
+  );
+  console.log(
+    `Step ${STEP_HAMMER_MS}ms (STRESS_STEP_MS); hold +${holdMs}ms (STRESS_HOLD_MS). Scores pulse often → bigboard TRAIL LEADERBOARD fills. No early quit on game over.`,
+  );
+
+  const results = await Promise.all(
+    Array.from({ length: count }, (_, i) =>
+      runOneInstance(browser!, origin, i + 100, {
+        maxSteps: MAX_STEPS_HAMMER,
+        stepMs: STEP_HAMMER_MS,
+        quitOnGameOver: false,
+        holdOpenMs: holdMs,
+        simulateTrail: true,
+      }),
+    ),
+  );
+
+  const summary = results.map((r, i) => `bot ${i + 1}: ${r.reason} (${r.steps} steps)`).join("\n");
+  console.log(summary);
+
+  expect(results.length).toBe(count);
+  const anyProgress = results.filter((r) => r.steps > 8).length;
+  console.log(`Bots with >8 steps: ${anyProgress}/${count}`);
+}
+
 test.describe("LAN-scale stress (gameplay)", () => {
   test("contexts auto-play until heavy losses or wipeout", async ({ browser, baseURL }) => {
     expect(browser).toBeTruthy();
@@ -364,40 +406,15 @@ test.describe("LAN-scale stress (gameplay)", () => {
   });
 });
 
-test.describe("Live trail server hammer", () => {
+test.describe("Live trail server hammer (event simulation)", () => {
   test("hammer: flood Socket.IO + bigboard with N wagons", async ({ browser, baseURL }) => {
-    const trail =
-      process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim() || process.env.EMOTA_STRESS_TRAIL?.trim();
-    test.skip(!trail, "Set PLAYWRIGHT_TRAIL_ORIGIN (or EMOTA_STRESS_TRAIL) to your live trail server origin.");
+    await runTrailEventHammer(browser!, baseURL);
+  });
 
-    expect(browser).toBeTruthy();
-    const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173";
-    const count = hammerInstanceCount();
-
-    const holdMs = stressHoldOpenMs();
-    console.log(`Hammer: ${count} contexts → game ${origin} with ?trail=${trail}`);
-    console.log(
-      `Step delay ${STEP_HAMMER_MS}ms (STRESS_STEP_MS); hold +${holdMs}ms after loop (STRESS_HOLD_MS). Trail sim + scores → bigboard SERVER HIGH. No early quit on game over.`,
-    );
-
-    const results = await Promise.all(
-      Array.from({ length: count }, (_, i) =>
-        runOneInstance(browser!, origin, i + 100, {
-          maxSteps: MAX_STEPS_HAMMER,
-          stepMs: STEP_HAMMER_MS,
-          quitOnGameOver: false,
-          holdOpenMs: holdMs,
-          simulateTrail: true,
-        }),
-      ),
-    );
-
-    const summary = results.map((r, i) => `bot ${i + 1}: ${r.reason} (${r.steps} steps)`).join("\n");
-    console.log(summary);
-
-    // Load test: we only require the swarm finished without throwing.
-    expect(results.length).toBe(count);
-    const anyProgress = results.filter((r) => r.steps > 8).length;
-    console.log(`Bots with >8 steps: ${anyProgress}/${count}`);
+  test("event: LAN party wall — 30–100 concurrent travelers (STRESS_INSTANCES)", async ({
+    browser,
+    baseURL,
+  }) => {
+    await runTrailEventHammer(browser!, baseURL);
   });
 });

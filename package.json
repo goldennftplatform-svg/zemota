@@ -18,7 +18,8 @@
     "live:dev": "concurrently -k -n server,vite,tunnel -c blue,green,magenta \"npm run server\" \"npm run dev\" \"node scripts/run-quick-tunnel.mjs\"",
     "dev:stack": "npm run live:dev",
     "test:stress": "playwright test tests/stress/instances.spec.ts -g \"gameplay\"",
-    "test:stress:hammer": "playwright test tests/stress/instances.spec.ts -g \"hammer:\""
+    "test:stress:hammer": "playwright test tests/stress/instances.spec.ts -g \"hammer:\"",
+    "test:stress:event": "playwright test tests/stress/instances.spec.ts -g \"event:\""
   },
   "dependencies": {
     "express": "^4.21.2",

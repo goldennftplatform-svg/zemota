@@ -166,17 +166,23 @@ function render(): void {
   const boardHighHtml = top
     ? `<div class="bb-high__num">${escapeHtml(String(top.score))}</div>
        <div class="bb-high__who">${escapeHtml(top.name)}</div>`
-    : `<div class="bb-high__empty">—</div>`;
-  const boardRunners =
-    scoreRows.length > 1
-      ? scoreRows
-          .slice(1, 6)
-          .map(
-            (r, i) =>
-              `<div class="bb-high__row"><span>${i + 2}.</span><span>${escapeHtml(r.name)}</span><span>${escapeHtml(String(r.score))}</span></div>`,
-          )
-          .join("")
-      : "";
+    : `<div class="bb-high__empty">No scores yet</div>`;
+
+  const lbRows = scoreRows.slice(0, 12);
+  const leaderboardBody =
+    lbRows.length > 0
+      ? `<ol class="bb-lb__list" aria-label="Top twelve scores">
+          ${lbRows
+            .map(
+              (r, i) => `<li class="bb-lb__item">
+            <span class="bb-lb__rank" aria-hidden="true">${i + 1}</span>
+            <span class="bb-lb__name">${escapeHtml(r.name)}</span>
+            <span class="bb-lb__score">${escapeHtml(String(r.score))}</span>
+          </li>`,
+            )
+            .join("")}
+        </ol>`
+      : `<p class="bb-lb__empty">No LAN scores on this trail server yet. Finish a run (victory screen), or run <code class="bb-lb__code">npm run test:stress:hammer</code> with bots.</p>`;
 
   app.innerHTML = `
     <div class="bb-root">
@@ -190,10 +196,9 @@ function render(): void {
             <div class="bb-brand__sub">Oregon Trail · classroom · projector wall</div>
           </div>
         </div>
-        <div class="bb-high" aria-label="Server leaderboard high score">
-          <div class="bb-high__label">// SERVER HIGH</div>
+        <div class="bb-high bb-high--compact" aria-label="Top score at a glance">
+          <div class="bb-high__label">// HIGH</div>
           ${boardHighHtml}
-          ${boardRunners ? `<div class="bb-high__list">${boardRunners}</div>` : ""}
         </div>
         <div class="bb-live ${connClass}">
           <span class="bb-live__dot" aria-hidden="true"></span>
@@ -204,6 +209,13 @@ function render(): void {
         </div>
       </header>
       ${joinBanner}
+      <section class="bb-lb" aria-labelledby="bb-lb-title">
+        <div class="bb-lb__head">
+          <h2 id="bb-lb-title" class="bb-lb__title">TRAIL LEADERBOARD</h2>
+          <p class="bb-lb__meta">Up to 12 ranks · ${scoreRows.length} total on this trail server</p>
+        </div>
+        <div class="bb-lb__body">${leaderboardBody}</div>
+      </section>
       <div class="bb-main">
         <aside class="bb-feed">
           <div class="bb-feed__head">// SIGNAL FEED</div>

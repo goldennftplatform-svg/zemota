@@ -4,7 +4,8 @@ export const TARGET_TRAVEL_DAYS = 52;
 export const PACE_REFERENCE_DAYS = 36;
 export const TOTAL_TRAIL_MILES = 1990;
 export const MAX_PARTY = 5;
-export const MULTIPLAYER_CAP = 50;
+/** Trail room + stress “event” ceiling (server + client strip). */
+export const MULTIPLAYER_CAP = 100;
 
 /** Base chance-game cooldown days (soft). */
 export const CHANCE_COOLDOWN_DAYS = 4;
