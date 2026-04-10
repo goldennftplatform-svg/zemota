@@ -1,10 +1,11 @@
 /**
  * Trail server origin for Socket.IO (Express + server/index.ts).
- * Priority: VITE_TRAIL_SERVER_URL → ?trail= → localStorage emota_trail_server
+ * Priority: `?trail=` → localStorage `emota_trail_server` → `VITE_TRAIL_SERVER_URL`
  *
- * Async `resolveTrailOrigin()` also reads `/trail.json` { "origin": "https://..." } so you can
- * push a URL change without editing Vercel env (still one deploy per change).
- * For a URL that never changes: use a named Cloudflare Tunnel + your domain, set env once.
+ * Query/localStorage win so stress tests (`?trail=`), classrooms, and tunnels can override a
+ * baked Vercel env without redeploying. Same origin must be used by the game, bigboard, and bots.
+ *
+ * Async `resolveTrailOrigin()` also reads `/trail.json` when nothing above is set.
  */
 function normalizeOrigin(s: string): string {
   return s.trim().replace(/\/$/, "");
@@ -24,11 +25,13 @@ function trailOverrideFromBrowser(): string | undefined {
 }
 
 export function trailServerOrigin(): string | undefined {
+  const fromBrowser = trailOverrideFromBrowser();
+  if (fromBrowser) return fromBrowser;
   const v = import.meta.env.VITE_TRAIL_SERVER_URL;
   if (typeof v === "string" && v.trim()) {
     return normalizeOrigin(v);
   }
-  return trailOverrideFromBrowser();
+  return undefined;
 }
 
 /** Use for Socket.IO connect — includes optional `/trail.json` when env + browser overrides are empty. */

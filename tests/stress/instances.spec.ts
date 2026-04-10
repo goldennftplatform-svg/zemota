@@ -17,7 +17,8 @@
  *   STRESS_INSTANCES=50 \
  *   npm run test:stress:hammer
  *
- * `PLAYWRIGHT_TRAIL_ORIGIN` is passed as `?trail=` so every bot joins **your** room (same as manual players).
+ * `PLAYWRIGHT_TRAIL_ORIGIN` is passed as `?trail=` so every bot joins **your** room. That query
+ * **overrides** `VITE_TRAIL_SERVER_URL` on the deployed bundle (so bots match the bigboard you point at that tunnel).
  *
  * ### Gameplay stress (local / optional asserts)
  *   npm run test:stress
