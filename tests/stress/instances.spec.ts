@@ -68,6 +68,7 @@ function buildGameEntryUrl(baseURL: string): string {
   if (trail) {
     base.searchParams.set("trail", trail.replace(/\/$/, ""));
   }
+  base.searchParams.set("nosplash", "1");
   return base.href;
 }
 

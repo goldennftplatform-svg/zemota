@@ -17,3 +17,6 @@ export const HUNT_MAX_SHOTS_PER_SESSION = 22;
 
 /** Minimum ammo to start a hunt (need a usable supply). */
 export const HUNT_MIN_AMMO_TO_HUNT = 5;
+
+/** CRT boot splash before title; skipped with `?nosplash=1` or `navigator.webdriver`. */
+export const BOOT_SPLASH_MIN_MS = 2400;

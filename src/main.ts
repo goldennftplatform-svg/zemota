@@ -1,4 +1,5 @@
 import "./style.css";
+import { runBootSplash } from "./ui/bootSplash";
 import { initMobileShellClass } from "./mobile-detect";
 import { GameEngine, type EnginePhase } from "./game/engine";
 import { MULTIPLAYER_CAP } from "./game/config";
@@ -678,6 +679,14 @@ function choice(n: number): void {
 }
 
 document.addEventListener("keydown", (e) => {
+  const boot = document.getElementById("emota-boot");
+  if (boot) {
+    const n = Number(e.key);
+    if (n >= 1 && n <= 9) {
+      e.preventDefault();
+      return;
+    }
+  }
   if (!peerSheetEl.hidden && e.key === "Escape") {
     e.preventDefault();
     closePeerSheet();
@@ -704,5 +713,8 @@ document.addEventListener("keydown", (e) => {
   if (n >= 1 && n <= 9) choice(n);
 });
 
-render();
+void (async () => {
+  await runBootSplash();
+  render();
+})();
 

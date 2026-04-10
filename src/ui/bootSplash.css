@@ -1,0 +1,186 @@
+/* Full-viewport boot — ASCII logo + phosphor bar (above title choices) */
+
+.emota-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: radial-gradient(ellipse 120% 80% at 50% 20%, #003020 0%, #000806 45%, #000402 100%);
+  font-family: var(--font);
+  color: var(--text);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.emota-boot__scan {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.13) 2px,
+    rgba(0, 0, 0, 0.13) 4px
+  );
+  mix-blend-mode: multiply;
+  animation: emota-boot-scan 6s linear infinite;
+}
+
+@keyframes emota-boot-scan {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(6px);
+  }
+}
+
+.emota-boot__vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.75);
+}
+
+.emota-boot__inner {
+  position: relative;
+  max-width: min(96vw, 52rem);
+  width: 100%;
+  text-align: center;
+}
+
+.emota-boot__frame {
+  margin: 0 auto;
+  padding: 0.75rem 0.5rem 1rem;
+  border: 3px solid var(--border);
+  box-shadow: 0 0 0 1px rgba(0, 255, 119, 0.15), 0 0 40px rgba(0, 255, 119, 0.08),
+    4px 4px 0 var(--shadow);
+  background: linear-gradient(165deg, rgba(0, 32, 20, 0.92) 0%, rgba(0, 12, 8, 0.97) 100%);
+}
+
+.emota-boot__ascii {
+  margin: 0 auto;
+  padding: 0.25rem 0;
+  font-family: "VT323", "Consolas", "Courier New", monospace;
+  font-size: clamp(0.45rem, min(1.65vw, 2.8vh), 0.78rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+  white-space: pre;
+  overflow-x: auto;
+  text-align: center;
+  color: var(--hi);
+  text-shadow: 0 0 12px rgba(57, 255, 122, 0.35), 0 0 28px rgba(0, 255, 119, 0.12),
+    1px 1px 0 var(--shadow-deep);
+  animation: emota-boot-phosphor 2.8s ease-in-out infinite;
+}
+
+@keyframes emota-boot-phosphor {
+  0%,
+  100% {
+    opacity: 0.92;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.06);
+  }
+}
+
+.emota-boot__sub {
+  margin: 0.65rem 0 0;
+  font-family: var(--font-head);
+  font-size: clamp(0.28rem, min(1.1vw, 1.8vh), 0.42rem);
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--border-hi);
+  text-shadow: 0 0 10px rgba(57, 255, 122, 0.25);
+}
+
+.emota-boot__tag {
+  margin: 0.5rem 0 0;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.emota-boot__bar-wrap {
+  margin: 1rem auto 0;
+  max-width: 18rem;
+  height: 10px;
+  border: 2px solid var(--border);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.emota-boot__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #008844, var(--border-hi), #39ff7a);
+  background-size: 200% 100%;
+  animation: emota-boot-bar-march 1.1s linear infinite;
+  transition: width 0.45s ease-out;
+  box-shadow: 0 0 12px rgba(57, 255, 122, 0.45);
+}
+
+.emota-boot.emota-boot--finishing .emota-boot__bar {
+  animation: none;
+}
+
+@keyframes emota-boot-bar-march {
+  0% {
+    background-position: 0% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.emota-boot__status {
+  margin: 0.65rem 0 0;
+  font-size: clamp(1.05rem, 2.8vw, 1.3rem);
+  min-height: 1.4em;
+  color: var(--text);
+  animation: footer-blink 2.2s ease-in-out infinite;
+}
+
+.emota-boot.emota-boot--finishing .emota-boot__status {
+  animation: none;
+  opacity: 1;
+}
+
+.emota-boot__hint {
+  margin: 0.85rem 0 0;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  color: var(--text-dim);
+  opacity: 0.85;
+}
+
+.emota-boot.emota-boot--exit {
+  pointer-events: none;
+  animation: emota-boot-fade 0.65s ease forwards;
+}
+
+@keyframes emota-boot-fade {
+  to {
+    opacity: 0;
+    filter: blur(6px) brightness(1.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emota-boot__scan,
+  .emota-boot__ascii,
+  .emota-boot__bar,
+  .emota-boot__status {
+    animation: none !important;
+  }
+  .emota-boot.emota-boot--exit {
+    animation: none;
+    opacity: 0;
+  }
+}

@@ -13,6 +13,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div id="emota-boot" class="emota-boot" aria-busy="true" aria-live="polite">
+    <div class="emota-boot__scan" aria-hidden="true"></div>
+    <div class="emota-boot__vignette" aria-hidden="true"></div>
+    <div class="emota-boot__inner">
+      <div class="emota-boot__frame">
+        <pre class="emota-boot__ascii" role="img" aria-label="EMOTA title in block characters"></pre>
+        <p class="emota-boot__sub">EZRA MEEKER · OREGON TRAIL</p>
+        <p class="emota-boot__tag">8-bit classroom terminal — wagon days to hop country</p>
+        <div class="emota-boot__bar-wrap" aria-hidden="true"><div class="emota-boot__bar"></div></div>
+        <p class="emota-boot__status">Booting…</p>
+        <p class="emota-boot__hint">Tap / click / Space / Enter to skip · title menu is next.</p>
+      </div>
+    </div>
+  </div>
+
   <div id="app-layout" class="app-layout">
     <div class="crt-overlay" aria-hidden="true"></div>
 
@@ -58,6 +73,7 @@
 
     <div class="app-body">
       <main class="main-panel">
+        <div id="travel-menu-mobile-hud" class="travel-menu-mobile-hud" hidden aria-live="polite"></div>
         <div id="screen" class="screen" aria-live="polite"></div>
         <canvas id="overhead" class="overhead-canvas" width="320" height="240" hidden></canvas>
       </main>
