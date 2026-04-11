@@ -23,7 +23,7 @@ const STATUS_LINES = [
   "Warming CRT phosphor…",
   "Loading wagon roster…",
   "Parsing trail manifest…",
-  "Optional LAN trail socket…",
+  "Hearing rumors from down the trail…",
 ];
 
 function shouldSkipBootSplash(): boolean {

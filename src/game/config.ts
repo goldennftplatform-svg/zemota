@@ -24,3 +24,13 @@ export const HUNT_MIN_AMMO_TO_HUNT = 5;
  * Player must still click (or activate the button) to reach the title menu.
  */
 export const BOOT_LANDING_INTRO_MS = 1600;
+
+/** Beta Meeker Mansion museum gift shop — in-game thank-you (honor system; 2× per run). */
+export const MEEKER_GIFT_SHOP_URL =
+  "https://preview--meekermansion-react-revival.lovable.app/gift-shop";
+
+/** Rations packed when a player claims the gift-shop thank-you. */
+export const MEEKER_GIFT_SHOP_FOOD_LB = 100;
+
+/** Max gift-shop thank-you claims per trail run (camp + supply depot). */
+export const MEEKER_GIFT_SHOP_USES_PER_RUN = 2;

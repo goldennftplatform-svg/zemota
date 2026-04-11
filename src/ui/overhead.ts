@@ -5,6 +5,7 @@
 
 import type { AnimalKind, HuntSessionOptions, HuntZoneId } from "../game/huntZones";
 import { meatLbForKind, pickAnimalKind } from "../game/huntZones";
+import { drawTopDownBlockAnimal } from "./huntAnimalBlocks";
 
 export type OverheadMode = "hunt" | "build" | null;
 
@@ -445,57 +446,7 @@ function drawTdAnimal(ctx: CanvasRenderingContext2D, a: HuntAnimal): void {
   const fade = a.alive ? Math.min(1, a.spawnAge / 18) : 1;
   ctx.save();
   ctx.globalAlpha = fade;
-  const cx = x + w / 2;
-  const cy = y + h / 2;
-  if (!a.alive) {
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, w * 0.42, h * 0.32, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "rgba(90,40,30,0.55)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.restore();
-    return;
-  }
-  ctx.fillStyle = col;
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, w * 0.48, h * 0.36, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#1a1a1a";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  if (a.kind === "bison") {
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.ellipse(cx - 1, cy - 5, w * 0.38, h * 0.22, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  if (a.kind === "bear") {
-    ctx.beginPath();
-    ctx.ellipse(cx + w * 0.18, cy - 1, w * 0.24, h * 0.24, 0, 0, Math.PI * 2);
-    ctx.fillStyle = col;
-    ctx.fill();
-  }
-  if (a.kind === "deer") {
-    ctx.strokeStyle = col;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(cx - 4, cy - h * 0.32);
-    ctx.lineTo(cx - 3, cy - h * 0.48);
-    ctx.moveTo(cx + 4, cy - h * 0.32);
-    ctx.lineTo(cx + 3, cy - h * 0.48);
-    ctx.stroke();
-  }
-  if (a.kind === "rabbit") {
-    ctx.fillStyle = col;
-    ctx.beginPath();
-    ctx.ellipse(cx + w * 0.28, cy - 2, 4, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(cx - w * 0.28, cy - 2, 4, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  drawTopDownBlockAnimal(ctx, a.kind, a.alive, x, y, w, h, a.facing, col);
   ctx.restore();
 }
 

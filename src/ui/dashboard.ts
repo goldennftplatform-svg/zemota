@@ -7,6 +7,7 @@ const PHASE_LABEL: Record<string, string> = {
   party_names: "Party",
   profile: "Profession",
   store: "Supplies",
+  gift_shop_prompt: "Gift shop",
   travel_menu: "Camp",
   river: "River",
   travel_log: "Journal",
@@ -19,6 +20,8 @@ const PHASE_LABEL: Record<string, string> = {
   land_pick: "Land claim",
   land_build: "Build",
   land_result: "Claim",
+  bonus_pick: "Stage 2",
+  bonus_result: "Life after Oregon",
   game_over: "The end",
   victory: "Score",
 };
@@ -97,6 +100,7 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
       <header class="dash-head">
         <div class="dash-head__top">
           <span class="dash-chip">${escapeHtml(chip)}</span>
+          <p class="dash-traveler-id" title="Your contest / roll-call number (save if you step away)">Traveler #${s.travelerNumber}</p>
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
         </div>
         <div class="dash-minimap-host" aria-hidden="true">${minimap}</div>
@@ -160,6 +164,7 @@ export function choiceLeadingIcon(phase: string, n: number): string {
       "M13 2L3 14h7l-1 8 10-12h-7l1-8z",
       "M4 10h16v4H4v-4zm0-4h10v4H4V6z",
       "M6 2h8v2H6V2zm0 4h12v14H6V6zm2 2v10h8V8H8z",
+      "M4 8h4v10H4V8zm6-2h8l4 3v11H10V6zm4 0V4h6v6h-2V8h-4z",
     ];
     return paths[n] ? chIco(paths[n]!) : `<span class="choice-num">${n}</span>`;
   }
@@ -168,7 +173,26 @@ export function choiceLeadingIcon(phase: string, n: number): string {
     return paths[n] ? chIco(paths[n]!) : `<span class="choice-num">${n}</span>`;
   }
   if (phase === "store") {
-    const paths = ["", "M8 4h8v4H8V4zm-2 8h12v10H6V12z", "M4 6h16v12H4V6zm4 4h8v6H8v-6z", "M8 8h8v10H8V8zm2-4h4v4h-4V4z", "M6 6h12v12H6V6z", "M8 8h8v8H8V8z", "M4 18h16v2H4v-2z", "M4 6h16l-2 12H6L4 6z"];
+    const paths = [
+      "",
+      "M8 4h8v4H8V4zm-2 8h12v10H6V12z",
+      "M4 6h16v12H4V6zm4 4h8v6H8v-6z",
+      "M8 8h8v10H8V8zm2-4h4v4h-4V4z",
+      "M6 6h12v12H6V6z",
+      "M8 8h8v8H8V8z",
+      "M4 18h16v2H4v-2z",
+      "M4 6h16l-2 12H6L4 6z",
+      "M4 8h4v10H4V8zm6-2h8l4 3v11H10V6zm4 0V4h6v6h-2V8h-4z",
+    ];
+    return paths[n] ? chIco(paths[n]!) : `<span class="choice-num">${n}</span>`;
+  }
+  if (phase === "gift_shop_prompt") {
+    const paths = [
+      "",
+      "M5 5h6v2H7v8h8v-4h2v6H5V5zm8-2h6v6h-2V7l-6 6-2-2 6-6h-4V3z",
+      "M9 11h6v2H9v-2zm0-4h6v2H9V7zm-2 8h10v2H7v-2z",
+      "M15 19l-8-8 8-8 1.4 1.4L9.8 11l6.6 6.6L15 19z",
+    ];
     return paths[n] ? chIco(paths[n]!) : `<span class="choice-num">${n}</span>`;
   }
   if (phase === "land_pick") {

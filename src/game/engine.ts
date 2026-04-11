@@ -10,6 +10,9 @@ import {
   HUNT_MAX_SHOTS_PER_SESSION,
   HUNT_MIN_AMMO_TO_HUNT,
   MAX_PARTY,
+  MEEKER_GIFT_SHOP_FOOD_LB,
+  MEEKER_GIFT_SHOP_URL,
+  MEEKER_GIFT_SHOP_USES_PER_RUN,
   PACE_REFERENCE_DAYS,
   TARGET_TRAVEL_DAYS,
   TOTAL_TRAIL_MILES,
@@ -18,6 +21,8 @@ import { huntRegionIndexFromMiles, huntZoneFromMiles, type HuntSessionOptions } 
 import { pickEncounter, TRAIL_ENCOUNTERS, type EncounterMeta } from "./encounters";
 import { applyDeaths, rollDailyDeaths } from "./deaths";
 import { resolveLandChoice, type LandChoice, type LandOutcome } from "./landClaim";
+import { getTravelerNumber } from "./playerNumber";
+import { resolveStage2Pick, type Stage2Outcome, type Stage2Pick } from "./stage2Bonus";
 import { landmarkAtMiles, nextRiverAhead, LANDMARKS } from "./map";
 import { PROFILES, PROFILE_ORDER } from "./profiles";
 import { idealOutfitCostCents, priceAmmo, priceClothes, priceFood, priceOxen, priceParts } from "./store";
@@ -40,6 +45,7 @@ export type EnginePhase =
   | "party_names"
   | "profile"
   | "store"
+  | "gift_shop_prompt"
   | "travel_menu"
   | "river"
   | "travel_log"
@@ -52,6 +58,8 @@ export type EnginePhase =
   | "land_pick"
   | "land_build"
   | "land_result"
+  | "bonus_pick"
+  | "bonus_result"
   | "game_over"
   | "victory";
 
@@ -115,6 +123,7 @@ const VALID_RUN_PHASE = new Set<EnginePhase>([
   "party_names",
   "profile",
   "store",
+  "gift_shop_prompt",
   "travel_menu",
   "river",
   "travel_log",
@@ -127,6 +136,8 @@ const VALID_RUN_PHASE = new Set<EnginePhase>([
   "land_pick",
   "land_build",
   "land_result",
+  "bonus_pick",
+  "bonus_result",
   "game_over",
   "victory",
 ]);
@@ -203,6 +214,20 @@ export class GameEngine {
   /** Hunts completed per trail region (4 bands) — overhunting reduces spawns. */
   huntSessionsByRegion: number[] = [0, 0, 0, 0];
 
+  /** Stage 2 (post–land claim) bonus — applied in computeScore after land claim. */
+  stage2ScoreBonus = 0;
+  stage2Archetype = "";
+  /** Filled between bonus_pick → bonus_result; cleared when advancing to victory. */
+  stage2Pending: Stage2Outcome | null = null;
+
+  /** Meeker Mansion gift-shop thank-you claims this run (max MEEKER_GIFT_SHOP_USES_PER_RUN). */
+  giftShopBoostsUsed = 0;
+
+  /** Where to return if the player backs out of `gift_shop_prompt` without claiming. */
+  private _giftShopReturnPhase: "travel_menu" | "store" = "travel_menu";
+
+  private _pendingTravelInterstitial = false;
+
   resetFromTitle(): void {
     Object.assign(this, new GameEngine());
   }
@@ -224,6 +249,7 @@ export class GameEngine {
     this.activeEncounter = null;
     this.pendingTravelBuffer = [];
     this.lastMilestoneAnnounced = 0;
+    this.giftShopBoostsUsed = 0;
   }
 
   peekPopup(): EmotaPopup | undefined {
@@ -291,7 +317,15 @@ export class GameEngine {
       profileTitle: PROFILES[this.profile].title,
       triviaStreak: this.triviaCorrect,
       party: partyRows,
+      travelerNumber: getTravelerNumber(),
     };
+  }
+
+  /** One-shot: true once after some travel days — main shows a short interstitial. */
+  takeTravelInterstitial(): boolean {
+    if (!this._pendingTravelInterstitial) return false;
+    this._pendingTravelInterstitial = false;
+    return true;
   }
 
   getScreen(): ScreenDescriptor {
@@ -302,10 +336,11 @@ export class GameEngine {
           lines: [
             "Ezra Meeker’s Oregon Trail Adventure (EMOTA)",
             "Welcome, pioneer — about twenty easy minutes at your pace.",
-            "Optional LAN trail strip: run `npm run server` on your machine.",
+            "Past Oregon: land claim, then Stage 2 — your score keeps climbing to the end (handy for same-day contests).",
+            "Good luck on the trail.",
           ],
           coach:
-            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. You can always use the mouse / touch too.",
+            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Your Traveler # in the header is for roll call. Mouse / touch work too.",
           choices: [
             { n: 1, text: "New game · with training" },
             { n: 2, text: "New game · skip training" },
@@ -384,6 +419,16 @@ export class GameEngine {
 
       case "store": {
         const ideal = idealOutfitCostCents(this.profile);
+        const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
+        const giftChoice =
+          giftLeft > 0
+            ? [
+                {
+                  n: 8,
+                  text: `Meeker gift shop thank-you · +${MEEKER_GIFT_SHOP_FOOD_LB} lb & rest 1 day (${giftLeft} left this run)`,
+                },
+              ]
+            : [];
         return {
           phase: "store",
           coach:
@@ -399,6 +444,12 @@ export class GameEngine {
             `5 · Spare wheel — ${formatMoney(priceParts(this.profile, 1, 0))}`,
             `6 · Spare axle — ${formatMoney(priceParts(this.profile, 0, 1))}`,
             "7 · Leave",
+            ...(giftLeft > 0
+              ? [
+                  "",
+                  `8 · Supporter stop: beta gift shop — open the page, then claim +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and skip ahead one rest day (${giftLeft}× per run).`,
+                ]
+              : []),
           ],
           choices: [
             { n: 1, text: `Ox +1 · ${formatMoney(priceOxen(this.profile, 1))}` },
@@ -408,11 +459,46 @@ export class GameEngine {
             { n: 5, text: `Wheel · ${formatMoney(priceParts(this.profile, 1, 0))}` },
             { n: 6, text: `Axle · ${formatMoney(priceParts(this.profile, 0, 1))}` },
             { n: 7, text: "Leave" },
+            ...giftChoice,
           ],
         };
       }
 
-      case "travel_menu":
+      case "gift_shop_prompt": {
+        const left = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
+        return {
+          phase: "gift_shop_prompt",
+          coach:
+            "Honor system: peek the real gift shop, then claim here. Same perk twice per run — from the store (8) or camp (8).",
+          lines: [
+            "Meeker Mansion · beta gift shop",
+            "",
+            "Open the page in a new tab when you’re ready — 8-bit trail merch helps the museum.",
+            `Claim here after a look: +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and the party rests a full day (journal entry, no trail miles).`,
+            "",
+            `Thank-yous left this run before next claim: ${left}.`,
+            "",
+            MEEKER_GIFT_SHOP_URL,
+          ],
+          choices: [
+            { n: 1, text: "Open gift shop (new tab)" },
+            { n: 2, text: `Claim thank-you (+${MEEKER_GIFT_SHOP_FOOD_LB} lb · rest 1 day)` },
+            { n: 3, text: "Back · no claim" },
+          ],
+        };
+      }
+
+      case "travel_menu": {
+        const giftLeftCamp = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
+        const campGift =
+          giftLeftCamp > 0 && this.miles < TOTAL_TRAIL_MILES
+            ? [
+                {
+                  n: 8,
+                  text: `Meeker gift shop thank-you · +${MEEKER_GIFT_SHOP_FOOD_LB} lb & rest 1 day (${giftLeftCamp} left this run)`,
+                },
+              ]
+            : [];
         return {
           phase: "travel_menu",
           coach:
@@ -432,8 +518,10 @@ export class GameEngine {
             { n: 5, text: "Change pace" },
             { n: 6, text: "Change rations" },
             { n: 7, text: "Ezra timeline note" },
+            ...campGift,
           ],
         };
+      }
 
       case "river": {
         const r = this.pendingRiver!;
@@ -571,16 +659,49 @@ export class GameEngine {
       case "land_result":
         return {
           phase: "land_result",
-          coach: "When you’re ready, Score shows how the trail added up — saved quietly on this device (and LAN if you use it).",
+          coach:
+            "Claim filed. Next: Stage 2 — how you make a life out here. That bonus stacks on your contest score.",
           lines: [
             this.lastLandResult?.title ?? "Land",
             "",
             this.lastLandResult?.body ?? "",
             "",
             this.lastLandResult?.hopKing ? "Hop King ending · Ezra’s Puyallup thread" : "",
+            "",
+            "— Stage 2 · after Oregon —",
+            "Pick how you lean into the Sound country. Points add to today’s contest total.",
           ].filter(Boolean),
-          choices: [{ n: 1, text: "Score" }],
+          choices: [{ n: 1, text: "Choose your next act" }],
         };
+
+      case "bonus_pick":
+        return {
+          phase: "bonus_pick",
+          coach: "One pick — crisp paths, Meeker-era flavor. Highest scores help crown “today’s run” on a shared trail.",
+          lines: [
+            "The trail ended; the ledger didn’t.",
+            "What kind of name do you carve beside the hop yards and mud streets?",
+          ],
+          choices: [
+            { n: 1, text: "1 · Hops & crown (or nerve)" },
+            { n: 2, text: "2 · Blacksmith’s iron" },
+            { n: 3, text: "3 · Mercantile & kettles" },
+            { n: 4, text: "4 · Cattle & range" },
+            { n: 5, text: "5 · Quiet acre — no headlines" },
+          ],
+        };
+
+      case "bonus_result": {
+        const p = this.stage2Pending;
+        return {
+          phase: "bonus_result",
+          coach: "Bonus locked in — final score includes land claim + this act.",
+          lines: p
+            ? [`${p.title} · +${p.scoreBonus} pts`, "", ...p.lines]
+            : ["Stage 2 outcome missing — continue to score."],
+          choices: [{ n: 1, text: "Final score" }],
+        };
+      }
 
       case "game_over":
         return {
@@ -597,13 +718,16 @@ export class GameEngine {
         const score = this.computeScore();
         return {
           phase: "victory",
-          coach: "Nice run — Title starts fresh. Today’s best (if any) sits up in the header for a quiet brag.",
+          coach: "Nice run — Title starts fresh. Today’s best (Pacific) sits in the header for contests.",
           lines: [
             `Score ${score}`,
+            this.stage2Archetype ? `Stage 2 · ${this.stage2Archetype} (+${this.stage2ScoreBonus})` : "",
             `Alive ${this.livingCount()}/${MAX_PARTY} · Quiz ✓ ${this.triviaCorrect} · ${formatMoney(this.inv.moneyCents)}`,
-            this.lastLandResult?.hopKing ? "Hop King bonus" : "",
+            this.lastLandResult?.hopKing ? "Hop King bonus (land)" : "",
             "",
-            "Scores: device + LAN server if running.",
+            `Traveler #${getTravelerNumber()} — save this number for roll call.`,
+            "",
+            "Your score is saved on this device.",
           ].filter(Boolean),
           choices: [{ n: 1, text: "Title" }],
         };
@@ -623,6 +747,7 @@ export class GameEngine {
       this.day * 2;
     s += this.lastLandResult?.scoreBonus ?? 0;
     if (this.lastLandResult?.hopKing) s += 800;
+    s += this.stage2ScoreBonus;
     return Math.max(0, s);
   }
 
@@ -631,6 +756,7 @@ export class GameEngine {
       case "title":
         if (n === 1) this.startNew();
         else if (n === 2) {
+          this.giftShopBoostsUsed = 0;
           this.phase = "party_names";
           this.party = [];
         }
@@ -669,6 +795,18 @@ export class GameEngine {
 
       case "store":
         this.handleStore(n);
+        break;
+
+      case "gift_shop_prompt":
+        if (n === 2) {
+          if (this.giftShopBoostsUsed < MEEKER_GIFT_SHOP_USES_PER_RUN) {
+            this.giftShopBoostsUsed++;
+            this.inv.foodLbs += MEEKER_GIFT_SHOP_FOOD_LB;
+            this.meekerGiftShopRestDay();
+          }
+        } else if (n === 3) {
+          this.phase = this._giftShopReturnPhase;
+        }
         break;
 
       case "travel_menu":
@@ -738,7 +876,34 @@ export class GameEngine {
         break;
 
       case "land_result":
-        if (n === 1) this.phase = "victory";
+        if (n === 1) {
+          this.stage2ScoreBonus = 0;
+          this.stage2Archetype = "";
+          this.stage2Pending = null;
+          this.phase = "bonus_pick";
+        }
+        break;
+
+      case "bonus_pick":
+        if (n >= 1 && n <= 5) {
+          const hop = this.lastLandResult?.hopKing ?? false;
+          const out = resolveStage2Pick(n, { hopKing: hop });
+          if (out) {
+            this.stage2Pending = out;
+            this.phase = "bonus_result";
+          }
+        }
+        break;
+
+      case "bonus_result":
+        if (n === 1) {
+          if (this.stage2Pending) {
+            this.stage2ScoreBonus = this.stage2Pending.scoreBonus;
+            this.stage2Archetype = this.stage2Pending.title;
+            this.stage2Pending = null;
+          }
+          this.phase = "victory";
+        }
         break;
 
       case "game_over":
@@ -799,6 +964,11 @@ export class GameEngine {
   private _buildQuality = 0.5;
 
   private handleStore(n: number): void {
+    if (n === 8 && this.giftShopBoostsUsed < MEEKER_GIFT_SHOP_USES_PER_RUN) {
+      this._giftShopReturnPhase = "store";
+      this.phase = "gift_shop_prompt";
+      return;
+    }
     if (n === 7) {
       if (this.inv.oxen < 1) {
         this.inv.oxen = 2;
@@ -824,6 +994,11 @@ export class GameEngine {
   }
 
   private handleTravelMenu(n: number): void {
+    if (n === 8 && this.giftShopBoostsUsed < MEEKER_GIFT_SHOP_USES_PER_RUN) {
+      this._giftShopReturnPhase = "travel_menu";
+      this.phase = "gift_shop_prompt";
+      return;
+    }
     if (this.miles >= TOTAL_TRAIL_MILES) {
       this.phase = "land_pick";
       return;
@@ -870,7 +1045,26 @@ export class GameEngine {
       if (p.alive) p.health = Math.min(100, p.health + 6);
     }
     this.day++;
+    if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
     this.pendingLog = ["You rest a day. Spirits lift slightly.", "", ...this.randomFluff()];
+    this.travelLogPhase = "prompt_trivia";
+    this.phase = "travel_log";
+    this.pendingHazardMult = 0.85;
+    this.afterRestSkipTrivia = true;
+  }
+
+  /** Same cadence as rest day: +day, journal, light hazard — after gift-shop food bundle. */
+  private meekerGiftShopRestDay(): void {
+    for (const p of this.party) {
+      if (p.alive) p.health = Math.min(100, p.health + 6);
+    }
+    this.day++;
+    if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
+    this.pendingLog = [
+      "Meeker Mansion shout-out: you tucked away extra rations and gave the oxen a breather.",
+      "",
+      ...this.randomFluff(),
+    ];
     this.travelLogPhase = "prompt_trivia";
     this.phase = "travel_log";
     this.pendingHazardMult = 0.85;
@@ -966,6 +1160,7 @@ export class GameEngine {
   }
 
   private goToTravelLog(logs: string[]): void {
+    if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
     this.pendingLog = logs;
     this.maybePushMilestone();
     this.maybePushAmbient();
@@ -1188,6 +1383,7 @@ export class GameEngine {
       this.day++;
       this.pendingRiver = null;
       this.pendingHazardMult = 0.92;
+      if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
       this.pendingLog = [
         `You wait at ${r.name}. The water argues with itself; you argue with your purse.`,
       ];
@@ -1228,6 +1424,7 @@ export class GameEngine {
       this.phase = "game_over";
       return;
     }
+    if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
     this.pendingLog = logs;
     this.travelLogPhase = "prompt_trivia";
     this.phase = "travel_log";
@@ -1343,6 +1540,10 @@ export class GameEngine {
       huntSessionsByRegion: [...this.huntSessionsByRegion],
       afterRestSkipTrivia: this.afterRestSkipTrivia,
       buildQuality: this._buildQuality,
+      stage2ScoreBonus: this.stage2ScoreBonus,
+      stage2Archetype: this.stage2Archetype,
+      stage2Pending: this.stage2Pending,
+      giftShopBoostsUsed: this.giftShopBoostsUsed,
     });
   }
 
@@ -1460,6 +1661,35 @@ export class GameEngine {
         scoreBonus: int(lrO.scoreBonus, 0),
       } satisfies LandOutcome;
     } else this.lastLandResult = null;
+
+    this.stage2ScoreBonus = Math.max(0, int(o.stage2ScoreBonus, 0));
+    this.stage2Archetype = str(o.stage2Archetype, "");
+    const sp = o.stage2Pending;
+    if (sp && typeof sp === "object") {
+      const s = sp as Record<string, unknown>;
+      const lines = Array.isArray(s.lines) ? s.lines.map((x) => str(x, "")) : [];
+      const pick = str(s.pick, "");
+      const validPick =
+        pick === "hop_push" ||
+        pick === "smith" ||
+        pick === "mercantile" ||
+        pick === "cattle" ||
+        pick === "modest";
+      this.stage2Pending =
+        validPick && lines.length > 0
+          ? {
+              pick: pick as Stage2Pick,
+              title: str(s.title, ""),
+              lines,
+              scoreBonus: Math.max(0, int(s.scoreBonus, 0)),
+            }
+          : null;
+    } else this.stage2Pending = null;
+
+    this.giftShopBoostsUsed = Math.max(
+      0,
+      Math.min(MEEKER_GIFT_SHOP_USES_PER_RUN, int(o.giftShopBoostsUsed, 0)),
+    );
 
     this.chanceStakeCents = Math.max(0, int(o.chanceStakeCents, 2_00));
     this.lastChanceSummary = str(o.lastChanceSummary, "");

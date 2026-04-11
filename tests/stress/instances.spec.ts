@@ -1,50 +1,31 @@
 /**
- * EMOTA — stress / load against a **live** trail Socket.IO server + bigboard.
+ * EMOTA — fill the **bigboard** (wagons + feed + leaderboard) with simulated travelers.
  *
- * ### Beat up your live server (what you want)
- * 1. Deploy game (e.g. Vercel) and run trail server behind Cloudflare tunnel (or public URL).
- * 2. From repo root (Chromium installed: `npx playwright install chromium`):
+ * ### Fastest: 30 “people” on the wall (no Playwright)
+ *   npm run build && npm run server
+ *   Open http://127.0.0.1:3333/bigboard
+ *   npm run bigboard:simulate
+ * Sim clients pulse ~2.4s with deaths / river / milestones / occasional victory+wipeout (bigboard popups). Faster room: `npm run bigboard:simulate:fast` or `--interval-ms=600`. More wagons: `npm run trail:bots:local -- --count=60`
  *
- * PowerShell:
- *   $env:PLAYWRIGHT_BASE_URL="https://zemota.vercel.app"
- *   $env:PLAYWRIGHT_TRAIL_ORIGIN="https://YOUR-TUNNEL.trycloudflare.com"
- *   $env:STRESS_INSTANCES="50"
+ * ### Playwright hammer — 30 real Chromium tabs + stress hook (default base URL :3333)
+ *   npm run build && npm run server
+ *   npx playwright install chromium   # once
  *   npm run test:stress:hammer
+ * Uses `?trail=http://127.0.0.1:3333` automatically on local server. Deployed: set PLAYWRIGHT_BASE_URL + PLAYWRIGHT_TRAIL_ORIGIN.
  *
- * bash:
- *   PLAYWRIGHT_BASE_URL=https://zemota.vercel.app \
- *   PLAYWRIGHT_TRAIL_ORIGIN=https://YOUR-TUNNEL.trycloudflare.com \
- *   STRESS_INSTANCES=50 \
- *   npm run test:stress:hammer
- *
- * `PLAYWRIGHT_TRAIL_ORIGIN` is passed as `?trail=` so every bot joins **your** room. That query
- * **overrides** `VITE_TRAIL_SERVER_URL` on the deployed bundle (so bots match the bigboard you point at that tunnel).
- *
- * ### Gameplay stress (local / optional asserts)
+ * ### Gameplay auto-play (not bigboard-focused)
  *   npm run test:stress
- * Set PLAYWRIGHT_TRAIL_ORIGIN too if you want those bots on the bigboard while testing.
  *
- * Hammer mode does **not** quit on game over — bots stay connected until max steps (so the room
- * stays full on your bigboard). Optional: `STRESS_HOLD_MS=60000` keeps each tab open an extra
- * minute after the step loop (before disconnect).
- *
- * Hammer also calls `window.__emotaTrailStress` every few steps so wagons **move**, the **signal feed**
- * gets milestones, and **scores:submit** fills the bigboard **SERVER HIGH** panel (needs deployed build
- * with this hook — local `npm run build` + `npm run server` for smoke).
- *
- * If the test throws "Stress hook missing", your `PLAYWRIGHT_BASE_URL` site is still serving an old
- * `main` bundle — redeploy, hard-refresh, or run `npm run preview` locally with `PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173`.
- *
- * ### Event simulation (30–100 “players” on the wall)
- *   `STRESS_INSTANCES` is capped by `MULTIPLAYER_CAP` in `src/game/config.ts` (100).
- *   Example: `STRESS_INSTANCES=80 npm run test:stress:event` (same as hammer; alias for clarity).
+ * `STRESS_INSTANCES` caps at MULTIPLAYER_CAP (100). STRESS_HOLD_MS keeps hammer tabs open longer after the step loop.
+ * “Stress hook missing” → old bundle; use fresh `npm run build` + server, or PLAYWRIGHT_BASE_URL=http://127.0.0.1:4173 for preview.
  */
 
 import { test, expect, type Browser, type Page } from "@playwright/test";
 import { MULTIPLAYER_CAP, TOTAL_TRAIL_MILES } from "../../src/game/config";
 
 const DEFAULT_GAMEPLAY_INSTANCES = 30;
-const DEFAULT_HAMMER_INSTANCES = 50;
+/** Default concurrent “travelers” for hammer → bigboard wall (wagons + feed + scores). */
+const DEFAULT_HAMMER_INSTANCES = 30;
 const MAX_STEPS_GAMEPLAY = 2200;
 const MAX_STEPS_HAMMER = 3500;
 const STEP_GAMEPLAY_MS = 30;
@@ -65,13 +46,38 @@ function hammerInstanceCount(): number {
   return Number.isFinite(n) && n >= 1 ? Math.min(MULTIPLAYER_CAP, n) : DEFAULT_HAMMER_INSTANCES;
 }
 
-/** Game page URL; adds `trail` query when PLAYWRIGHT_TRAIL_ORIGIN / EMOTA_STRESS_TRAIL is set. */
-function buildGameEntryUrl(baseURL: string): string {
+/** `npm run server` serves game + Socket.IO on :3333 — no extra env for local hammer. */
+function defaultTrailOriginFromGameBase(gameBase: string): string | undefined {
+  try {
+    const base = gameBase.endsWith("/") ? gameBase : `${gameBase}/`;
+    const u = new URL(base);
+    const port = u.port || (u.protocol === "https:" ? "443" : "80");
+    if ((u.hostname === "localhost" || u.hostname === "127.0.0.1") && port === "3333") {
+      return `${u.protocol}//${u.host}`;
+    }
+  } catch {
+    /* ignore */
+  }
+  return undefined;
+}
+
+function resolveStressTrailOrigin(gameBase: string): string | undefined {
+  const ex =
+    process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim().replace(/\/$/, "") ||
+    process.env.EMOTA_STRESS_TRAIL?.trim().replace(/\/$/, "");
+  if (ex) return ex;
+  return defaultTrailOriginFromGameBase(gameBase);
+}
+
+/** Game URL; `trailOrigin` forces `?trail=` so the page joins the same Socket.IO room as the bigboard. */
+function buildGameEntryUrl(baseURL: string, trailOrigin?: string): string {
   const base = new URL("./", baseURL.endsWith("/") ? baseURL : `${baseURL}/`);
   const trail =
-    process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim() || process.env.EMOTA_STRESS_TRAIL?.trim();
+    trailOrigin?.trim().replace(/\/$/, "") ||
+    process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim()?.replace(/\/$/, "") ||
+    process.env.EMOTA_STRESS_TRAIL?.trim()?.replace(/\/$/, "");
   if (trail) {
-    base.searchParams.set("trail", trail.replace(/\/$/, ""));
+    base.searchParams.set("trail", trail);
   }
   base.searchParams.set("nosplash", "1");
   return base.href;
@@ -211,6 +217,8 @@ async function runOneInstance(
     holdOpenMs?: number;
     /** Push synthetic trail + scores for bigboard (hammer). */
     simulateTrail?: boolean;
+    /** Same origin the bigboard uses (`?trail=`). */
+    trailOrigin?: string;
   },
 ): Promise<{ steps: number; reason: string }> {
   const quitOnGameOver = opts.quitOnGameOver !== false;
@@ -226,7 +234,7 @@ async function runOneInstance(
     { idx: index },
   );
   const page = await context.newPage();
-  const entry = buildGameEntryUrl(baseURL);
+  const entry = buildGameEntryUrl(baseURL, opts.trailOrigin);
   await page.goto(entry, { waitUntil: "domcontentloaded" });
   if (simulateTrail) {
     await page
@@ -337,12 +345,14 @@ async function runOneInstance(
 
 /** Shared trail-room flood for hammer + event tests (bigboard + leaderboard). */
 async function runTrailEventHammer(browser: Browser, baseURL: string | undefined): Promise<void> {
-  const trail =
-    process.env.PLAYWRIGHT_TRAIL_ORIGIN?.trim() || process.env.EMOTA_STRESS_TRAIL?.trim();
-  test.skip(!trail, "Set PLAYWRIGHT_TRAIL_ORIGIN (or EMOTA_STRESS_TRAIL) to your live trail server origin.");
-
   expect(browser).toBeTruthy();
-  const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173";
+  const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3333";
+  const trail = resolveStressTrailOrigin(origin);
+  test.skip(
+    !trail,
+    "Set PLAYWRIGHT_TRAIL_ORIGIN (tunnel / trail host), or run against http://127.0.0.1:3333 with `npm run build && npm run server`.",
+  );
+
   const count = hammerInstanceCount();
 
   const holdMs = stressHoldOpenMs();
@@ -361,6 +371,7 @@ async function runTrailEventHammer(browser: Browser, baseURL: string | undefined
         quitOnGameOver: false,
         holdOpenMs: holdMs,
         simulateTrail: true,
+        trailOrigin: trail,
       }),
     ),
   );
@@ -373,10 +384,10 @@ async function runTrailEventHammer(browser: Browser, baseURL: string | undefined
   console.log(`Bots with >8 steps: ${anyProgress}/${count}`);
 }
 
-test.describe("LAN-scale stress (gameplay)", () => {
+test.describe("Stress (gameplay)", () => {
   test("contexts auto-play until heavy losses or wipeout", async ({ browser, baseURL }) => {
     expect(browser).toBeTruthy();
-    const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173";
+    const origin = baseURL ?? process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3333";
     const count = gameplayInstanceCount();
 
     const results = await Promise.all(
@@ -412,7 +423,7 @@ test.describe("Live trail server hammer (event simulation)", () => {
     await runTrailEventHammer(browser!, baseURL);
   });
 
-  test("event: LAN party wall — 30–100 concurrent travelers (STRESS_INSTANCES)", async ({
+  test("event: party wall — 30–100 concurrent travelers (STRESS_INSTANCES)", async ({
     browser,
     baseURL,
   }) => {

@@ -1,5 +1,4 @@
 import { io, type Socket } from "socket.io-client";
-import { MULTIPLAYER_CAP } from "../game/config";
 import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
 import { resolveTrailOrigin } from "./socketUrl";
@@ -65,9 +64,7 @@ export class TrailMultiplayer {
   async connect(): Promise<void> {
     if (this.socket?.connected) return;
     const origin = await resolveTrailOrigin();
-    this.onStatus(
-      origin ? `Connecting to trail server…` : "Connecting to local trail server…",
-    );
+    this.onStatus("Connecting…");
     const opts = {
       ...EMOTA_SOCKET_BASE,
       reconnectionAttempts: 5,
@@ -76,18 +73,18 @@ export class TrailMultiplayer {
     this.socket = s;
 
     s.on("connect", () => {
-      this.onStatus("Trail room connected (max " + MULTIPLAYER_CAP + " players).");
+      this.onStatus("Live — other parties can be on the trail with you.");
       s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
     });
 
     s.on("trail:room", (peers: TrailPeer[]) => this.onPeers(peers ?? []));
     s.on("scores:list", (rows) => this.onScores(rows ?? []));
     s.on("connect_error", () => {
-      this.onStatus("Offline mode — start `npm run server` to see other travelers.");
+      this.onStatus("Solo for now — other parties aren’t available.");
       this.onPeers([]);
     });
     s.on("disconnect", () => {
-      this.onStatus("Disconnected from trail server.");
+      this.onStatus("Connection dropped — you’re on your own until it returns.");
     });
   }
 

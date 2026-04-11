@@ -19,7 +19,12 @@
     "dev:stack": "npm run live:dev",
     "test:stress": "playwright test tests/stress/instances.spec.ts -g \"gameplay\"",
     "test:stress:hammer": "playwright test tests/stress/instances.spec.ts -g \"hammer:\"",
-    "test:stress:event": "playwright test tests/stress/instances.spec.ts -g \"event:\""
+    "test:stress:event": "playwright test tests/stress/instances.spec.ts -g \"event:\"",
+    "bigboard:simulate": "node scripts/trail-bots.mjs --origin=http://127.0.0.1:3333 --count=30",
+    "bigboard:simulate:fast": "node scripts/trail-bots.mjs --origin=http://127.0.0.1:3333 --count=30 --interval-ms=650",
+    "trail:admin:purge-sim": "node scripts/trail-admin-purge.mjs",
+    "trail:bots": "node scripts/trail-bots.mjs",
+    "trail:bots:local": "node scripts/trail-bots.mjs --origin=http://127.0.0.1:3333"
   },
   "dependencies": {
     "express": "^4.21.2",

@@ -3,7 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Stress / stability harness for EMOTA (not run in CI by default).
  * After deploy: `npx playwright install chromium` then `npm run test:stress`
- * Set PLAYWRIGHT_BASE_URL to your deployed origin if not using local preview.
+ * Local bigboard load: `npm run build && npm run server` → default base http://127.0.0.1:3333
+ * Override with PLAYWRIGHT_BASE_URL for preview/deployed bundles.
  */
 export default defineConfig({
   testDir: "./tests/stress",
@@ -15,7 +16,7 @@ export default defineConfig({
   expect: { timeout: 20_000 },
   use: {
     ...devices["Desktop Chrome"],
-    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:4173",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3333",
     trace: "off",
   },
   projects: [{ name: "chromium" }],

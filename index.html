@@ -61,13 +61,16 @@
             <p class="app-brand__tagline">8-bit classroom terminal — wagon days to hop-king Puyallup</p>
           </div>
         </div>
-        <div id="today-high-score" class="today-high-score" role="status" aria-live="polite" hidden></div>
+        <div class="app-header__stat-stack">
+          <div id="traveler-header-id" class="app-traveler-header-id" role="status" aria-live="polite" hidden></div>
+          <div id="today-high-score" class="today-high-score" role="status" aria-live="polite" hidden></div>
+        </div>
         </div>
       </div>
       <div class="app-header__glow" aria-hidden="true"></div>
     </header>
 
-    <div id="multiplayer-strip" class="mp-strip" hidden role="group" aria-label="Travelers on trail server"></div>
+    <div id="multiplayer-strip" class="mp-strip" hidden role="group" aria-label="Other travelers"></div>
     <div id="mp-peer-sheet" class="mp-peer-sheet" hidden aria-hidden="true"></div>
 
     <section id="land-view-slot" class="land-view-slot" hidden aria-label="Trail vista ahead">
@@ -89,6 +92,15 @@
 
     <footer class="app-footer">
       <p id="hint-text" class="footer-hint"></p>
+      <div class="footer-actions">
+        <a
+          id="footer-gift-shop"
+          class="footer-gift-shop"
+          href="https://preview--meekermansion-react-revival.lovable.app/gift-shop"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Meeker Mansion · beta gift shop</a>
+      </div>
     </footer>
 
     <div id="emota-popups" class="emota-popups" hidden aria-live="assertive"></div>

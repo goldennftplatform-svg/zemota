@@ -75,4 +75,6 @@ export interface DashboardSnapshot {
   profileTitle: string;
   triviaStreak: number;
   party: DashboardPartyRow[];
+  /** Stable device id for contests / roll call. */
+  travelerNumber: number;
 }

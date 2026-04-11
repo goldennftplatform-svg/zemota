@@ -2,7 +2,7 @@ import "./style.css";
 import { runBootSplash } from "./ui/bootSplash";
 import { initMobileShellClass } from "./mobile-detect";
 import { GameEngine, type EnginePhase } from "./game/engine";
-import { MULTIPLAYER_CAP } from "./game/config";
+import { MEEKER_GIFT_SHOP_URL, MULTIPLAYER_CAP } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
 import { TrailMultiplayer, getDisplayName } from "./net/multiplayer";
@@ -21,6 +21,9 @@ import {
   tryPersistRun,
   tryResumeRun,
 } from "./game/runSave";
+import { calendarDayKeyPST, todayCalendarKeyPST } from "./game/pstDate";
+import { getTravelerNumber } from "./game/playerNumber";
+import { showTrailInterstitial } from "./ui/trailInterstitial";
 
 initMobileShellClass();
 
@@ -48,7 +51,7 @@ const HS_KEY = "emota_high_scores";
 
 const HINT_PLAY =
   "1–9 or click · Pop-ups: Space/OK · Hunt: drag/tap aim, pad + FIRE (touch) or keys";
-const HINT_TITLE = "1–9 · start a run · optional `npm run server` for LAN trail strip";
+const HINT_TITLE = "1–9 · start a run";
 
 /** Short footer nudges for early trail beats (full controls stay in HINT_PLAY). */
 const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
@@ -58,6 +61,7 @@ const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
   profile: "Pick your leader’s job: 1–5 or tap a line → then store → 7 Leave → trail.",
   store: "Buy with 1–6, then 7 Leave — watch the sidebar.",
   travel_menu: "Camp hub: Travel, Rest, Hunt, Games…",
+  gift_shop_prompt: "1 opens the museum shop in a new tab; 2 claims after you’ve looked; 3 backs out.",
 };
 
 function loadLocalScores(): { name: string; score: number; at: string }[] {
@@ -76,30 +80,53 @@ function saveLocalScore(row: { name: string; score: number; at: string }): void 
   localStorage.setItem(HS_KEY, JSON.stringify(arr.slice(0, 50)));
 }
 
-function localCalendarDayKey(isoOrDate: string | Date): string {
-  const d = typeof isoOrDate === "string" ? new Date(isoOrDate) : isoOrDate;
-  if (Number.isNaN(d.getTime())) return "";
-  const y = d.getFullYear();
-  const mo = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${mo}-${day}`;
-}
+type ScoreRowLite = { name: string; score: number; at: string };
 
-function footerHint(phase: EnginePhase, isTitle: boolean, netStatus: string): string {
-  if (isTitle) return netStatus ? `${HINT_TITLE} · ${netStatus}` : HINT_TITLE;
+let netStatus = "";
+let lastTrailScoreRows: ScoreRowLite[] = [];
+let trailScoresTitleHint = "";
+
+function footerHint(phase: EnginePhase, isTitle: boolean): string {
+  if (isTitle) {
+    const bits = [HINT_TITLE];
+    if (netStatus) bits.push(netStatus);
+    if (trailScoresTitleHint) bits.push(trailScoresTitleHint);
+    return bits.join(" · ");
+  }
   const soft = PHASE_SOFT_FOOTER[phase];
   return soft ? `${soft} · ${HINT_PLAY}` : HINT_PLAY;
 }
 
 function getTodaysBestLocalScore(): { name: string; score: number } | null {
-  const todayKey = localCalendarDayKey(new Date());
+  const todayKey = todayCalendarKeyPST();
   let best: { name: string; score: number } | null = null;
   for (const row of loadLocalScores()) {
-    if (localCalendarDayKey(row.at) !== todayKey) continue;
+    if (calendarDayKeyPST(row.at) !== todayKey) continue;
     if (!best || row.score > best.score) best = { name: row.name, score: row.score };
   }
   return best;
 }
+
+function bestTodayFromTrailRows(rows: ScoreRowLite[]): { name: string; score: number } | null {
+  const todayKey = todayCalendarKeyPST();
+  let best: { name: string; score: number } | null = null;
+  for (const r of rows) {
+    if (calendarDayKeyPST(r.at) !== todayKey) continue;
+    if (!best || r.score > best.score) best = { name: r.name, score: r.score };
+  }
+  return best;
+}
+
+function mergedTodaysHigh(): { name: string; score: number } | null {
+  const a = getTodaysBestLocalScore();
+  const b = bestTodayFromTrailRows(lastTrailScoreRows);
+  if (!a && !b) return null;
+  if (!a) return b;
+  if (!b) return a;
+  return a.score >= b.score ? a : b;
+}
+
+let lastRenderedPstDay = todayCalendarKeyPST();
 
 const appLayout = document.getElementById("app-layout")!;
 const screenEl = document.getElementById("screen")!;
@@ -114,8 +141,15 @@ const landSlot = document.getElementById("land-view-slot")!;
 const landCanvas = document.getElementById("land-view-canvas") as HTMLCanvasElement;
 const landCaptionEl = document.getElementById("land-view-caption")!;
 const todayHighEl = document.getElementById("today-high-score")!;
+const travelerHeaderEl = document.getElementById("traveler-header-id")!;
+const footerGiftShopEl = document.getElementById("footer-gift-shop") as HTMLAnchorElement | null;
+if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
 
 const engine = new GameEngine();
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") tryPersistRun(engine);
+});
 const overhead = new OverheadMini(canvas);
 const chanceMini = new ChanceMini(canvas);
 
@@ -123,7 +157,6 @@ let prevPhase = "";
 let scoreCommitted = false;
 let overheadActive = false;
 let chanceActive = false;
-let netStatus = "";
 
 type TrailBc = {
   alive: number;
@@ -313,7 +346,8 @@ function openPeerSheet(peer: TrailPeer): void {
 
 function renderTrailStrip(peers: TrailPeer[]): void {
   lastTrailPeers = peers;
-  if (!peers.length) {
+  /** Live traveler chips are for the title / lobby only — bigboard shows everyone during runs. */
+  if (engine.phase !== "title" || !peers.length) {
     stripEl.hidden = true;
     return;
   }
@@ -339,16 +373,22 @@ const mp = new TrailMultiplayer(
     renderTrailStrip(peers ?? []);
   },
   (rows) => {
-    if (rows.length && engine.phase === "title") {
-      netStatus = `Server top: ${rows[0]!.name} ${rows[0]!.score}`;
-      hintEl.textContent = `${HINT_TITLE} · ${netStatus}`;
-    }
+    lastTrailScoreRows = (rows ?? [])
+      .map((r) => {
+        const at = String((r as { at?: string }).at ?? "");
+        const name = String((r as { name?: string }).name ?? "");
+        const score = Number((r as { score?: number }).score);
+        if (!at || !name || !Number.isFinite(score)) return null;
+        return { name, score, at };
+      })
+      .filter((x): x is ScoreRowLite => x != null);
+    const t = bestTodayFromTrailRows(lastTrailScoreRows);
+    trailScoresTitleHint = t ? `Trail today: ${t.name} · ${t.score}` : "";
+    render();
   },
   (msg) => {
     netStatus = msg;
-    if (engine.phase === "title") {
-      hintEl.textContent = `${HINT_TITLE} · ${msg}`;
-    }
+    render();
   },
 );
 
@@ -366,7 +406,7 @@ window.__emotaTrailStress = {
     });
   },
   submitScore: (name, score) => {
-    mp.submitScore(name, score, { stress: true });
+    mp.submitScore(name, score, { stress: true, travelerNo: getTravelerNumber() });
   },
   emitTrailFeed: (kind, text, miles, day) => {
     mp.emitTrailEvent({ kind, text, miles, day });
@@ -387,7 +427,7 @@ peerSheetEl.addEventListener("click", (e) => {
 });
 
 function renderChoiceLead(phase: string, n: number): string {
-  if (["travel_menu", "river", "store", "land_pick"].includes(phase)) {
+  if (["travel_menu", "river", "store", "land_pick", "gift_shop_prompt"].includes(phase)) {
     return choiceLeadingIcon(phase, n);
   }
   return `<span class="choice-num">${n}</span>`;
@@ -423,6 +463,11 @@ function refreshPopupOverlay(): void {
 }
 
 function render(): void {
+  if (engine.takeTravelInterstitial()) {
+    void showTrailInterstitial().then(() => render());
+    return;
+  }
+
   let sc = engine.getScreen();
   const resumeMeta = sc.phase === "title" ? peekRunSaveMeta() : null;
   if (resumeMeta && sc.choices?.length) {
@@ -531,18 +576,22 @@ function render(): void {
     const name = getDisplayName();
     const row = { name, score, at: new Date().toISOString() };
     saveLocalScore(row);
-    mp.submitScore(name, score, { hopKing: hop, profile: engine.profile });
+    mp.submitScore(name, score, {
+      hopKing: hop,
+      profile: engine.profile,
+      travelerNo: getTravelerNumber(),
+    });
   }
 
   if (sc.phase === "title") {
     scoreCommitted = false;
   }
 
-  const topLocal = loadLocalScores()[0];
+  const topLocalToday = getTodaysBestLocalScore();
   const linesBase = sc.lines.join("\n");
   const lines =
-    sc.phase === "title" && topLocal
-      ? `${linesBase}\n\nBest here: ${topLocal.name} · ${topLocal.score}`
+    sc.phase === "title" && topLocalToday
+      ? `${linesBase}\n\nYour best today: ${topLocalToday.name} · ${topLocalToday.score}`
       : linesBase;
   const linesHtml = lines.split("\n").map((l) => escapeHtml(l)).join("<br/>");
 
@@ -569,15 +618,28 @@ function render(): void {
 
   screenEl.innerHTML = `<div class="block">${linesHtml}</div>${coachHtml}${choicesHtml}${inputHtml}`;
 
-  hintEl.textContent = footerHint(sc.phase, isTitle, netStatus);
+  hintEl.textContent = footerHint(sc.phase, isTitle);
 
-  const todayBest = getTodaysBestLocalScore();
-  if (todayBest) {
+  const todayMerged = mergedTodaysHigh();
+  if (todayMerged) {
     todayHighEl.hidden = false;
-    todayHighEl.innerHTML = `<span class="today-high-score__label">Today's high</span><span class="today-high-score__value">${todayBest.score}</span><span class="today-high-score__who">${escapeHtml(todayBest.name)}</span>`;
+    todayHighEl.title = "Resets at midnight Pacific Time (PT).";
+    todayHighEl.innerHTML = `<span class="today-high-score__label">Today's high</span><span class="today-high-score__value">${todayMerged.score}</span><span class="today-high-score__who">${escapeHtml(todayMerged.name)}</span>`;
   } else {
     todayHighEl.hidden = true;
+    todayHighEl.removeAttribute("title");
     todayHighEl.textContent = "";
+  }
+
+  if (isTitle) {
+    travelerHeaderEl.hidden = true;
+    travelerHeaderEl.textContent = "";
+    travelerHeaderEl.removeAttribute("title");
+  } else {
+    const tid = getTravelerNumber();
+    travelerHeaderEl.hidden = false;
+    travelerHeaderEl.textContent = `Traveler #${tid}`;
+    travelerHeaderEl.title = "Contest / roll-call number — note it if you step away.";
   }
 
   const input = screenEl.querySelector<HTMLInputElement>(".line-input");
@@ -616,7 +678,17 @@ function render(): void {
 
   tryPersistRun(engine);
 
+  if (sc.phase !== "title") {
+    stripEl.hidden = true;
+    if (!peerSheetEl.hidden) closePeerSheet();
+  } else {
+    renderTrailStrip(lastTrailPeers);
+  }
+
   prevPhase = sc.phase;
+
+  const pstNow = todayCalendarKeyPST();
+  if (pstNow !== lastRenderedPstDay) lastRenderedPstDay = pstNow;
 }
 
 function escapeAttr(s: string): string {
@@ -644,6 +716,12 @@ function choice(n: number): void {
       render();
       return;
     }
+    return;
+  }
+
+  if (engine.phase === "gift_shop_prompt" && n === 1) {
+    window.open(MEEKER_GIFT_SHOP_URL, "_blank", "noopener,noreferrer");
+    render();
     return;
   }
 
@@ -712,6 +790,14 @@ document.addEventListener("keydown", (e) => {
   const n = Number(e.key);
   if (n >= 1 && n <= 9) choice(n);
 });
+
+setInterval(() => {
+  const d = todayCalendarKeyPST();
+  if (d !== lastRenderedPstDay) {
+    lastRenderedPstDay = d;
+    render();
+  }
+}, 30_000);
 
 void (async () => {
   await runBootSplash();

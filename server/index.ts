@@ -6,16 +6,29 @@ import { fileURLToPath } from "url";
 import type { TrailFeedEvent, TrailPeer } from "../src/net/trailProtocol";
 import { MAX_PARTY, MULTIPLAYER_CAP } from "../src/game/config";
 import type { TrailPeerPartyRow } from "../src/net/trailProtocol";
+import {
+  getTrailDataDir,
+  listArchiveFiles,
+  loadPersistedFeed,
+  loadPersistedScores,
+  persistFeed,
+  persistScores,
+  purgeSimulation,
+  startPstDayRolloverWatcher,
+  pruneOldArchives,
+  writeDailyArchive,
+  type PersistedScore,
+} from "./trailDisk";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.PORT ?? process.env.TRAIL_SERVER_PORT) || 3333;
 
 const app = express();
+app.use(express.json({ limit: "512kb" }));
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
-  // Allow Vercel + tunnel origins; credentials off matches default Socket.IO client (no cookies).
   cors: { origin: true, credentials: false, methods: ["GET", "POST"] },
   path: "/socket.io",
 });
@@ -30,7 +43,6 @@ type Peer = {
   partyCap?: number;
   profileTitle?: string;
   party?: TrailPeerPartyRow[];
-  /** Same browser profile across refresh — dedupe before adding a new socket. */
   clientId: string;
 };
 
@@ -50,11 +62,16 @@ function sanitizePartyRows(raw: unknown): TrailPeerPartyRow[] | undefined {
 }
 const peers = new Map<string, Peer>();
 
-type ScoreRow = { name: string; score: number; at: string; meta?: unknown };
-let scores: ScoreRow[] = [];
+type ScoreRow = PersistedScore;
+let scores: ScoreRow[] = loadPersistedScores();
 
 const FEED_CAP = 200;
-const feed: TrailFeedEvent[] = [];
+let feed: TrailFeedEvent[] = loadPersistedFeed();
+if (feed.length > FEED_CAP) feed = feed.slice(-FEED_CAP);
+
+function broadcastScores(): void {
+  io.emit("scores:list", scores);
+}
 
 function roomSnapshotList(): TrailPeer[] {
   return [...peers.entries()].map(([id, v]) => ({
@@ -84,8 +101,69 @@ function broadcastRoom(): void {
 function pushFeed(ev: TrailFeedEvent): void {
   feed.push(ev);
   if (feed.length > FEED_CAP) feed.splice(0, feed.length - FEED_CAP);
+  persistFeed(feed);
   io.emit("trail:feed:append", ev);
 }
+
+const ADMIN_TOKEN = process.env.EMOTA_TRAIL_ADMIN_TOKEN?.trim();
+
+function adminAuth(req: express.Request, res: express.Response): boolean {
+  if (!ADMIN_TOKEN) {
+    res.status(503).json({ ok: false, error: "Admin API disabled (set EMOTA_TRAIL_ADMIN_TOKEN)." });
+    return false;
+  }
+  const header = req.headers["x-emota-admin"];
+  const token =
+    (typeof header === "string" ? header : Array.isArray(header) ? header[0] : "") ||
+    String(req.query.token ?? "");
+  if (token !== ADMIN_TOKEN) {
+    res.status(401).json({ ok: false, error: "Unauthorized" });
+    return false;
+  }
+  return true;
+}
+
+app.post("/trail/admin/purge-simulation", (req, res) => {
+  if (!adminAuth(req, res)) return;
+  const before = scores.length;
+  const beforeF = feed.length;
+  const purged = purgeSimulation(scores, feed);
+  scores = purged.scores;
+  feed = purged.feed;
+  persistScores(scores);
+  persistFeed(feed);
+  broadcastScores();
+  io.emit("trail:feed:sync", feed.slice(-120));
+  res.json({
+    ok: true,
+    removedScores: before - scores.length,
+    removedFeed: beforeF - feed.length,
+  });
+});
+
+app.post("/trail/admin/reset-trail-board", (req, res) => {
+  if (!adminAuth(req, res)) return;
+  scores = [];
+  feed = [];
+  persistScores(scores);
+  persistFeed(feed);
+  broadcastScores();
+  io.emit("trail:feed:sync", []);
+  res.json({ ok: true, message: "Scores and feed cleared (peers unchanged until disconnect)." });
+});
+
+app.get("/trail/admin/status", (req, res) => {
+  if (!adminAuth(req, res)) return;
+  res.json({
+    ok: true,
+    dataDir: getTrailDataDir(),
+    scores: scores.length,
+    feed: feed.length,
+    peers: peers.size,
+    archiveFiles: listArchiveFiles().length,
+    adminEnabled: true,
+  });
+});
 
 const distDir = path.join(__dirname, "../dist");
 app.use(express.static(distDir));
@@ -97,7 +175,6 @@ app.get("/bigboard", (_req, res) => {
 io.on("connection", (socket) => {
   socket.emit("scores:list", scores);
   socket.emit("trail:feed:sync", feed.slice(-120));
-  /** So bigboard / late clients see wagons already on the trail */
   socket.emit("trail:room", roomSnapshotList());
 
   socket.on("trail:hello", (payload: { displayName?: string; clientId?: string }) => {
@@ -105,7 +182,9 @@ io.on("connection", (socket) => {
     const clientId = String(payload?.clientId ?? socket.id).slice(0, 36) || socket.id;
     removePeersWithClientId(clientId);
     if (peers.size >= MULTIPLAYER_CAP) {
-      socket.emit("trail:error", { message: `Room full (${MULTIPLAYER_CAP} travelers max).` });
+      socket.emit("trail:error", {
+        message: "The trail is full right now. Try again in a few minutes.",
+      });
       socket.disconnect(true);
       return;
     }
@@ -178,6 +257,7 @@ io.on("connection", (socket) => {
       scores.push({ name, score, at: new Date().toISOString(), meta: payload?.meta });
       scores.sort((a, b) => b.score - a.score);
       scores = scores.slice(0, 100);
+      persistScores(scores);
       io.emit("scores:list", scores);
     },
   );
@@ -192,9 +272,25 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, peers: peers.size, cap: MULTIPLAYER_CAP });
 });
 
+startPstDayRolloverWatcher((previousPstDay) => {
+  try {
+    writeDailyArchive(previousPstDay, scores, feed);
+    pruneOldArchives();
+    console.log(`[trail] Daily archive written for ${previousPstDay} (PST)`);
+  } catch (e) {
+    console.error("[trail] Archive failed:", e);
+  }
+});
+
 httpServer.listen(PORT, () => {
   console.log(
     `EMOTA trail server http://127.0.0.1:${PORT} (Socket.IO /socket.io, max ${MULTIPLAYER_CAP} players)`,
   );
   console.log(`  Bigboard (projector): http://127.0.0.1:${PORT}/bigboard`);
+  console.log(`  Trail data dir: ${getTrailDataDir()}`);
+  if (ADMIN_TOKEN) {
+    console.log(`  Admin: set header X-Emota-Admin or ?token= on /trail/admin/*`);
+  } else {
+    console.log(`  Admin: disabled — set EMOTA_TRAIL_ADMIN_TOKEN to purge/archive tools`);
+  }
 });

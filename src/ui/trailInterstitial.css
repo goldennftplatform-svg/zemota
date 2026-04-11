@@ -1,0 +1,75 @@
+.emota-trail-interstitial {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #0a1810 0%, #020806 72%);
+  animation: emota-interstitial-fade 0.35s ease-out;
+}
+
+.emota-trail-interstitial--out {
+  animation: emota-interstitial-fade-out 0.4s ease-in forwards;
+}
+
+@keyframes emota-interstitial-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes emota-interstitial-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.emota-trail-interstitial__scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 4px
+  );
+  opacity: 0.45;
+}
+
+.emota-trail-interstitial__inner {
+  position: relative;
+  text-align: center;
+  padding: 1.25rem;
+  max-width: min(96vw, 34rem);
+}
+
+.emota-trail-interstitial__brand {
+  font-family: "Press Start 2P", monospace;
+  font-size: clamp(0.55rem, 2.8vw, 0.72rem);
+  color: #39ff7a;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 12px rgba(57, 255, 120, 0.45);
+  margin-bottom: 0.75rem;
+}
+
+.emota-trail-interstitial__ascii {
+  font-family: "VT323", ui-monospace, monospace;
+  font-size: clamp(0.85rem, 3.2vw, 1.05rem);
+  line-height: 1.05;
+  color: #9ee0b8;
+  white-space: pre;
+  margin: 0 auto 0.5rem;
+  text-shadow: 0 0 8px rgba(57, 255, 120, 0.25);
+}
+
+.emota-trail-interstitial__tag {
+  font-family: "VT323", monospace;
+  font-size: 1.15rem;
+  color: rgba(180, 230, 200, 0.75);
+}

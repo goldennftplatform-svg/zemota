@@ -1,0 +1,171 @@
+/**
+ * Top-down “block art” sprites for the hunt minigame — chunky cells with outlines,
+ * on-brand with the cabin build studs (no external image assets).
+ */
+
+import type { AnimalKind } from "../game/huntZones";
+
+const OUTLINE = "rgba(18,14,10,0.88)";
+
+/** Bird’s-eye silhouettes; wider axis = head / bulk toward +X (mirrored when facing < 0). */
+const PATTERNS: Record<AnimalKind, string[]> = {
+  bison: [
+    "      DDD      ",
+    "     BBBBB     ",
+    "    BBBBBBB    ",
+    "   BBBBBBBBB   ",
+    "   BBBBBBBBB   ",
+    "    BBBBBBB    ",
+    "     BBBBB     ",
+    "      BBB      ",
+  ],
+  bear: [
+    "      BBB      ",
+    "    BBBBBBB    ",
+    "   BBBBBBBBB   ",
+    "  BBBBBBBSSS   ",
+    "   BBBBBBBBB   ",
+    "    BBBBBBB    ",
+    "      BBB      ",
+  ],
+  deer: [
+    "      A A      ",
+    "     AAAAA     ",
+    "      DDD      ",
+    "     DDDDD     ",
+    "    DDDDDDD    ",
+    "    DDDDDDD    ",
+    "     DDDDD     ",
+    "      DDD      ",
+  ],
+  rabbit: [
+    "      E E      ",
+    "     E   E     ",
+    "    RRRRRRR    ",
+    "   RRRRRRRRR   ",
+    "    RRRRRRR    ",
+    "     RRRRR     ",
+  ],
+};
+
+const DEAD_BLOT = [
+  "    ggg    ",
+  "   ggggg   ",
+  "  ggggggg  ",
+  " ggggggggg ",
+  "  ggggggg  ",
+  "   ggggg   ",
+  "    ggg    ",
+];
+
+const PALETTES: Record<AnimalKind, Record<string, string>> = {
+  bison: {
+    B: "#5c4030",
+    D: "#3d2a1a",
+  },
+  bear: {
+    B: "#2a1e18",
+    S: "#3d3228",
+  },
+  deer: {
+    D: "#6e5428",
+    A: "#c8b898",
+  },
+  rabbit: {
+    R: "#5a5854",
+    E: "#6e6c66",
+  },
+};
+
+function drawPattern(
+  ctx: CanvasRenderingContext2D,
+  pattern: string[],
+  palette: Record<string, string>,
+  x: number,
+  y: number,
+  bw: number,
+  bh: number,
+  facing: 1 | -1,
+): void {
+  const rows = pattern.length;
+  const cols = pattern[0]?.length ?? 0;
+  if (!cols || !rows) return;
+  const cw = bw / cols;
+  const ch = bh / rows;
+  const inset = 0.45;
+
+  for (let r = 0; r < rows; r++) {
+    const line = pattern[r]!;
+    for (let c = 0; c < cols; c++) {
+      const chCode = line[c]!;
+      if (chCode === " " || chCode === ".") continue;
+      const fill = palette[chCode];
+      if (!fill) continue;
+      const mc = facing >= 0 ? c : cols - 1 - c;
+      const px = x + mc * cw;
+      const py = y + r * ch;
+      ctx.fillStyle = fill;
+      ctx.fillRect(px + inset, py + inset, cw - inset * 2, ch - inset * 2);
+      ctx.strokeStyle = OUTLINE;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(px + inset, py + inset, cw - inset * 2, ch - inset * 2);
+    }
+  }
+}
+
+/** Darken a #rrggbb color for fallen game. */
+function fallenTint(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return "#3a3634";
+  const n = parseInt(m[1]!, 16);
+  const r = Math.floor(((n >> 16) & 0xff) * 0.45);
+  const g = Math.floor(((n >> 8) & 0xff) * 0.42);
+  const b = Math.floor((n & 0xff) * 0.4);
+  return `rgb(${r},${g},${b})`;
+}
+
+export function drawTopDownBlockAnimal(
+  ctx: CanvasRenderingContext2D,
+  kind: AnimalKind,
+  alive: boolean,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  facing: 1 | -1,
+  bodyTint: string,
+): void {
+  if (!alive) {
+    drawPattern(ctx, DEAD_BLOT, { g: fallenTint(bodyTint) }, x, y, w, h, facing);
+    return;
+  }
+  const pattern = PATTERNS[kind];
+  const base = PALETTES[kind];
+  const palette =
+    kind === "bison"
+      ? { ...base, B: blendToward(base.B!, bodyTint, 0.22), D: blendToward(base.D!, bodyTint, 0.18) }
+      : kind === "bear"
+        ? { ...base, B: blendToward(base.B!, bodyTint, 0.2), S: blendToward(base.S!, bodyTint, 0.15) }
+        : kind === "deer"
+          ? { ...base, D: blendToward(base.D!, bodyTint, 0.25), A: base.A! }
+          : { ...base, R: blendToward(base.R!, bodyTint, 0.2), E: blendToward(base.E!, bodyTint, 0.15) };
+
+  drawPattern(ctx, pattern, palette, x, y, w, h, facing);
+}
+
+function blendToward(hex: string, targetHex: string, t: number): string {
+  const a = parseHex(hex);
+  const b = parseHex(targetHex);
+  if (!a || !b) return hex;
+  const r = Math.round(a.r + (b.r - a.r) * t);
+  const g = Math.round(a.g + (b.g - a.g) * t);
+  const bl = Math.round(a.b + (b.b - a.b) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+
+function parseHex(hex: string): { r: number; g: number; b: number } | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1]!, 16);
+  return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff };
+}

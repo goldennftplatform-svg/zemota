@@ -8,7 +8,7 @@ import { initMobileShellClass } from "../mobile-detect";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
-import { resolveTrailOrigin, trailServerOrigin } from "../net/socketUrl";
+import { resolveTrailOrigin } from "../net/socketUrl";
 import "./bigboard.css";
 
 initMobileShellClass();
@@ -28,6 +28,18 @@ function hueFor(name: string): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
   return h % 360;
+}
+
+function feedKindLabel(kind: string): string {
+  const m: Record<string, string> = {
+    death: "Loss",
+    victory: "Victory",
+    wipeout: "Wiped out",
+    river: "River",
+    milestone: "Milestone",
+    system: "Trail",
+  };
+  return m[kind] ?? kind.replace(/_/g, " ");
 }
 
 function fmtTime(iso: string): string {
@@ -55,7 +67,6 @@ let feed: TrailFeedEvent[] = [];
 let scoreRows: ScoreRow[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
 let connState: "ok" | "warn" | "bad" = "warn";
-let lastSocketError = "";
 let lastPeerIds = new Set<string>();
 let roomSyncCount = 0;
 let joinToast: string | null = null;
@@ -75,16 +86,13 @@ function wagonIconSvg(): string {
 }
 
 function socketTargetDisplay(): string {
-  const o = lastResolvedOrigin ?? trailServerOrigin();
-  if (o) return o;
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (/\.vercel\.app$/i.test(host)) {
-      return "No trail URL — set Vercel VITE_TRAIL_SERVER_URL, or public/trail.json origin, or ?trail=https://…";
+      return "Live trail isn’t set up for this page yet.";
     }
-    return `${window.location.origin} — use ?trail=http://127.0.0.1:3333 with npm run server, or npm run dev`;
   }
-  return "";
+  return "Can’t reach the live trail from here.";
 }
 
 const app = document.getElementById("app")!;
@@ -97,21 +105,14 @@ document.body.appendChild(popupHost);
 function render(): void {
   const conn = connState;
   const connClass = conn === "ok" ? "bb-live--ok" : conn === "bad" ? "" : "bb-live--warn";
-  const connLabel =
-    conn === "ok" ? "LIVE · SOCKET" : conn === "bad" ? "OFFLINE" : "CONNECTING…";
-  const trailTarget =
-    lastResolvedOrigin ??
-    trailServerOrigin() ??
-    (conn === "ok" && typeof window !== "undefined" ? window.location.origin : undefined);
+  const connLabel = conn === "ok" ? "LIVE" : conn === "bad" ? "OFFLINE" : "CONNECTING…";
   const connDetailOk =
-    conn === "ok" && trailTarget
-      ? `<div class="bb-live__detail bb-live__detail--muted">${escapeHtml(trailTarget)}</div>`
+    conn === "ok"
+      ? `<div class="bb-live__detail bb-live__detail--muted">Wagons and scores update as people play.</div>`
       : "";
   const connDetail =
     conn !== "ok"
-      ? `<div class="bb-live__detail">${escapeHtml(socketTargetDisplay())}${
-          lastSocketError ? ` · ${escapeHtml(lastSocketError.slice(0, 140))}` : ""
-        }</div>`
+      ? `<div class="bb-live__detail">${escapeHtml(socketTargetDisplay())}</div>`
       : connDetailOk;
 
   const feedHtml = feed
@@ -130,7 +131,7 @@ function render(): void {
                   ? "bb-feed__item--milestone"
                   : "";
       return `<div class="bb-feed__item ${mod}" data-id="${escapeHtml(ev.id)}">
-        <div class="bb-feed__meta">${escapeHtml(fmtTime(ev.at))} · ${escapeHtml(ev.kind)} · ${escapeHtml(ev.displayName)}</div>
+        <div class="bb-feed__meta">${escapeHtml(fmtTime(ev.at))} · ${escapeHtml(feedKindLabel(ev.kind))} · ${escapeHtml(ev.displayName)}</div>
         <div class="bb-feed__text">${escapeHtml(ev.text)}</div>
       </div>`;
     })
@@ -154,7 +155,7 @@ function render(): void {
   const lobbyHint =
     conn === "ok" && peers.length === 0
       ? `<div class="bb-lobby" role="status">
-          <strong>No wagons on the wire yet.</strong> Open the <em>game</em> on this site (same trail server) — each player appears here as a wagon when they start a run.
+          <strong>No wagons yet.</strong> When travelers start a run in the game, they show up here on the map.
         </div>`
       : "";
 
@@ -182,7 +183,7 @@ function render(): void {
             )
             .join("")}
         </ol>`
-      : `<p class="bb-lb__empty">No LAN scores on this trail server yet. Finish a run (victory screen), or run <code class="bb-lb__code">npm run test:stress:hammer</code> with bots.</p>`;
+      : `<p class="bb-lb__empty">No scores on the board yet. Finish a run to post one.</p>`;
 
   app.innerHTML = `
     <div class="bb-root">
@@ -193,7 +194,7 @@ function render(): void {
           <img src="/meeker-mark.svg" width="40" height="52" alt="" />
           <div>
             <div class="bb-brand__title">EMOTA · LIVE TRAIL</div>
-            <div class="bb-brand__sub">Oregon Trail · classroom · projector wall</div>
+            <div class="bb-brand__sub">Oregon Trail · live map</div>
           </div>
         </div>
         <div class="bb-high bb-high--compact" aria-label="Top score at a glance">
@@ -212,14 +213,14 @@ function render(): void {
       <section class="bb-lb" aria-labelledby="bb-lb-title">
         <div class="bb-lb__head">
           <h2 id="bb-lb-title" class="bb-lb__title">TRAIL LEADERBOARD</h2>
-          <p class="bb-lb__meta">Up to 12 ranks · ${scoreRows.length} total on this trail server</p>
+          <p class="bb-lb__meta">Top 12 shown · ${scoreRows.length} on the board</p>
         </div>
         <div class="bb-lb__body">${leaderboardBody}</div>
       </section>
       <div class="bb-main">
         <aside class="bb-feed">
           <div class="bb-feed__head">// SIGNAL FEED</div>
-          <div class="bb-feed__list" id="feed-list">${feedHtml || `<div class="bb-feed__item">Waiting for trail events…</div>`}</div>
+          <div class="bb-feed__list" id="feed-list">${feedHtml || `<div class="bb-feed__item">Waiting for news from the trail…</div>`}</div>
         </aside>
         <div class="bb-map-wrap">
           <div class="bb-stars" id="stars" aria-hidden="true"></div>
@@ -332,12 +333,10 @@ void resolveTrailOrigin().then((bbOrigin) => {
   const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
 
   socket.on("connect", () => {
-    lastSocketError = "";
     setConn("ok");
   });
   socket.on("disconnect", () => setConn("bad"));
-  socket.on("connect_error", (err: Error) => {
-    lastSocketError = err?.message || String(err);
+  socket.on("connect_error", () => {
     setConn("warn");
   });
 

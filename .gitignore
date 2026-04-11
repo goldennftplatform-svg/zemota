@@ -5,5 +5,8 @@ dist
 .env
 .env.local
 
+# Persisted trail scores / feed / daily archives (local server)
+data/trail/
+
 .cursor/
 .agents/

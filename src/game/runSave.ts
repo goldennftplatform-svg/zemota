@@ -7,6 +7,7 @@ const RESUME_PHASE_LABEL: Record<string, string> = {
   party_names: "Naming party",
   profile: "Picking profession",
   store: "At the store",
+  gift_shop_prompt: "Gift shop thank-you",
   travel_menu: "Camp",
   river: "River crossing",
   travel_log: "Journal",
@@ -19,6 +20,8 @@ const RESUME_PHASE_LABEL: Record<string, string> = {
   land_pick: "Land claim",
   land_build: "Building",
   land_result: "Claim result",
+  bonus_pick: "Stage 2 · next act",
+  bonus_result: "Stage 2 · outcome",
   game_over: "Game over",
   victory: "Score screen",
 };
