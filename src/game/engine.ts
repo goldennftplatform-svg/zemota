@@ -340,7 +340,7 @@ export class GameEngine {
             "Good luck on the trail.",
           ],
           coach:
-            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Your Traveler # in the header is for roll call. Mouse / touch work too.",
+            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Mouse / touch work too.",
           choices: [
             { n: 1, text: "New game · with training" },
             { n: 2, text: "New game · skip training" },
@@ -718,14 +718,12 @@ export class GameEngine {
         const score = this.computeScore();
         return {
           phase: "victory",
-          coach: "Nice run — Title starts fresh. Today’s best (Pacific) sits in the header for contests.",
+          coach: "Nice run — Title starts fresh. Your local best today stays in the header when you have one.",
           lines: [
             `Score ${score}`,
             this.stage2Archetype ? `Stage 2 · ${this.stage2Archetype} (+${this.stage2ScoreBonus})` : "",
             `Alive ${this.livingCount()}/${MAX_PARTY} · Quiz ✓ ${this.triviaCorrect} · ${formatMoney(this.inv.moneyCents)}`,
             this.lastLandResult?.hopKing ? "Hop King bonus (land)" : "",
-            "",
-            `Traveler #${getTravelerNumber()} — save this number for roll call.`,
             "",
             "Your score is saved on this device.",
           ].filter(Boolean),

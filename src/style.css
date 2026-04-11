@@ -272,23 +272,6 @@ body {
   margin-left: auto;
 }
 
-.app-traveler-header-id {
-  flex-shrink: 0;
-  font-family: var(--font-head);
-  font-size: clamp(0.42rem, 0.36rem + 0.4vw, 0.52rem);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--hi);
-  padding: 0.28rem 0.5rem;
-  border: 2px solid var(--border);
-  border-radius: 6px;
-  background: rgba(0, 24, 12, 0.65);
-  box-shadow: 2px 2px 0 var(--shadow);
-  max-width: 12rem;
-  text-align: right;
-  -webkit-font-smoothing: none;
-}
-
 .today-high-score {
   flex-shrink: 0;
   text-align: right;
@@ -469,6 +452,16 @@ body {
 
 .app-layout.is-title .app-brand__portrait {
   width: 34px;
+}
+
+/* Live peer chips belong on /bigboard only — main game never shows this row. */
+#multiplayer-strip {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
 }
 
 .mp-strip {
@@ -790,19 +783,6 @@ body {
   align-items: center;
   gap: 0.5rem 0.65rem;
   justify-content: space-between;
-}
-
-.dash-traveler-id {
-  margin: 0;
-  font-family: var(--font-head);
-  font-size: clamp(0.42rem, 1.5vw, 0.52rem);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--hi);
-  opacity: 0.95;
-  flex-basis: 100%;
-  width: 100%;
-  -webkit-font-smoothing: none;
 }
 
 .dash-chip {

@@ -100,7 +100,6 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
       <header class="dash-head">
         <div class="dash-head__top">
           <span class="dash-chip">${escapeHtml(chip)}</span>
-          <p class="dash-traveler-id" title="Your contest / roll-call number (save if you step away)">Traveler #${s.travelerNumber}</p>
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
         </div>
         <div class="dash-minimap-host" aria-hidden="true">${minimap}</div>

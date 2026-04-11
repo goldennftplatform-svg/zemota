@@ -2,7 +2,7 @@ import "./style.css";
 import { runBootSplash } from "./ui/bootSplash";
 import { initMobileShellClass } from "./mobile-detect";
 import { GameEngine, type EnginePhase } from "./game/engine";
-import { MEEKER_GIFT_SHOP_URL, MULTIPLAYER_CAP } from "./game/config";
+import { MEEKER_GIFT_SHOP_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
 import { TrailMultiplayer, getDisplayName } from "./net/multiplayer";
@@ -80,17 +80,12 @@ function saveLocalScore(row: { name: string; score: number; at: string }): void 
   localStorage.setItem(HS_KEY, JSON.stringify(arr.slice(0, 50)));
 }
 
-type ScoreRowLite = { name: string; score: number; at: string };
-
 let netStatus = "";
-let lastTrailScoreRows: ScoreRowLite[] = [];
-let trailScoresTitleHint = "";
 
 function footerHint(phase: EnginePhase, isTitle: boolean): string {
   if (isTitle) {
     const bits = [HINT_TITLE];
     if (netStatus) bits.push(netStatus);
-    if (trailScoresTitleHint) bits.push(trailScoresTitleHint);
     return bits.join(" · ");
   }
   const soft = PHASE_SOFT_FOOTER[phase];
@@ -105,25 +100,6 @@ function getTodaysBestLocalScore(): { name: string; score: number } | null {
     if (!best || row.score > best.score) best = { name: row.name, score: row.score };
   }
   return best;
-}
-
-function bestTodayFromTrailRows(rows: ScoreRowLite[]): { name: string; score: number } | null {
-  const todayKey = todayCalendarKeyPST();
-  let best: { name: string; score: number } | null = null;
-  for (const r of rows) {
-    if (calendarDayKeyPST(r.at) !== todayKey) continue;
-    if (!best || r.score > best.score) best = { name: r.name, score: r.score };
-  }
-  return best;
-}
-
-function mergedTodaysHigh(): { name: string; score: number } | null {
-  const a = getTodaysBestLocalScore();
-  const b = bestTodayFromTrailRows(lastTrailScoreRows);
-  if (!a && !b) return null;
-  if (!a) return b;
-  if (!b) return a;
-  return a.score >= b.score ? a : b;
 }
 
 let lastRenderedPstDay = todayCalendarKeyPST();
@@ -141,7 +117,6 @@ const landSlot = document.getElementById("land-view-slot")!;
 const landCanvas = document.getElementById("land-view-canvas") as HTMLCanvasElement;
 const landCaptionEl = document.getElementById("land-view-caption")!;
 const todayHighEl = document.getElementById("today-high-score")!;
-const travelerHeaderEl = document.getElementById("traveler-header-id")!;
 const footerGiftShopEl = document.getElementById("footer-gift-shop") as HTMLAnchorElement | null;
 if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
 
@@ -344,46 +319,18 @@ function openPeerSheet(peer: TrailPeer): void {
   peerSheetEl.querySelector<HTMLButtonElement>(".mp-peer-sheet__close")?.focus();
 }
 
-function renderTrailStrip(peers: TrailPeer[]): void {
+/** Other wagons stay on the bigboard only — main client never shows peer chips. */
+function hideTrailStrip(peers: TrailPeer[]): void {
   lastTrailPeers = peers;
-  /** Live traveler chips are for the title / lobby only — bigboard shows everyone during runs. */
-  if (engine.phase !== "title" || !peers.length) {
-    stripEl.hidden = true;
-    return;
-  }
-  stripEl.hidden = false;
-  const selfName = getDisplayName();
-  const chips = peers
-    .slice(0, MULTIPLAYER_CAP)
-    .map((p) => {
-      const aliveBit =
-        p.alive != null && p.partyCap != null ? ` · ${p.alive}/${p.partyCap}` : "";
-      const selfClass = p.displayName === selfName ? " mp-chip--self" : "";
-      return `<button type="button" class="mp-chip${selfClass}" data-peer-id="${escapeAttr(p.id)}" aria-label="Wagon ${escapeAttr(p.displayName)}: ${Math.round(p.miles)} miles, day ${p.day}. Open party details.">
-        <span class="mp-chip__name">${escapeHtml(p.displayName)}</span>
-        <span class="mp-chip__meta">${Math.round(p.miles)} mi · d${p.day}${aliveBit}</span>
-      </button>`;
-    })
-    .join("");
-  stripEl.innerHTML = `<span class="mp-strip__chev" aria-hidden="true">&gt;</span><div class="mp-strip__chips">${chips}</div>`;
+  stripEl.hidden = true;
+  stripEl.innerHTML = "";
 }
 
 const mp = new TrailMultiplayer(
   (peers) => {
-    renderTrailStrip(peers ?? []);
+    hideTrailStrip(peers ?? []);
   },
-  (rows) => {
-    lastTrailScoreRows = (rows ?? [])
-      .map((r) => {
-        const at = String((r as { at?: string }).at ?? "");
-        const name = String((r as { name?: string }).name ?? "");
-        const score = Number((r as { score?: number }).score);
-        if (!at || !name || !Number.isFinite(score)) return null;
-        return { name, score, at };
-      })
-      .filter((x): x is ScoreRowLite => x != null);
-    const t = bestTodayFromTrailRows(lastTrailScoreRows);
-    trailScoresTitleHint = t ? `Trail today: ${t.name} · ${t.score}` : "";
+  () => {
     render();
   },
   (msg) => {
@@ -591,7 +538,7 @@ function render(): void {
   const linesBase = sc.lines.join("\n");
   const lines =
     sc.phase === "title" && topLocalToday
-      ? `${linesBase}\n\nYour best today: ${topLocalToday.name} · ${topLocalToday.score}`
+      ? `${linesBase}\n\nYour best today (this device): ${topLocalToday.score}`
       : linesBase;
   const linesHtml = lines.split("\n").map((l) => escapeHtml(l)).join("<br/>");
 
@@ -620,26 +567,15 @@ function render(): void {
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
 
-  const todayMerged = mergedTodaysHigh();
-  if (todayMerged) {
+  const bestLocal = getTodaysBestLocalScore();
+  if (bestLocal) {
     todayHighEl.hidden = false;
-    todayHighEl.title = "Resets at midnight Pacific Time (PT).";
-    todayHighEl.innerHTML = `<span class="today-high-score__label">Today's high</span><span class="today-high-score__value">${todayMerged.score}</span><span class="today-high-score__who">${escapeHtml(todayMerged.name)}</span>`;
+    todayHighEl.title = "Your best score today on this browser (Pacific calendar day). Live trail names stay on the bigboard.";
+    todayHighEl.innerHTML = `<span class="today-high-score__label">Your best today</span><span class="today-high-score__value">${bestLocal.score}</span>`;
   } else {
     todayHighEl.hidden = true;
     todayHighEl.removeAttribute("title");
     todayHighEl.textContent = "";
-  }
-
-  if (isTitle) {
-    travelerHeaderEl.hidden = true;
-    travelerHeaderEl.textContent = "";
-    travelerHeaderEl.removeAttribute("title");
-  } else {
-    const tid = getTravelerNumber();
-    travelerHeaderEl.hidden = false;
-    travelerHeaderEl.textContent = `Traveler #${tid}`;
-    travelerHeaderEl.title = "Contest / roll-call number — note it if you step away.";
   }
 
   const input = screenEl.querySelector<HTMLInputElement>(".line-input");
@@ -678,12 +614,8 @@ function render(): void {
 
   tryPersistRun(engine);
 
-  if (sc.phase !== "title") {
-    stripEl.hidden = true;
-    if (!peerSheetEl.hidden) closePeerSheet();
-  } else {
-    renderTrailStrip(lastTrailPeers);
-  }
+  stripEl.hidden = true;
+  if (!peerSheetEl.hidden) closePeerSheet();
 
   prevPhase = sc.phase;
 

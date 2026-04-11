@@ -1,4 +1,5 @@
 import { io, type Socket } from "socket.io-client";
+import { getTravelerNumber } from "../game/playerNumber";
 import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
 import { resolveTrailOrigin } from "./socketUrl";
@@ -26,10 +27,23 @@ export function getTrailClientId(): string {
 }
 
 export function getDisplayName(): string {
-  return (
-    localStorage.getItem(LS_NAME) ||
-    `Traveler-${Math.floor(Math.random() * 9000 + 1000)}`
-  );
+  try {
+    const raw = localStorage.getItem(LS_NAME);
+    const saved = raw?.trim() ?? "";
+    if (saved) {
+      if (/^Traveler-\d{4}$/i.test(saved)) {
+        const migrated = `Party ${getTravelerNumber()}`.slice(0, 24);
+        localStorage.setItem(LS_NAME, migrated);
+        return migrated;
+      }
+      return saved.slice(0, 24);
+    }
+    const d = `Party ${getTravelerNumber()}`.slice(0, 24);
+    localStorage.setItem(LS_NAME, d);
+    return d;
+  } catch {
+    return `Party ${getTravelerNumber()}`.slice(0, 24);
+  }
 }
 
 export function setDisplayName(n: string): void {
@@ -73,14 +87,14 @@ export class TrailMultiplayer {
     this.socket = s;
 
     s.on("connect", () => {
-      this.onStatus("Live — other parties can be on the trail with you.");
+      this.onStatus("Trail server connected.");
       s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
     });
 
     s.on("trail:room", (peers: TrailPeer[]) => this.onPeers(peers ?? []));
     s.on("scores:list", (rows) => this.onScores(rows ?? []));
     s.on("connect_error", () => {
-      this.onStatus("Solo for now — other parties aren’t available.");
+      this.onStatus("Playing solo — trail server unavailable.");
       this.onPeers([]);
     });
     s.on("disconnect", () => {
