@@ -10,3 +10,7 @@ data/trail/
 
 .cursor/
 .agents/
+
+# Playwright
+test-results/
+playwright-report/
