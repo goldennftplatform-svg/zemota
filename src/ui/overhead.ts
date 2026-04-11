@@ -178,7 +178,8 @@ function sizeForKind(k: AnimalKind): { w: number; h: number } {
     case "deer":
       return { w: 36, h: 24 };
     default:
-      return { w: 18, h: 14 };
+      /* Wide pattern (15 cols) needs enough pixels per block or art vanishes when scaled. */
+      return { w: 36, h: 22 };
   }
 }
 
@@ -396,16 +397,20 @@ function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, t: num
     ctx.fillRect(x, y, 2, 3 + (i % 4));
   }
 
+  /* Blocky “brush” cover — reads with the stud animals better than soft circles. */
   for (const c of hunt.clumps) {
     ctx.save();
-    ctx.fillStyle = "rgba(55,65,42,0.68)";
-    ctx.beginPath();
-    ctx.ellipse(c.x, c.y, c.r, c.r * 0.88, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "rgba(75,85,55,0.42)";
-    ctx.beginPath();
-    ctx.ellipse(c.x - 2, c.y - 1, c.r * 0.72, c.r * 0.55, 0, 0, Math.PI * 2);
-    ctx.fill();
+    const rw = c.r * 2;
+    const rh = Math.round(c.r * 1.65);
+    const bx = Math.round(c.x - rw / 2);
+    const by = Math.round(c.y - rh / 2);
+    ctx.fillStyle = "rgba(48,58,38,0.72)";
+    ctx.fillRect(bx, by, rw, rh);
+    ctx.fillStyle = "rgba(62,72,48,0.45)";
+    ctx.fillRect(bx + 2, by + 2, rw - 5, rh - 5);
+    ctx.strokeStyle = "rgba(20,28,18,0.35)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(bx + 0.5, by + 0.5, rw - 1, rh - 1);
     ctx.restore();
   }
 
@@ -443,9 +448,7 @@ function drawTdAnimal(ctx: CanvasRenderingContext2D, a: HuntAnimal): void {
   const { x, y: y0, w, h } = a;
   const bob = a.alive ? Math.sin(a.walkPhase) * 1.2 : 0;
   const y = y0 + bob;
-  const fade = a.alive ? Math.min(1, a.spawnAge / 18) : 1;
   ctx.save();
-  ctx.globalAlpha = fade;
   drawTopDownBlockAnimal(ctx, a.kind, a.alive, x, y, w, h, a.facing, col);
   ctx.restore();
 }

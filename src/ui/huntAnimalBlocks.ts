@@ -77,6 +77,9 @@ const PALETTES: Record<AnimalKind, Record<string, string>> = {
   },
 };
 
+/** Keep each stud readable on a 320×240 hunt canvas (sub-pixel cells disappear). */
+const MIN_BLOCK_PX = 2.35;
+
 function drawPattern(
   ctx: CanvasRenderingContext2D,
   pattern: string[],
@@ -90,9 +93,16 @@ function drawPattern(
   const rows = pattern.length;
   const cols = pattern[0]?.length ?? 0;
   if (!cols || !rows) return;
-  const cw = bw / cols;
-  const ch = bh / rows;
-  const inset = 0.45;
+  let cw = bw / cols;
+  let ch = bh / rows;
+  const scale = Math.max(1, MIN_BLOCK_PX / Math.min(cw, ch));
+  cw *= scale;
+  ch *= scale;
+  const drawW = cw * cols;
+  const drawH = ch * rows;
+  const ox = x + (bw - drawW) * 0.5;
+  const oy = y + (bh - drawH) * 0.5;
+  const inset = 0.35;
 
   for (let r = 0; r < rows; r++) {
     const line = pattern[r]!;
@@ -102,8 +112,8 @@ function drawPattern(
       const fill = palette[chCode];
       if (!fill) continue;
       const mc = facing >= 0 ? c : cols - 1 - c;
-      const px = x + mc * cw;
-      const py = y + r * ch;
+      const px = ox + mc * cw;
+      const py = oy + r * ch;
       ctx.fillStyle = fill;
       ctx.fillRect(px + inset, py + inset, cw - inset * 2, ch - inset * 2);
       ctx.strokeStyle = OUTLINE;
