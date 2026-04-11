@@ -5,7 +5,7 @@
 
 import type { AnimalKind } from "../game/huntZones";
 
-const OUTLINE = "rgba(18,14,10,0.88)";
+const OUTLINE = "rgba(12,10,8,0.92)";
 
 /** Bird’s-eye silhouettes; wider axis = head / bulk toward +X (mirrored when facing < 0). */
 const PATTERNS: Record<AnimalKind, string[]> = {
@@ -80,6 +80,13 @@ const PALETTES: Record<AnimalKind, Record<string, string>> = {
 /** Keep each stud readable on a 320×240 hunt canvas (sub-pixel cells disappear). */
 const MIN_BLOCK_PX = 2.35;
 
+function patternSolid(pattern: string[], rows: number, cols: number, r: number, c: number): boolean {
+  if (r < 0 || c < 0 || r >= rows || c >= cols) return false;
+  const code = pattern[r]![c]!;
+  return code !== " " && code !== ".";
+}
+
+/** Pixel-art style: filled studs + one clean outer silhouette (no per-tile box noise). */
 function drawPattern(
   ctx: CanvasRenderingContext2D,
   pattern: string[],
@@ -102,7 +109,7 @@ function drawPattern(
   const drawH = ch * rows;
   const ox = x + (bw - drawW) * 0.5;
   const oy = y + (bh - drawH) * 0.5;
-  const inset = 0.35;
+  const inset = 0.5;
 
   for (let r = 0; r < rows; r++) {
     const line = pattern[r]!;
@@ -116,11 +123,43 @@ function drawPattern(
       const py = oy + r * ch;
       ctx.fillStyle = fill;
       ctx.fillRect(px + inset, py + inset, cw - inset * 2, ch - inset * 2);
-      ctx.strokeStyle = OUTLINE;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(px + inset, py + inset, cw - inset * 2, ch - inset * 2);
     }
   }
+
+  ctx.beginPath();
+  ctx.strokeStyle = OUTLINE;
+  ctx.lineWidth = 1;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!patternSolid(pattern, rows, cols, r, c)) continue;
+      const mc = facing >= 0 ? c : cols - 1 - c;
+      const x0 = ox + mc * cw + inset;
+      const y0 = oy + r * ch + inset;
+      const w0 = cw - inset * 2;
+      const h0 = ch - inset * 2;
+      const t = y0 + 0.5;
+      const b = y0 + h0 - 0.5;
+      const l = x0 + 0.5;
+      const rr = x0 + w0 - 0.5;
+      if (!patternSolid(pattern, rows, cols, r - 1, c)) {
+        ctx.moveTo(l, t);
+        ctx.lineTo(rr, t);
+      }
+      if (!patternSolid(pattern, rows, cols, r + 1, c)) {
+        ctx.moveTo(l, b);
+        ctx.lineTo(rr, b);
+      }
+      if (!patternSolid(pattern, rows, cols, r, c - 1)) {
+        ctx.moveTo(l, t);
+        ctx.lineTo(l, b);
+      }
+      if (!patternSolid(pattern, rows, cols, r, c + 1)) {
+        ctx.moveTo(rr, t);
+        ctx.lineTo(rr, b);
+      }
+    }
+  }
+  ctx.stroke();
 }
 
 /** Darken a #rrggbb color for fallen game. */

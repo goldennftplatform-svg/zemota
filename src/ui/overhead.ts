@@ -353,6 +353,49 @@ function drawHud(ctx: CanvasRenderingContext2D, lines: string[], topY: number): 
 
 // —— Top-down hunt (field + sprites from above) ——
 
+/** Deterministic 0..1 — stable stud scatter per clump. */
+function huntHash(ix: number, iy: number, salt: number): number {
+  let n = ix * 374761393 + iy * 668265263 + salt * 1442695041;
+  n = (n ^ (n >>> 13)) * 1274126177;
+  return ((n >>> 0) % 0x1_00_00) / 0x1_00_00;
+}
+
+/**
+ * Cover reads as a pile of discrete studs / pixel brush — not a solid blob.
+ * Hit testing still uses the clump’s circular radius elsewhere.
+ */
+function drawStudBrushClump(
+  ctx: CanvasRenderingContext2D,
+  c: { x: number; y: number; r: number },
+  clumpIndex: number,
+): void {
+  const CELL = 3;
+  const GAP = 1;
+  const brick = CELL - GAP;
+  const R = c.r;
+  const cx0 = Math.round(c.x);
+  const cy0 = Math.round(c.y);
+  const salt = clumpIndex * 1103515245 + cx0 * 49297 + cy0 * 9301;
+  const span = Math.ceil(R / CELL) + 2;
+
+  for (let iy = -span; iy <= span; iy++) {
+    for (let ix = -span; ix <= span; ix++) {
+      const fx = ix * CELL;
+      const fy = iy * CELL * 0.92;
+      if (fx * fx + fy * fy > R * R) continue;
+      const h = huntHash(ix, iy, salt);
+      if (h < 0.2) continue;
+      const px = cx0 + fx - CELL * 0.5;
+      const py = cy0 + fy - CELL * 0.5;
+      const pxR = Math.round(px);
+      const pyR = Math.round(py);
+      const top = h < 0.62;
+      ctx.fillStyle = top ? "rgba(54,64,44,0.92)" : "rgba(34,42,30,0.94)";
+      ctx.fillRect(pxR, pyR, brick, brick);
+    }
+  }
+}
+
 function colorForKind(k: AnimalKind): string {
   switch (k) {
     case "bison":
@@ -366,7 +409,7 @@ function colorForKind(k: AnimalKind): string {
   }
 }
 
-function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, t: number): void {
+function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, _t: number): void {
   const p = prairieGroundColors(hunt.zoneId);
   const g = ctx.createLinearGradient(0, FIELD_TOP, 0, H);
   g.addColorStop(0, p.near);
@@ -375,7 +418,7 @@ function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, t: num
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = "rgba(0,60,35,0.22)";
+  ctx.strokeStyle = "rgba(0,48,28,0.07)";
   ctx.lineWidth = 1;
   for (let gx = 0; gx < W; gx += 28) {
     ctx.beginPath();
@@ -390,29 +433,19 @@ function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, t: num
     ctx.stroke();
   }
 
-  ctx.fillStyle = "rgba(25,45,30,0.18)";
-  for (let i = 0; i < 70; i++) {
-    const x = (i * 47 + Math.floor(t * 24)) % W;
-    const y = FIELD_TOP + (i * 61) % (FIELD_BOTTOM - FIELD_TOP - 6);
-    ctx.fillRect(x, y, 2, 3 + (i % 4));
+  /* Static 2×2 grass studs — no scrolling shimmer */
+  ctx.fillStyle = "rgba(22,42,28,0.22)";
+  for (let i = 0; i < 52; i++) {
+    const x = (i * 97 + 19) % (W - 2);
+    const y = FIELD_TOP + ((i * 59 + 7) % (FIELD_BOTTOM - FIELD_TOP - 6));
+    ctx.fillRect(x, y, 2, 2);
   }
 
-  /* Blocky “brush” cover — reads with the stud animals better than soft circles. */
-  for (const c of hunt.clumps) {
+  hunt.clumps.forEach((c, i) => {
     ctx.save();
-    const rw = c.r * 2;
-    const rh = Math.round(c.r * 1.65);
-    const bx = Math.round(c.x - rw / 2);
-    const by = Math.round(c.y - rh / 2);
-    ctx.fillStyle = "rgba(48,58,38,0.72)";
-    ctx.fillRect(bx, by, rw, rh);
-    ctx.fillStyle = "rgba(62,72,48,0.45)";
-    ctx.fillRect(bx + 2, by + 2, rw - 5, rh - 5);
-    ctx.strokeStyle = "rgba(20,28,18,0.35)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(bx + 0.5, by + 0.5, rw - 1, rh - 1);
+    drawStudBrushClump(ctx, c, i);
     ctx.restore();
-  }
+  });
 
   ctx.strokeStyle = "#00aa44";
   ctx.lineWidth = 2;
