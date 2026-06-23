@@ -1,6 +1,7 @@
 @import "./css/mobile-shell.css";
 @import "./css/easy-read.css";
 @import "./css/mobile-play.css";
+@import "./css/play-hud.css";
 
 /* EMOTA — 8-bit CRT depth + subtle motion */
 :root {

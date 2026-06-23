@@ -9,13 +9,19 @@ import { GAME_ART } from "./game/artAssets";
 import { TrailMultiplayer, getDisplayName, setDisplayName } from "./net/multiplayer";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
+import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
 import {
   buildDashboardSidebar,
   buildTravelMenuMobileHud,
   choiceLeadingIcon,
   trailPhaseLabel,
 } from "./ui/dashboard";
-import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
+import {
+  buildOnboardRail,
+  buildSupplyStrip,
+  isOnboardPhase,
+  renderStoreChoicesHtml,
+} from "./ui/playHud";
 import {
   clearRunSave,
   peekRunSaveMeta,
@@ -62,9 +68,9 @@ const HINT_TITLE_EASY = "Tap a choice to start";
 const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
   training_text: "No timer — Next or 1 when you’re ready.",
   training_quiz: "Warm-up quiz; any pick advances.",
-  party_names: "Wagon name (upper field) · party names (lower) + Enter.",
-  profile: "Pick your leader’s job: 1–5 or tap a line → then store → 7 Leave → trail.",
-  store: "Buy with 1–6, then 7 Leave — watch the sidebar.",
+  party_names: "Step 1 · wagon name + five party names, then Continue.",
+  profile: "Step 2 · tap a job — sets starting cash.",
+  store: "Step 3 · each row shows HAVE and price · Leave when stocked.",
   travel_menu: "Camp hub: Travel, Rest, Hunt, Games…",
   gift_shop_prompt: "1 opens the museum shop in a new tab; 2 claims after you’ve looked; 3 backs out.",
 };
@@ -72,9 +78,9 @@ const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
 const PHASE_SOFT_FOOTER_EASY: Partial<Record<EnginePhase, string>> = {
   training_text: "No rush — tap Next when ready.",
   training_quiz: "Warm-up only — tap any answer.",
-  party_names: "Top: scoreboard name · bottom: five party names.",
-  profile: "Tap your leader’s job, then the store, then Leave.",
-  store: "Tap items to buy · tap Leave when ready.",
+  party_names: "Wagon name on top · five names below · tap Continue.",
+  profile: "Tap your leader’s job — cash shown on each row.",
+  store: "Your wagon sheet stays on top · tap a row to buy · Leave when ready.",
   travel_menu: "Camp menu — tap Travel, Rest, Hunt, or Games.",
   gift_shop_prompt: "Tap 1 for gift shop · 2 when finished · 3 to skip.",
   title: "Tap Play now to start · or Continue if you saved.",
@@ -179,6 +185,8 @@ const appFooterEl = document.querySelector(".app-footer");
 const stripEl = document.getElementById("multiplayer-strip")!;
 const peerSheetEl = document.getElementById("mp-peer-sheet")!;
 const sidebarEl = document.getElementById("sidebar")!;
+const onboardRailEl = document.getElementById("onboard-rail")!;
+const supplyStripEl = document.getElementById("supply-strip-host")!;
 const travelMenuHudEl = document.getElementById("travel-menu-mobile-hud")!;
 const canvas = document.getElementById("overhead") as HTMLCanvasElement;
 const popupRoot = document.getElementById("emota-popups")!;
@@ -563,6 +571,16 @@ function render(): void {
 
   const isTitle = sc.phase === "title";
   const mobile = isMobileShell();
+  const onboard = isOnboardPhase(sc.phase);
+  appLayout.classList.toggle("is-onboard", onboard);
+  const dashSnap = engine.getDashboardSnapshot();
+  const railHtml = buildOnboardRail(sc.phase);
+  onboardRailEl.hidden = !railHtml;
+  onboardRailEl.innerHTML = railHtml;
+  const stripHtml = buildSupplyStrip(dashSnap, sc.phase);
+  supplyStripEl.hidden = !stripHtml;
+  supplyStripEl.innerHTML = stripHtml;
+
   const showSidebarMobile = !mobile || MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
   if (isTitle || !showSidebarMobile) {
@@ -681,7 +699,9 @@ function render(): void {
   const linesHtml = lines.split("\n").map((l) => escapeHtml(l)).join("<br/>");
 
   let choicesHtml = "";
-  if (sc.choices?.length) {
+  if (sc.phase === "store") {
+    choicesHtml = renderStoreChoicesHtml(engine, engine.storeFeedback);
+  } else if (sc.choices?.length) {
     choicesHtml =
       '<ul class="choices">' +
       sc.choices
@@ -698,7 +718,7 @@ function render(): void {
     trailDisplayNameHtml = `<div class="trail-display-name" role="region" aria-label="Wagon name for leaderboard and trail">
   <p class="trail-display-name__label">Wagon name · scores &amp; live trail</p>
   <input type="text" class="trail-display-name__input" maxlength="24" spellcheck="false" autocomplete="nickname" value="${dn}" aria-label="Wagon name for leaderboard and trail feed" />
-  <p class="trail-display-name__hint">Separate from your five travelers in the box below.</p>
+  <p class="trail-display-name__hint">Your five travelers go in the box below.</p>
 </div>`;
   }
 
@@ -714,14 +734,21 @@ function render(): void {
     ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
     : "";
 
-  const heroHtml = sc.heroImage
+  let heroHtml = sc.heroImage
     ? `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`
     : "";
+  if (mobile && onboard) heroHtml = "";
 
-  screenEl.innerHTML = `${heroHtml}<div class="block">${linesHtml}</div>${coachHtml}${choicesHtml}${trailDisplayNameHtml}${inputHtml}`;
+  const setupInputsHtml =
+    sc.phase === "party_names" ? `${trailDisplayNameHtml}${inputHtml}` : sc.inputLine ? inputHtml : "";
+
+  screenEl.innerHTML = `${heroHtml}<div class="block">${linesHtml}</div>${coachHtml}${setupInputsHtml}${choicesHtml}`;
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
-  appFooterEl?.classList.toggle("app-footer--choices-active", isEasyReadUI() && !!sc.choices?.length);
+  appFooterEl?.classList.toggle(
+    "app-footer--choices-active",
+    isEasyReadUI() && (!!sc.choices?.length || sc.phase === "store"),
+  );
 
   const bestLocal = getTodaysBestLocalScore();
   if (bestLocal) {

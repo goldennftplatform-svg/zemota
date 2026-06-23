@@ -38,6 +38,11 @@ html.emota-mobile .main-panel {
   overflow: hidden;
 }
 
+html.emota-mobile .onboard-rail-host,
+html.emota-mobile .supply-strip-host {
+  flex-shrink: 0;
+}
+
 html.emota-mobile .screen {
   flex: 1;
   min-height: 0;

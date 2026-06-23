@@ -227,6 +227,9 @@ export class GameEngine {
   /** Meeker Mansion gift-shop thank-you claims this run (max MEEKER_GIFT_SHOP_USES_PER_RUN). */
   giftShopBoostsUsed = 0;
 
+  /** Last store tap feedback (shown on store screen). */
+  storeFeedback = "";
+
   /** Where to return if the player backs out of `gift_shop_prompt` without claiming. */
   private _giftShopReturnPhase: "travel_menu" | "store" = "travel_menu";
 
@@ -386,15 +389,10 @@ export class GameEngine {
       case "party_names":
         return {
           phase: "party_names",
-          lines: [
-            "Party of 5 — comma-separated first names.",
-            "A period suggestion is filled in; edit or replace, then press Enter.",
-            "After Enter: you’ll choose a leader’s job, then the general store, then the open trail.",
-          ],
-          coach:
-            "Tap the upper box to set your wagon name (scoreboard). Tap the lower box for five party names, then Done on the keyboard.",
+          lines: ["Name your wagon, then your five travelers."],
+          coach: "Wagon name = scoreboard. Party box = five first names, commas ok. Tap Continue.",
           inputLine: {
-            placeholder: "Names…",
+            placeholder: "Mary, John, …",
             hint: "Party names",
           },
         };
@@ -403,52 +401,23 @@ export class GameEngine {
         const roster = this.party.map((p) => p.name).join(" · ");
         return {
           phase: "profile",
-          lines: [
-            "Names locked in — here’s your company:",
-            roster,
-            "",
-            "What to do next (keys 1–9 or tap a line):",
-            "• Now: choose a leader’s job from the list below (starting cash & store prices).",
-            "• Next screen: general store — buy gear, then 7 Leave.",
-            "• Then: trail camp — Travel spends a day; Rest recovers; Hunt / games optional.",
-            "",
-            "Lead profession (affects prices, risk, foraging).",
-            ...PROFILE_ORDER.map(
-              (id, i) => `${i + 1}. ${PROFILES[id].title} · ${formatMoney(PROFILES[id].startCashCents)}`,
-            ),
-          ],
-          coach:
-            "Press the number for one job (or tap that line). Next screen is the store — stock up, then 7 Leave to reach the trail.",
+          lines: ["Pick your leader’s job.", `Your party: ${roster}`],
+          coach: "Each job changes starting cash and store prices. Tap one row below.",
           choices: PROFILE_ORDER.map((id, i) => ({
             n: i + 1,
-            text: `${PROFILES[id].title} · ${formatMoney(PROFILES[id].startCashCents)}`,
+            text: `${PROFILES[id].title} — starts with ${formatMoney(PROFILES[id].startCashCents)}`,
           })),
         };
       }
 
       case "store": {
-        const ideal = idealOutfitCostCents(this.profile);
-        const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
         return {
           phase: "store",
           coach:
-            "Tap items to buy · tap Leave when ready. Cash shown above each button.",
-          lines: [
-            "General store",
-            `You have ${formatMoney(this.inv.moneyCents)} · full kit ≈ ${formatMoney(ideal)}`,
-          ],
-          choices: [
-            { n: 1, text: `Ox +1 · ${formatMoney(priceOxen(this.profile, 1))}` },
-            { n: 2, text: `Food +100 · ${formatMoney(priceFood(this.profile, 100))}` },
-            { n: 3, text: `Ammo · ${formatMoney(priceAmmo(this.profile, 1))}` },
-            { n: 4, text: `Clothes · ${formatMoney(priceClothes(this.profile, 1))}` },
-            { n: 5, text: `Wheel · ${formatMoney(priceParts(this.profile, 1, 0))}` },
-            { n: 6, text: `Axle · ${formatMoney(priceParts(this.profile, 0, 1))}` },
-            { n: 7, text: "Leave · hit the trail" },
-            ...(giftLeft > 0
-              ? [{ n: 8, text: `Hop King gift shop perk (+${MEEKER_GIFT_SHOP_FOOD_LB} lb · rest 1 day)` }]
-              : []),
-          ],
+            this.storeFeedback ||
+            "Check your wagon sheet above. Each row shows what you HAVE and what you BUY.",
+          lines: ["General store — Independence, Missouri"],
+          choices: [],
         };
       }
 
@@ -772,6 +741,7 @@ export class GameEngine {
         if (n >= 1 && n <= PROFILE_ORDER.length) {
           this.profile = PROFILE_ORDER[n - 1]!;
           this.inv.moneyCents = PROFILES[this.profile].startCashCents;
+          this.storeFeedback = "";
           this.phase = "store";
         }
         break;
@@ -953,6 +923,7 @@ export class GameEngine {
       return;
     }
     if (n === 7) {
+      this.storeFeedback = "";
       if (this.inv.oxen < 1) {
         this.inv.oxen = 2;
         this.inv.foodLbs += 120;
@@ -961,18 +932,21 @@ export class GameEngine {
       return;
     }
     const p = this.profile;
-    if (n === 1) this.buyIfCan(priceOxen(p, 1), () => this.inv.oxen++);
-    if (n === 2) this.buyIfCan(priceFood(p, 100), () => (this.inv.foodLbs += 100));
-    if (n === 3) this.buyIfCan(priceAmmo(p, 1), () => (this.inv.ammo += 20));
-    if (n === 4) this.buyIfCan(priceClothes(p, 1), () => this.inv.clothes++);
-    if (n === 5) this.buyIfCan(priceParts(p, 1, 0), () => this.inv.spareWheels++);
-    if (n === 6) this.buyIfCan(priceParts(p, 0, 1), () => this.inv.spareAxles++);
+    if (n === 1) this.buyIfCan(priceOxen(p, 1), () => this.inv.oxen++, "oxen");
+    if (n === 2) this.buyIfCan(priceFood(p, 100), () => (this.inv.foodLbs += 100), "food");
+    if (n === 3) this.buyIfCan(priceAmmo(p, 1), () => (this.inv.ammo += 20), "ammo");
+    if (n === 4) this.buyIfCan(priceClothes(p, 1), () => this.inv.clothes++, "clothes");
+    if (n === 5) this.buyIfCan(priceParts(p, 1, 0), () => this.inv.spareWheels++, "spare wheel");
+    if (n === 6) this.buyIfCan(priceParts(p, 0, 1), () => this.inv.spareAxles++, "spare axle");
   }
 
-  private buyIfCan(cost: number, fn: () => void): void {
+  private buyIfCan(cost: number, fn: () => void, label: string): void {
     if (this.inv.moneyCents >= cost) {
       this.inv.moneyCents -= cost;
       fn();
+      this.storeFeedback = `Added ${label}. Cash left: ${formatMoney(this.inv.moneyCents)}.`;
+    } else {
+      this.storeFeedback = `Not enough cash for ${label} (need ${formatMoney(cost)}, have ${formatMoney(this.inv.moneyCents)}).`;
     }
   }
 
