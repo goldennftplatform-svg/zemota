@@ -57,5 +57,14 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    preview: {
+      port: 4173,
+      proxy: {
+        "/socket.io": {
+          target: "http://127.0.0.1:3333",
+          ws: true,
+        },
+      },
+    },
   };
 });
