@@ -8,8 +8,9 @@ Agents should treat this file and **`.agents/skills/`** as the source of truth f
 
 ## Read order
 
-1. **`.agents/skills/emota/SKILL.md`** — Project map, real file paths, and how to interpret generic OpusGameLabs skills. Read this **first** for any code change.
-2. **Task-specific skill** — e.g. `improve-game`, `add-feature`, `game-qa`, `design-game`, `game-audio` — for checklists and process, **after** mapping paths through the `emota` skill.
+1. **`PROMPTME.md`** — Machine-facing product vision (mobile-first, Hop King, save/resume, agent constraints).
+2. **`.agents/skills/emota/SKILL.md`** — Project map, real file paths, and how to interpret generic OpusGameLabs skills. Read this **first** for any code change.
+3. **Task-specific skill** — e.g. `improve-game`, `add-feature`, `game-qa`, `design-game`, `game-audio` — for checklists and process, **after** mapping paths through the `emota` skill.
 
 ---
 

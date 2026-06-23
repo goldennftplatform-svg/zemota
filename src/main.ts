@@ -77,7 +77,7 @@ const PHASE_SOFT_FOOTER_EASY: Partial<Record<EnginePhase, string>> = {
   store: "Tap items to buy · tap Leave when ready.",
   travel_menu: "Camp menu — tap Travel, Rest, Hunt, or Games.",
   gift_shop_prompt: "Tap 1 for gift shop · 2 when finished · 3 to skip.",
-  title: "Saved on this device — refresh to pick up your wagon.",
+  title: "Tap Play now to start · or Continue if you saved.",
   game_over: "Tap Title to return home.",
   victory: "Tap Title when you’re done.",
   travel_log: "Tap Next to continue your journal.",
@@ -98,6 +98,30 @@ const PHASE_SOFT_FOOTER_EASY: Partial<Record<EnginePhase, string>> = {
 function isEasyReadUI(): boolean {
   return document.documentElement.classList.contains("emota-easy-read");
 }
+
+function isMobileShell(): boolean {
+  return document.documentElement.classList.contains("emota-mobile");
+}
+
+/** Sidebar is hidden on mobile during setup; shown once the trail opens. */
+const MOBILE_SIDEBAR_PHASES = new Set<EnginePhase>([
+  "travel_menu",
+  "river",
+  "trivia",
+  "trail_event",
+  "travel_log",
+  "overhead_hunt",
+  "chance_pick",
+  "chance_result",
+  "chance_play",
+  "land_pick",
+  "land_build",
+  "land_result",
+  "bonus_pick",
+  "bonus_result",
+  "victory",
+  "game_over",
+]);
 
 function loadLocalScores(): { name: string; score: number; at: string }[] {
   try {
@@ -151,6 +175,7 @@ let lastRenderedPstDay = todayCalendarKeyPST();
 const appLayout = document.getElementById("app-layout")!;
 const screenEl = document.getElementById("screen")!;
 const hintEl = document.getElementById("hint-text")!;
+const appFooterEl = document.querySelector(".app-footer");
 const stripEl = document.getElementById("multiplayer-strip")!;
 const peerSheetEl = document.getElementById("mp-peer-sheet")!;
 const sidebarEl = document.getElementById("sidebar")!;
@@ -505,33 +530,55 @@ function render(): void {
   }
   const resumeMeta = sc.phase === "title" ? peekRunSaveMeta() : null;
   if (resumeMeta && sc.choices?.length) {
+    const play = sc.choices.find((c) => c.n === 1);
+    const learn = sc.choices.find((c) => c.n === 2);
+    const resumeChoice = {
+      n: 3 as const,
+      text: isEasyReadUI()
+        ? `Continue · day ${resumeMeta.day}`
+        : `Resume saved wagon · day ${resumeMeta.day}`,
+    };
+    const baseChoices = [play, learn].filter(Boolean) as { n: number; text: string }[];
     sc = {
       ...sc,
       lines: [
         ...sc.lines,
         "",
-        `Saved wagon on this device — ${resumeMeta.phaseLabel} · day ${resumeMeta.day} · ~${resumeMeta.miles} mi`,
+        `Saved wagon — ${resumeMeta.phaseLabel} · day ${resumeMeta.day} · ~${resumeMeta.miles} mi`,
       ],
       coach: sc.coach
-        ? `${sc.coach} Tap Resume (or press 3) to continue.`
-        : "Your trail is saved in this browser. Tap Resume below (or press 3) to pick up where you left off.",
-      choices: [...sc.choices, { n: 3, text: `Resume saved wagon · day ${resumeMeta.day}` }],
+        ? isEasyReadUI()
+          ? `${sc.coach} Tap Continue to pick up your wagon.`
+          : `${sc.coach} Tap Resume (or press 3) to continue.`
+        : isEasyReadUI()
+          ? "Tap Continue to pick up your wagon."
+          : "Your trail is saved in this browser. Tap Resume below (or press 3) to pick up where you left off.",
+      choices: isEasyReadUI()
+        ? [resumeChoice, ...baseChoices]
+        : [...baseChoices, resumeChoice],
     };
   }
   const phaseBefore = prevPhase;
   const enteringPartyNames = sc.phase === "party_names" && phaseBefore !== "party_names";
 
   const isTitle = sc.phase === "title";
+  const mobile = isMobileShell();
+  const showSidebarMobile = !mobile || MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
-  if (isTitle) {
+  if (isTitle || !showSidebarMobile) {
     sidebarEl.hidden = true;
+    if (!isTitle) sidebarEl.innerHTML = "";
+  } else {
+    sidebarEl.hidden = false;
+    sidebarEl.innerHTML = buildDashboardSidebar(engine.getDashboardSnapshot(), sc.phase);
+  }
+
+  if (isTitle) {
     landSlot.hidden = true;
     travelMenuHudEl.hidden = true;
     travelMenuHudEl.innerHTML = "";
   } else {
-    sidebarEl.hidden = false;
-    sidebarEl.innerHTML = buildDashboardSidebar(engine.getDashboardSnapshot(), sc.phase);
-    landSlot.hidden = false;
+    landSlot.hidden = mobile;
     const showTravelHud =
       sc.phase === "travel_menu" &&
       typeof window !== "undefined" &&
@@ -543,15 +590,19 @@ function render(): void {
       travelMenuHudEl.hidden = true;
       travelMenuHudEl.innerHTML = "";
     }
-    const landState: LandViewState = {
-      miles: engine.miles,
-      day: engine.day,
-      phase: sc.phase,
-      activeRiverName:
-        sc.phase === "river" && engine.pendingRiver ? engine.pendingRiver.name : null,
-    };
-    paintLandView(landCanvas, landState);
-    landCaptionEl.textContent = landViewCaption(landState);
+    if (!mobile) {
+      const landState: LandViewState = {
+        miles: engine.miles,
+        day: engine.day,
+        phase: sc.phase,
+        activeRiverName:
+          sc.phase === "river" && engine.pendingRiver ? engine.pendingRiver.name : null,
+      };
+      paintLandView(landCanvas, landState);
+      landCaptionEl.textContent = landViewCaption(landState);
+    } else {
+      landCaptionEl.textContent = "";
+    }
   }
 
   if (sc.phase === "overhead_hunt" && prevPhase !== "overhead_hunt" && !overheadActive) {
@@ -654,6 +705,9 @@ function render(): void {
   let inputHtml = "";
   if (sc.inputLine) {
     inputHtml = `<input class="line-input" type="text" placeholder="${escapeHtml(sc.inputLine.placeholder)}" aria-label="${escapeHtml(sc.inputLine.hint)}" />`;
+    if (sc.phase === "party_names") {
+      inputHtml += `<button type="button" class="party-continue-btn">Continue</button>`;
+    }
   }
 
   const coachHtml = sc.coach
@@ -667,6 +721,7 @@ function render(): void {
   screenEl.innerHTML = `${heroHtml}<div class="block">${linesHtml}</div>${coachHtml}${choicesHtml}${trailDisplayNameHtml}${inputHtml}`;
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
+  appFooterEl?.classList.toggle("app-footer--choices-active", isEasyReadUI() && !!sc.choices?.length);
 
   const bestLocal = getTodaysBestLocalScore();
   if (bestLocal) {
@@ -696,19 +751,30 @@ function render(): void {
   }
 
   const input = screenEl.querySelector<HTMLInputElement>(".line-input");
+  const submitPartyFromScreen = (): void => {
+    if (!input) return;
+    const v = input.value.trim();
+    if (engine.phase === "party_names" && v) {
+      if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
+      engine.submitPartyNames(v);
+      render();
+    }
+  };
+
+  screenEl.querySelector<HTMLButtonElement>(".party-continue-btn")?.addEventListener("click", () => {
+    submitPartyFromScreen();
+    if (engine.phase === "party_names") input?.focus();
+  });
+
   if (input) {
     if (enteringPartyNames) {
       input.value = randomHistoricPartyLine();
     }
-    input.focus();
+    if (!isEasyReadUI()) input.focus();
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        const v = input.value.trim();
-        if (engine.phase === "party_names" && v) {
-          if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
-          engine.submitPartyNames(v);
-          render();
-        }
+        e.preventDefault();
+        submitPartyFromScreen();
       }
     });
   }
@@ -736,6 +802,16 @@ function render(): void {
   if (!peerSheetEl.hidden) closePeerSheet();
 
   prevPhase = sc.phase;
+
+  if (isEasyReadUI()) {
+    requestAnimationFrame(() => {
+      const focusEl =
+        screenEl.querySelector<HTMLButtonElement>(".party-continue-btn") ??
+        screenEl.querySelector<HTMLLIElement>(".choices li") ??
+        screenEl.querySelector<HTMLInputElement>(".line-input");
+      focusEl?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+  }
 
   const pstNow = todayCalendarKeyPST();
   if (pstNow !== lastRenderedPstDay) lastRenderedPstDay = pstNow;

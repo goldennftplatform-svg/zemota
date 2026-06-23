@@ -343,16 +343,15 @@ export class GameEngine {
             variant: "pioneer",
           },
           lines: [
-            "Ezra Meeker’s Oregon Trail Adventure (EMOTA)",
-            "Welcome, pioneer — about twenty easy minutes at your pace.",
-            "Past Oregon: land claim, then Stage 2 — your score keeps climbing to the end (handy for same-day contests).",
-            "Good luck on the trail.",
+            "EMOTA · Ezra Meeker’s Oregon Trail",
+            "Tap Play now — name your wagon, buy supplies, hit the trail.",
+            "Saves on this phone. Refresh anytime and pick up where you left off.",
           ],
           coach:
-            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Mouse / touch work too. Your wagon saves on this device — refresh or close the tab and you can continue.",
+            "Play now skips the tutorial. Learn first adds a short intro. Gift shop links to Hop King when you see it on the trail.",
           choices: [
-            { n: 1, text: "New game · learn first" },
-            { n: 2, text: "New game · skip training" },
+            { n: 1, text: "Play now" },
+            { n: 2, text: "Learn the trail first" },
           ],
         };
 
@@ -430,36 +429,13 @@ export class GameEngine {
       case "store": {
         const ideal = idealOutfitCostCents(this.profile);
         const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
-        const giftChoice =
-          giftLeft > 0
-            ? [
-                {
-                  n: 8,
-                  text: `Meeker gift shop thank-you · +${MEEKER_GIFT_SHOP_FOOD_LB} lb & rest 1 day (${giftLeft} left this run)`,
-                },
-              ]
-            : [];
         return {
           phase: "store",
           coach:
-            "Stock up with 1–6; 7 Leave when you’re happy. Cash and inventory stay visible in the brown-trim sidebar →",
+            "Tap items to buy · tap Leave when ready. Cash shown above each button.",
           lines: [
             "General store",
-            `Full kit ≈ ${formatMoney(ideal)} · You have ${formatMoney(this.inv.moneyCents)}`,
-            "",
-            `1 · Ox +1 — ${formatMoney(priceOxen(this.profile, 1))}`,
-            `2 · Food +100 lb — ${formatMoney(priceFood(this.profile, 100))}`,
-            `3 · Ammo box — ${formatMoney(priceAmmo(this.profile, 1))}`,
-            `4 · Clothes — ${formatMoney(priceClothes(this.profile, 1))}`,
-            `5 · Spare wheel — ${formatMoney(priceParts(this.profile, 1, 0))}`,
-            `6 · Spare axle — ${formatMoney(priceParts(this.profile, 0, 1))}`,
-            "7 · Leave",
-            ...(giftLeft > 0
-              ? [
-                  "",
-                  `8 · Supporter stop: beta gift shop — open the page, then claim +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and skip ahead one rest day (${giftLeft}× per run).`,
-                ]
-              : []),
+            `You have ${formatMoney(this.inv.moneyCents)} · full kit ≈ ${formatMoney(ideal)}`,
           ],
           choices: [
             { n: 1, text: `Ox +1 · ${formatMoney(priceOxen(this.profile, 1))}` },
@@ -468,8 +444,10 @@ export class GameEngine {
             { n: 4, text: `Clothes · ${formatMoney(priceClothes(this.profile, 1))}` },
             { n: 5, text: `Wheel · ${formatMoney(priceParts(this.profile, 1, 0))}` },
             { n: 6, text: `Axle · ${formatMoney(priceParts(this.profile, 0, 1))}` },
-            { n: 7, text: "Leave" },
-            ...giftChoice,
+            { n: 7, text: "Leave · hit the trail" },
+            ...(giftLeft > 0
+              ? [{ n: 8, text: `Hop King gift shop perk (+${MEEKER_GIFT_SHOP_FOOD_LB} lb · rest 1 day)` }]
+              : []),
           ],
         };
       }
@@ -478,20 +456,13 @@ export class GameEngine {
         const left = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
         return {
           phase: "gift_shop_prompt",
-          coach:
-            "Honor system: peek the real gift shop, then claim here. Same perk twice per run — from the store (8) or camp (8).",
+          coach: "Open Hop King in a new tab, then tap Claim when you’re back.",
           lines: [
-            "Meeker Mansion · beta gift shop",
-            "",
-            "Open the page in a new tab when you’re ready — 8-bit trail merch helps the museum.",
-            `Claim here after a look: +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and the party rests a full day (journal entry, no trail miles).`,
-            "",
-            `Thank-yous left this run before next claim: ${left}.`,
-            "",
-            MEEKER_GIFT_SHOP_URL,
+            "Hop King · Meeker-branded gift shop",
+            `Claim here: +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and rest one day (${left} left this run).`,
           ],
           choices: [
-            { n: 1, text: "Open gift shop (new tab)" },
+            { n: 1, text: "Open Hop King shop" },
             { n: 2, text: `Claim thank-you (+${MEEKER_GIFT_SHOP_FOOD_LB} lb · rest 1 day)` },
             { n: 3, text: "Back · no claim" },
           ],
@@ -767,12 +738,11 @@ export class GameEngine {
   choose(n: number): void {
     switch (this.phase) {
       case "title":
-        if (n === 1) this.startNew();
-        else if (n === 2) {
+        if (n === 1) {
           this.giftShopBoostsUsed = 0;
           this.phase = "party_names";
           this.party = [];
-        }
+        } else if (n === 2) this.startNew();
         break;
 
       case "training_text":

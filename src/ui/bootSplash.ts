@@ -30,6 +30,7 @@ function shouldSkipBootSplash(): boolean {
   try {
     if (new URLSearchParams(window.location.search).get("nosplash") === "1") return true;
     if (navigator.webdriver === true) return true;
+    if (document.documentElement.classList.contains("emota-mobile")) return true;
   } catch {
     /* ignore */
   }

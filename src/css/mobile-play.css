@@ -1,0 +1,131 @@
+/* Mobile-first play shell — sticky taps, less scroll, choices always reachable */
+
+html.emota-mobile .app-layout {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+html.emota-mobile .app-header {
+  margin-bottom: 0.35rem;
+  flex-shrink: 0;
+}
+
+html.emota-mobile .app-header__inner {
+  padding: 0.35rem 0 0.45rem;
+}
+
+html.emota-mobile .app-brand__sub {
+  display: none;
+}
+
+html.emota-mobile .land-view-slot {
+  display: none !important;
+}
+
+html.emota-mobile .app-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0.45rem;
+}
+
+html.emota-mobile .main-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+html.emota-mobile .screen {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+
+html.emota-mobile .screen .block {
+  flex-shrink: 0;
+}
+
+html.emota-mobile .screen-coach {
+  flex-shrink: 0;
+}
+
+html.emota-mobile .screen .choices {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+  margin-top: auto;
+  padding-top: 0.65rem;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    180deg,
+    rgba(0, 8, 4, 0) 0%,
+    rgba(0, 12, 8, 0.92) 18%,
+    rgba(0, 18, 10, 0.98) 100%
+  );
+  border-top: 2px solid rgba(0, 255, 119, 0.2);
+}
+
+html.emota-mobile .trail-display-name,
+html.emota-mobile .screen input.line-input,
+html.emota-mobile .party-continue-btn {
+  flex-shrink: 0;
+}
+
+html.emota-mobile .party-continue-btn {
+  display: block;
+  width: 100%;
+  margin-top: 0.65rem;
+  min-height: var(--easy-touch-lg, 4.25rem);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-head);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
+  color: var(--shadow-deep);
+  cursor: pointer;
+  touch-action: manipulation;
+  border: 3px solid var(--border-hi);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 38%, #00aa55 100%);
+  box-shadow: 0 4px 0 var(--shadow), 0 0 20px rgba(57, 255, 122, 0.25);
+}
+
+html.emota-mobile .party-continue-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--shadow);
+}
+
+html.emota-mobile .sidebar {
+  flex-shrink: 0;
+  max-height: min(38dvh, 16rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+html.emota-mobile .app-footer {
+  flex-shrink: 0;
+  padding-top: 0.25rem;
+}
+
+html.emota-mobile .app-footer--choices-active .footer-hint {
+  display: none;
+}
+
+html.emota-mobile .app-footer--choices-active .footer-actions {
+  margin-top: 0;
+}
+
+html.emota-mobile .screen-hero--pioneer .screen-hero__img {
+  max-height: 56px;
+}
+
+html.emota-mobile.app-layout.is-title .screen .block {
+  font-size: 1.35rem;
+}
