@@ -21,6 +21,16 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.emota-boot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url(/art/usa-map.png) center / min(120%, 900px) no-repeat;
+  opacity: 0.12;
+  pointer-events: none;
+  filter: saturate(0.7);
+}
+
 .emota-boot__scan {
   pointer-events: none;
   position: absolute;

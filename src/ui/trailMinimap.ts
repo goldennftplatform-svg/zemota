@@ -1,3 +1,4 @@
+import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 
 /** Wider viewBox (same user coords as trail/art) so the map reads zoomed out with margin. */
@@ -108,6 +109,7 @@ export function renderTrailMinimap(miles: number, landmarkName: string): string 
   </defs>
   <rect class="minimap-frame" x="${VB.x + 0.5}" y="${VB.y + 0.5}" width="${VB.w - 1}" height="${VB.h - 1}" rx="10" ry="10" />
   <g clip-path="url(#minimap-us-clip)">
+    <image class="minimap-map-raster" href="${GAME_ART.usaMap}" x="${VB.x - 24}" y="${VB.y - 18}" width="${VB.w + 48}" height="${VB.h + 36}" preserveAspectRatio="xMidYMid meet" />
     <rect class="minimap-paper" x="${VB.x - 8}" y="${VB.y - 8}" width="${VB.w + 16}" height="${VB.h + 16}" />
     ${waterLayers}
     ${parkLayers}

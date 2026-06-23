@@ -112,7 +112,15 @@ export async function runBootSplash(): Promise<void> {
   }
   if (hintWait) hintWait.hidden = true;
   cta.hidden = false;
-  if (hintCta) hintCta.hidden = false;
+  const hintKeyboard = el.querySelector<HTMLElement>(".emota-boot__hint--keyboard");
+  const hintTouch = el.querySelector<HTMLElement>(".emota-boot__hint--touch");
+  const easy = document.documentElement.classList.contains("emota-easy-read");
+  if (hintKeyboard) hintKeyboard.hidden = easy;
+  if (hintTouch) {
+    hintTouch.hidden = !easy;
+  } else if (hintCta) {
+    hintCta.hidden = false;
+  }
 
   el.setAttribute("aria-busy", "false");
   cta.focus({ preventScroll: true });

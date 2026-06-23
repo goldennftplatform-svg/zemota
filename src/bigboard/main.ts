@@ -5,6 +5,7 @@
 
 import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
+import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
@@ -223,6 +224,7 @@ function render(): void {
           <div class="bb-feed__list" id="feed-list">${feedHtml || `<div class="bb-feed__item">Waiting for news from the trail…</div>`}</div>
         </aside>
         <div class="bb-map-wrap">
+          <img class="bb-map__raster" src="${GAME_ART.usaMap}" alt="" aria-hidden="true" decoding="async" />
           <div class="bb-stars" id="stars" aria-hidden="true"></div>
           <svg class="bb-map__svg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-label="Trail map">
             <defs>
@@ -288,7 +290,11 @@ function showBigPopup(ev: TrailFeedEvent): void {
   const el = popupHost;
   if (!el) return;
   el.hidden = false;
-  const art = ev.kind === "death" ? "☠" : ev.kind === "victory" ? "★" : "✖";
+  const art = ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
+  const artHtml =
+    ev.kind === "death"
+      ? `<img class="bb-popup__img" src="${GAME_ART.drunkcowboyGameOver}" alt="" decoding="async" />`
+      : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
   const cardMod =
     ev.kind === "death" ? "bb-popup__card--death" : ev.kind === "victory" ? "bb-popup__card--victory" : "bb-popup__card--wipeout";
   const title =
@@ -296,7 +302,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
   el.innerHTML = `<div class="bb-popup">
     <div class="bb-popup__card ${cardMod}">
       <p class="bb-popup__kicker">// EMOTA · LIVE</p>
-      <div class="bb-popup__art" aria-hidden="true">${art}</div>
+      ${artHtml}
       <h2 class="bb-popup__title">${escapeHtml(title)}</h2>
       <p class="bb-popup__body">${escapeHtml(ev.displayName)} — ${escapeHtml(ev.text)}</p>
     </div>

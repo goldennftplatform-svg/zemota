@@ -44,6 +44,26 @@ export function peekRunSaveMeta(): { day: number; miles: number; phaseLabel: str
   }
 }
 
+/** Raw saved phase string, or null if none / invalid. */
+export function peekRunSavePhase(): string | null {
+  try {
+    const raw = localStorage.getItem(EMOTA_RUN_SAVE_KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw) as { v?: unknown; phase?: unknown };
+    if (o.v !== 1 || typeof o.phase !== "string" || o.phase === "title") return null;
+    return o.phase;
+  } catch {
+    return null;
+  }
+}
+
+/** In-progress runs auto-restore on refresh; terminal screens stay on title with Resume. */
+export function shouldAutoResumeAfterLoad(): boolean {
+  const phase = peekRunSavePhase();
+  if (!phase) return false;
+  return phase !== "victory" && phase !== "game_over";
+}
+
 export function clearRunSave(): void {
   localStorage.removeItem(EMOTA_RUN_SAVE_KEY);
 }

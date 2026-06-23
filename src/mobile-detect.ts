@@ -1,9 +1,11 @@
-/** Sets `html.emota-mobile` for touch / narrow viewports — stronger mobile browser layout. */
+/** Sets `html.emota-mobile` for touch / narrow viewports — easy-read CSS follows. */
 export function initMobileShellClass(): void {
   if (typeof window === "undefined") return;
-  const mq = window.matchMedia("(max-width: 799.98px), (pointer: coarse)");
+  const mq = window.matchMedia("(max-width: 899.98px), (pointer: coarse)");
   const apply = (): void => {
-    document.documentElement.classList.toggle("emota-mobile", mq.matches);
+    const on = mq.matches;
+    document.documentElement.classList.toggle("emota-mobile", on);
+    document.documentElement.classList.toggle("emota-easy-read", on);
   };
   apply();
   mq.addEventListener?.("change", apply);

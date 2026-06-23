@@ -54,6 +54,16 @@ export interface EmotaPopup {
   art: string;
   body: string[];
   vibe: PopupVibe;
+  /** When set, shown instead of ASCII `art` (e.g. drunkcowboy pioneer / game-over). */
+  imageSrc?: string;
+  imageAlt?: string;
+  imageVariant?: "pioneer" | "game-over";
+}
+
+export interface ScreenHeroImage {
+  src: string;
+  alt: string;
+  variant?: "game-over" | "pioneer";
 }
 
 export interface DashboardSnapshot {

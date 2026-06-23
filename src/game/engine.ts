@@ -5,6 +5,7 @@ import {
   type ChanceSimPayload,
 } from "./chance";
 import { ART } from "./asciiArt";
+import { GAME_ART } from "./artAssets";
 import {
   HUNT_MAX_MEAT_LB,
   HUNT_MAX_SHOTS_PER_SESSION,
@@ -36,6 +37,7 @@ import type {
   PartyMember,
   ProfileId,
   Rations,
+  type ScreenHeroImage,
 } from "./types";
 
 export type EnginePhase =
@@ -71,6 +73,8 @@ export interface ScreenDescriptor {
   phase: EnginePhase;
   /** Soft onboarding line for the main panel (rendered under story text). */
   coach?: string;
+  /** Optional raster hero (game over, title accent, etc.). */
+  heroImage?: ScreenHeroImage;
 }
 
 function defaultParty(names: string[]): PartyMember[] {
@@ -333,6 +337,11 @@ export class GameEngine {
       case "title":
         return {
           phase: "title",
+          heroImage: {
+            src: GAME_ART.drunkcowboyPioneer,
+            alt: "",
+            variant: "pioneer",
+          },
           lines: [
             "Ezra Meeker’s Oregon Trail Adventure (EMOTA)",
             "Welcome, pioneer — about twenty easy minutes at your pace.",
@@ -340,9 +349,9 @@ export class GameEngine {
             "Good luck on the trail.",
           ],
           coach:
-            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Mouse / touch work too.",
+            "Choose 1 for a gentle intro, or 2 to jump straight to naming your party. Mouse / touch work too. Your wagon saves on this device — refresh or close the tab and you can continue.",
           choices: [
-            { n: 1, text: "New game · with training" },
+            { n: 1, text: "New game · learn first" },
             { n: 2, text: "New game · skip training" },
           ],
         };
@@ -383,7 +392,8 @@ export class GameEngine {
             "A period suggestion is filled in; edit or replace, then press Enter.",
             "After Enter: you’ll choose a leader’s job, then the general store, then the open trail.",
           ],
-          coach: "Click the box (or Tab to it), type names separated by commas, then Enter. Five travelers will fill in automatically.",
+          coach:
+            "Tap the upper box to set your wagon name (scoreboard). Tap the lower box for five party names, then Done on the keyboard.",
           inputLine: {
             placeholder: "Names…",
             hint: "Party names",
@@ -706,6 +716,11 @@ export class GameEngine {
       case "game_over":
         return {
           phase: "game_over",
+          heroImage: {
+            src: GAME_ART.drunkcowboyGameOver,
+            alt: "You died on the old Oregon Trail",
+            variant: "game-over",
+          },
           coach: "Hard run — the trail does that sometimes. Title returns home; your next party might fare better.",
           lines: [
             "The trail wins.",
@@ -1140,9 +1155,13 @@ export class GameEngine {
     }
 
     if (deathLines.length > 0) {
+      const dysentery = deaths.some((d) => d.cause === "dysentery");
       this.pushPopup({
-        title: "THE TRAIL TAKES",
-        art: ART.skull,
+        title: dysentery ? "DYSENTERY" : "THE TRAIL TAKES",
+        art: dysentery ? "" : ART.skull,
+        imageSrc: dysentery ? GAME_ART.drunkcowboyPioneer : undefined,
+        imageAlt: dysentery ? "Pioneer on the Oregon Trail" : undefined,
+        imageVariant: dysentery ? "pioneer" : undefined,
         body: deathLines,
         vibe: "doom",
       });

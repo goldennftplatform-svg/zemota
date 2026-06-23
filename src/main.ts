@@ -5,7 +5,8 @@ import { GameEngine, type EnginePhase } from "./game/engine";
 import { MEEKER_GIFT_SHOP_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
-import { TrailMultiplayer, getDisplayName } from "./net/multiplayer";
+import { GAME_ART } from "./game/artAssets";
+import { TrailMultiplayer, getDisplayName, setDisplayName } from "./net/multiplayer";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
 import {
@@ -18,6 +19,7 @@ import { landViewCaption, paintLandView, type LandViewState } from "./ui/landVie
 import {
   clearRunSave,
   peekRunSaveMeta,
+  shouldAutoResumeAfterLoad,
   tryPersistRun,
   tryResumeRun,
 } from "./game/runSave";
@@ -53,16 +55,49 @@ const HINT_PLAY =
   "1–9 or click · Pop-ups: Space/OK · Hunt: drag/tap aim, pad + FIRE (touch) or keys";
 const HINT_TITLE = "1–9 · start a run";
 
+const HINT_PLAY_EASY = "Tap a choice below · tap OK on pop-ups";
+const HINT_TITLE_EASY = "Tap a choice to start";
+
 /** Short footer nudges for early trail beats (full controls stay in HINT_PLAY). */
 const PHASE_SOFT_FOOTER: Partial<Record<EnginePhase, string>> = {
   training_text: "No timer — Next or 1 when you’re ready.",
   training_quiz: "Warm-up quiz; any pick advances.",
-  party_names: "Names + Enter, or tap the field first.",
+  party_names: "Wagon name (upper field) · party names (lower) + Enter.",
   profile: "Pick your leader’s job: 1–5 or tap a line → then store → 7 Leave → trail.",
   store: "Buy with 1–6, then 7 Leave — watch the sidebar.",
   travel_menu: "Camp hub: Travel, Rest, Hunt, Games…",
   gift_shop_prompt: "1 opens the museum shop in a new tab; 2 claims after you’ve looked; 3 backs out.",
 };
+
+const PHASE_SOFT_FOOTER_EASY: Partial<Record<EnginePhase, string>> = {
+  training_text: "No rush — tap Next when ready.",
+  training_quiz: "Warm-up only — tap any answer.",
+  party_names: "Top: scoreboard name · bottom: five party names.",
+  profile: "Tap your leader’s job, then the store, then Leave.",
+  store: "Tap items to buy · tap Leave when ready.",
+  travel_menu: "Camp menu — tap Travel, Rest, Hunt, or Games.",
+  gift_shop_prompt: "Tap 1 for gift shop · 2 when finished · 3 to skip.",
+  title: "Saved on this device — refresh to pick up your wagon.",
+  game_over: "Tap Title to return home.",
+  victory: "Tap Title when you’re done.",
+  travel_log: "Tap Next to continue your journal.",
+  trail_event: "Tap a choice to handle the event.",
+  river: "Tap how to cross the river.",
+  trivia: "Tap an answer.",
+  land_pick: "Tap a homestead choice.",
+  land_result: "Tap to continue.",
+  bonus_pick: "Tap your Stage 2 path.",
+  bonus_result: "Tap for your final score.",
+  chance_pick: "Tap a game at the table.",
+  chance_result: "Tap to leave the table.",
+  overhead_hunt: "Aim and tap FIRE — or tap Back to camp.",
+  chance_play: "Play the game, then tap OK.",
+  land_build: "Build your claim, then continue.",
+};
+
+function isEasyReadUI(): boolean {
+  return document.documentElement.classList.contains("emota-easy-read");
+}
 
 function loadLocalScores(): { name: string; score: number; at: string }[] {
   try {
@@ -83,6 +118,15 @@ function saveLocalScore(row: { name: string; score: number; at: string }): void 
 let netStatus = "";
 
 function footerHint(phase: EnginePhase, isTitle: boolean): string {
+  if (isEasyReadUI()) {
+    if (isTitle) {
+      const bits = [PHASE_SOFT_FOOTER_EASY.title ?? HINT_TITLE_EASY];
+      if (netStatus) bits.push(netStatus);
+      return bits.join(" · ");
+    }
+    const soft = PHASE_SOFT_FOOTER_EASY[phase];
+    return soft ?? HINT_PLAY_EASY;
+  }
   if (isTitle) {
     const bits = [HINT_TITLE];
     if (netStatus) bits.push(netStatus);
@@ -123,7 +167,11 @@ if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
 const engine = new GameEngine();
 
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") tryPersistRun(engine);
+  if (document.visibilityState === "hidden") persistRunNow();
+});
+
+window.addEventListener("pagehide", () => {
+  persistRunNow();
 });
 const overhead = new OverheadMini(canvas);
 const chanceMini = new ChanceMini(canvas);
@@ -132,6 +180,34 @@ let prevPhase = "";
 let scoreCommitted = false;
 let overheadActive = false;
 let chanceActive = false;
+/** One-shot welcome line after auto-resume from localStorage. */
+let welcomeBackNote: string | null = null;
+
+function persistRunNow(): void {
+  tryPersistRun(engine);
+}
+
+function tryAutoResumeFromSave(): boolean {
+  try {
+    if (new URLSearchParams(window.location.search).get("new") === "1") {
+      clearRunSave();
+      return false;
+    }
+  } catch {
+    /* ignore */
+  }
+  if (!shouldAutoResumeAfterLoad()) return false;
+  const meta = peekRunSaveMeta();
+  if (!tryResumeRun(engine)) return false;
+  if (engine.phase === "victory") scoreCommitted = true;
+  overheadActive = false;
+  chanceActive = false;
+  prevPhase = "";
+  if (meta) {
+    welcomeBackNote = `Welcome back — ${meta.phaseLabel} · day ${meta.day} · ~${meta.miles} mi`;
+  }
+  return true;
+}
 
 type TrailBc = {
   alive: number;
@@ -389,14 +465,17 @@ function refreshPopupOverlay(): void {
   }
   popupRoot.hidden = false;
   const v = escapeHtml(pop.vibe);
+  const artBlock = pop.imageSrc
+    ? `<img class="emota-popup__img emota-popup__img--${escapeHtml(pop.imageVariant ?? "pioneer")}" src="${escapeAttr(pop.imageSrc)}" alt="${escapeAttr(pop.imageAlt ?? "")}" decoding="async" />`
+    : `<pre class="emota-popup__art">${escapeHtml(pop.art)}</pre>`;
   popupRoot.innerHTML = `
     <div class="emota-popup-backdrop" data-close="1" aria-hidden="true"></div>
     <div class="emota-popup emota-popup--${v}" role="dialog" aria-modal="true" aria-labelledby="emota-popup-title">
-      <pre class="emota-popup__art">${escapeHtml(pop.art)}</pre>
+      ${artBlock}
       <p class="emota-popup__kicker">// EMOTA SIGNAL</p>
       <h2 id="emota-popup-title" class="emota-popup__title">${escapeHtml(pop.title)}</h2>
       <div class="emota-popup__body">${pop.body.map((l) => `<p>${escapeHtml(l)}</p>`).join("")}</div>
-      <button type="button" class="emota-popup__ok">OK · SPACE</button>
+      <button type="button" class="emota-popup__ok">${isEasyReadUI() ? "OK · TAP HERE" : "OK · SPACE"}</button>
     </div>
   `;
   const close = (): void => {
@@ -416,6 +495,14 @@ function render(): void {
   }
 
   let sc = engine.getScreen();
+  if (welcomeBackNote) {
+    const note = welcomeBackNote;
+    welcomeBackNote = null;
+    sc = {
+      ...sc,
+      coach: sc.coach ? `${note} — ${sc.coach}` : note,
+    };
+  }
   const resumeMeta = sc.phase === "title" ? peekRunSaveMeta() : null;
   if (resumeMeta && sc.choices?.length) {
     sc = {
@@ -428,7 +515,7 @@ function render(): void {
       coach: sc.coach
         ? `${sc.coach} Tap Resume (or press 3) to continue.`
         : "Your trail is saved in this browser. Tap Resume below (or press 3) to pick up where you left off.",
-      choices: [...sc.choices, { n: 3, text: `Resume · day ${resumeMeta.day} · ~${resumeMeta.miles} mi` }],
+      choices: [...sc.choices, { n: 3, text: `Resume saved wagon · day ${resumeMeta.day}` }],
     };
   }
   const phaseBefore = prevPhase;
@@ -448,7 +535,7 @@ function render(): void {
     const showTravelHud =
       sc.phase === "travel_menu" &&
       typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 799px)").matches;
+      window.matchMedia("(max-width: 899px)").matches;
     if (showTravelHud) {
       travelMenuHudEl.hidden = false;
       travelMenuHudEl.innerHTML = buildTravelMenuMobileHud(engine.getDashboardSnapshot());
@@ -554,6 +641,16 @@ function render(): void {
         .join("") +
       "</ul>";
   }
+  let trailDisplayNameHtml = "";
+  if (sc.phase === "party_names" && sc.inputLine) {
+    const dn = escapeHtml(getDisplayName());
+    trailDisplayNameHtml = `<div class="trail-display-name" role="region" aria-label="Wagon name for leaderboard and trail">
+  <p class="trail-display-name__label">Wagon name · scores &amp; live trail</p>
+  <input type="text" class="trail-display-name__input" maxlength="24" spellcheck="false" autocomplete="nickname" value="${dn}" aria-label="Wagon name for leaderboard and trail feed" />
+  <p class="trail-display-name__hint">Separate from your five travelers in the box below.</p>
+</div>`;
+  }
+
   let inputHtml = "";
   if (sc.inputLine) {
     inputHtml = `<input class="line-input" type="text" placeholder="${escapeHtml(sc.inputLine.placeholder)}" aria-label="${escapeHtml(sc.inputLine.hint)}" />`;
@@ -563,7 +660,11 @@ function render(): void {
     ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
     : "";
 
-  screenEl.innerHTML = `<div class="block">${linesHtml}</div>${coachHtml}${choicesHtml}${inputHtml}`;
+  const heroHtml = sc.heroImage
+    ? `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`
+    : "";
+
+  screenEl.innerHTML = `${heroHtml}<div class="block">${linesHtml}</div>${coachHtml}${choicesHtml}${trailDisplayNameHtml}${inputHtml}`;
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
 
@@ -578,6 +679,22 @@ function render(): void {
     todayHighEl.textContent = "";
   }
 
+  const trailDisplayInput = screenEl.querySelector<HTMLInputElement>(".trail-display-name__input");
+  if (trailDisplayInput) {
+    const commitTrailName = (): void => {
+      setDisplayName(trailDisplayInput.value.trim());
+      pushNetworkProgress();
+    };
+    trailDisplayInput.addEventListener("blur", commitTrailName);
+    trailDisplayInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitTrailName();
+        screenEl.querySelector<HTMLInputElement>(".line-input")?.focus();
+      }
+    });
+  }
+
   const input = screenEl.querySelector<HTMLInputElement>(".line-input");
   if (input) {
     if (enteringPartyNames) {
@@ -588,6 +705,7 @@ function render(): void {
       if (e.key === "Enter") {
         const v = input.value.trim();
         if (engine.phase === "party_names" && v) {
+          if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
           engine.submitPartyNames(v);
           render();
         }
@@ -733,6 +851,7 @@ setInterval(() => {
 
 void (async () => {
   await runBootSplash();
+  tryAutoResumeFromSave();
   render();
 })();
 
