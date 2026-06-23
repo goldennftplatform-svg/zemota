@@ -22,6 +22,7 @@ import {
   isOnboardPhase,
   renderStoreChoicesHtml,
 } from "./ui/playHud";
+import { isPickCardPhase, isQuizPhase, renderChoicesHtml } from "./ui/playChoices";
 import {
   clearRunSave,
   peekRunSaveMeta,
@@ -697,20 +698,20 @@ function render(): void {
       ? `${linesBase}\n\nYour best today (this device): ${topLocalToday.score}`
       : linesBase;
   const linesHtml = lines.split("\n").map((l) => escapeHtml(l)).join("<br/>");
+  const pickScreen = isPickCardPhase(sc.phase) || !!sc.prompt;
+  const quizScreen = isQuizPhase(sc.phase);
+  const badgeHtml = sc.badge ? `<p class="screen-badge">${escapeHtml(sc.badge)}</p>` : "";
+  const promptHtml = sc.prompt ? `<p class="screen-prompt">${escapeHtml(sc.prompt)}</p>` : "";
+  const bodyHtml =
+    sc.lines.length > 0
+      ? `<div class="block${pickScreen ? " screen-body" : ""}">${linesHtml}</div>`
+      : "";
 
   let choicesHtml = "";
   if (sc.phase === "store") {
     choicesHtml = renderStoreChoicesHtml(engine, engine.storeFeedback);
   } else if (sc.choices?.length) {
-    choicesHtml =
-      '<ul class="choices">' +
-      sc.choices
-        .map(
-          (c) =>
-            `<li tabindex="0" data-n="${c.n}" role="button"><span class="choice-lead">${renderChoiceLead(sc.phase, c.n)}</span><span class="choice-label">${escapeHtml(c.text)}</span></li>`,
-        )
-        .join("") +
-      "</ul>";
+    choicesHtml = renderChoicesHtml(sc.phase, sc.choices, renderChoiceLead);
   }
   let trailDisplayNameHtml = "";
   if (sc.phase === "party_names" && sc.inputLine) {
@@ -742,12 +743,16 @@ function render(): void {
   const setupInputsHtml =
     sc.phase === "party_names" ? `${trailDisplayNameHtml}${inputHtml}` : sc.inputLine ? inputHtml : "";
 
-  screenEl.innerHTML = `${heroHtml}<div class="block">${linesHtml}</div>${coachHtml}${setupInputsHtml}${choicesHtml}`;
+  screenEl.className = "screen";
+  if (pickScreen) screenEl.classList.add("screen--pick");
+  if (quizScreen) screenEl.classList.add("screen--quiz");
+
+  screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${choicesHtml}`;
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
   appFooterEl?.classList.toggle(
     "app-footer--choices-active",
-    isEasyReadUI() && (!!sc.choices?.length || sc.phase === "store"),
+    isEasyReadUI() && (!!sc.choices?.length || sc.phase === "store" || pickScreen),
   );
 
   const bestLocal = getTodaysBestLocalScore();

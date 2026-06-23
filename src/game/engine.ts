@@ -75,6 +75,10 @@ export interface ScreenDescriptor {
   coach?: string;
   /** Optional raster hero (game over, title accent, etc.). */
   heroImage?: ScreenHeroImage;
+  /** Small label chip (quiz progress, event type). */
+  badge?: string;
+  /** Large headline — quiz question or event title. */
+  prompt?: string;
 }
 
 function defaultParty(names: string[]): PartyMember[] {
@@ -379,9 +383,11 @@ export class GameEngine {
         const q = qs[this.trainingQuizIndex]!;
         return {
           phase: "training_quiz",
-          coach: "Warm-up only — pick the answer that feels right. Same keys (1–9) you’ll use on the whole trail.",
-          lines: [`Warm-up ${this.trainingQuizIndex + 1}/3`, "", q.q, "", ...q.choices.map((c, i) => `${i + 1}. ${c}`)],
-          choices: q.choices.map((_, i) => ({ n: i + 1, text: `Answer ${i + 1}` })),
+          badge: `Warm-up · ${this.trainingQuizIndex + 1} of 3`,
+          prompt: q.q,
+          coach: "Tap the answer you think is right — real Oregon Trail history.",
+          lines: [],
+          choices: q.choices.map((c, i) => ({ n: i + 1, text: c })),
         };
       }
 
@@ -400,11 +406,13 @@ export class GameEngine {
         const roster = this.party.map((p) => p.name).join(" · ");
         return {
           phase: "profile",
-          lines: ["Pick your leader’s job.", `Your party: ${roster}`],
-          coach: "Each job changes starting cash and store prices. Tap one row below.",
+          badge: "Step 2 · leader's job",
+          prompt: "Who leads the wagon?",
+          lines: [`Traveling: ${roster}`],
+          coach: "Starting cash and store prices depend on this pick.",
           choices: PROFILE_ORDER.map((id, i) => ({
             n: i + 1,
-            text: `${PROFILES[id].title} — starts with ${formatMoney(PROFILES[id].startCashCents)}`,
+            text: `${PROFILES[id].title} — ${formatMoney(PROFILES[id].startCashCents)} to spend`,
           })),
         };
       }
@@ -507,14 +515,10 @@ export class GameEngine {
         const e = this.activeEncounter!;
         return {
           phase: "trail_event",
-          coach: "Trail encounter — pick what your party does. The story will show how it went; there’s no hidden timer.",
-          lines: [
-            e.title,
-            "",
-            ...e.intro,
-            "",
-            ...e.choices.map((c, i) => `${i + 1}. ${c}`),
-          ],
+          badge: "Trail encounter",
+          prompt: e.title,
+          coach: "Your call — tap what the party does.",
+          lines: e.intro,
           choices: e.choices.map((c, i) => ({ n: i + 1, text: c })),
         };
       }
@@ -575,9 +579,11 @@ export class GameEngine {
         const t = this.currentTrivia!;
         return {
           phase: "trivia",
-          coach: "Daily quiz — tap an answer or press its number. Correct answers nudge your score at the end.",
-          lines: [`Day ${this.day} · quiz`, "", t.q, "", ...t.choices.map((c, i) => `${i + 1}. ${c}`)],
-          choices: t.choices.map((_, i) => ({ n: i + 1, text: `Answer ${i + 1}` })),
+          badge: `Day ${this.day} · history check`,
+          prompt: t.q,
+          coach: "Right answers add to your score at Oregon.",
+          lines: [],
+          choices: t.choices.map((c, i) => ({ n: i + 1, text: c })),
         };
       }
 
