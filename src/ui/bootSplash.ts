@@ -30,7 +30,6 @@ function shouldSkipBootSplash(): boolean {
   try {
     if (new URLSearchParams(window.location.search).get("nosplash") === "1") return true;
     if (navigator.webdriver === true) return true;
-    if (document.documentElement.classList.contains("emota-mobile")) return true;
   } catch {
     /* ignore */
   }
@@ -75,6 +74,25 @@ export async function runBootSplash(): Promise<void> {
   if (pre) pre.textContent = ASCII_LOGO;
 
   if (shouldSkipBootSplash()) {
+    el.remove();
+    return;
+  }
+
+  if (document.documentElement.classList.contains("emota-mobile")) {
+    const statusEl = el.querySelector<HTMLElement>(".emota-boot__status");
+    const hintWait = el.querySelector<HTMLElement>(".emota-boot__hint--wait");
+    const bar = el.querySelector<HTMLElement>(".emota-boot__bar");
+    if (hintWait) hintWait.hidden = true;
+    if (bar) bar.style.width = "100%";
+    if (statusEl) {
+      statusEl.textContent = "Real history · Oregon Trail";
+      statusEl.style.animation = "none";
+    }
+    el.classList.remove("emota-boot--intro");
+    el.setAttribute("aria-busy", "false");
+    await wait(900);
+    el.classList.add("emota-boot--exit");
+    await wait(340);
     el.remove();
     return;
   }

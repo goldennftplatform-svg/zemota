@@ -36,20 +36,6 @@ html.emota-mobile .app-brand__chip {
   display: none;
 }
 
-html.emota-mobile .app-brand__sub {
-  font-family: var(--font);
-  font-size: 1.15rem;
-  font-weight: normal;
-  letter-spacing: 0.02em;
-  color: var(--hi);
-}
-
-html.emota-mobile .app-brand__title {
-  font-family: var(--font-head);
-  font-size: 1.65rem;
-  letter-spacing: 0.06em;
-}
-
 html.emota-mobile .today-high-score {
   padding: 0.5rem 0.65rem;
 }
@@ -75,7 +61,7 @@ html.emota-mobile .screen {
 }
 
 html.emota-mobile .screen .block {
-  font-size: var(--easy-body-lg);
+  font-size: var(--easy-body-lg, 1.32rem);
   line-height: var(--easy-line);
   letter-spacing: 0.02em;
   color: var(--hi);
@@ -269,10 +255,6 @@ html.emota-mobile .travel-menu-mobile-hud {
 html.emota-mobile .tmh-v,
 html.emota-mobile .tmh-member__name {
   font-size: 1.1rem;
-}
-
-html.emota-mobile .screen-hero--game-over .screen-hero__img {
-  max-width: min(100%, 380px);
 }
 
 /* Boot — plain title instead of tiny ASCII on small screens */

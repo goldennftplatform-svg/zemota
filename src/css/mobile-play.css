@@ -127,10 +127,6 @@ html.emota-mobile .app-footer--choices-active .footer-actions {
   margin-top: 0;
 }
 
-html.emota-mobile .screen-hero--pioneer .screen-hero__img {
-  max-height: 56px;
-}
-
 html.emota-mobile.app-layout.is-title .screen .block {
-  font-size: 1.35rem;
+  font-size: var(--cinema-body, 1.22rem);
 }

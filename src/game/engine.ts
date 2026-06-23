@@ -342,16 +342,15 @@ export class GameEngine {
           phase: "title",
           heroImage: {
             src: GAME_ART.drunkcowboyPioneer,
-            alt: "",
-            variant: "pioneer",
+            alt: "Pioneer wagon on the Oregon Trail",
+            variant: "title",
           },
           lines: [
-            "EMOTA · Ezra Meeker’s Oregon Trail",
-            "Tap Play now — name your wagon, buy supplies, hit the trail.",
-            "Saves on this phone. Refresh anytime and pick up where you left off.",
+            "The Oregon Trail — real history, not Hollywood.",
+            "Ezra Meeker rode this route twice: pioneer, then preservationist.",
+            "Name your wagon. Stock supplies. Survive to hop country.",
           ],
-          coach:
-            "Play now skips the tutorial. Learn first adds a short intro. Gift shop links to Hop King when you see it on the trail.",
+          coach: "Play now jumps straight in. Learn first adds a short true-history intro.",
           choices: [
             { n: 1, text: "Play now" },
             { n: 2, text: "Learn the trail first" },

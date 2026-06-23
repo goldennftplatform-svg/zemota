@@ -2,6 +2,7 @@
 @import "./css/easy-read.css";
 @import "./css/mobile-play.css";
 @import "./css/play-hud.css";
+@import "./css/mobile-cinema.css";
 
 /* EMOTA — 8-bit CRT depth + subtle motion */
 :root {
@@ -1673,9 +1674,15 @@ body {
 }
 
 .screen-hero--pioneer .screen-hero__img {
-  max-height: 72px;
+  max-height: 120px;
   width: auto;
   filter: drop-shadow(0 0 10px rgba(0, 255, 119, 0.22));
+}
+
+.screen-hero--title .screen-hero__img {
+  max-height: 200px;
+  width: auto;
+  filter: drop-shadow(0 0 14px rgba(0, 255, 119, 0.28));
 }
 
 .screen-hero--game-over .screen-hero__img {
@@ -1800,7 +1807,7 @@ body {
 }
 
 .emota-popup__img--pioneer {
-  max-height: 108px;
+  max-height: 168px;
   width: auto;
   padding: 0.35rem 0.5rem;
 }
