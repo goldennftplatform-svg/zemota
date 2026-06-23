@@ -1,4 +1,5 @@
 import { ART } from "./asciiArt";
+import { MANSION_ENCOUNTER_SPECS } from "../data/mansionHistory";
 
 export interface EncounterMeta {
   id: string;
@@ -70,6 +71,17 @@ export const TRAIL_ENCOUNTERS: EncounterMeta[] = [
     ],
     choices: ["Pan half a day (might find coin)", "Laugh and roll on", "Buy a worthless map ($5)"],
   },
+  ...MANSION_ENCOUNTER_SPECS.map((spec) => ({
+    ...spec,
+    art:
+      spec.id === "mansion_ferry"
+        ? ART.river
+        : spec.id === "mansion_hop_rumor"
+          ? ART.luck
+          : spec.id === "mansion_monument"
+            ? ART.milestone.replace("@@@", "TRAIL")
+            : ART.trader,
+  })),
 ];
 
 export function pickEncounter(): EncounterMeta {

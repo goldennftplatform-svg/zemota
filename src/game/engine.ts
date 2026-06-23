@@ -14,6 +14,7 @@ import {
   MEEKER_GIFT_SHOP_FOOD_LB,
   MEEKER_GIFT_SHOP_URL,
   MEEKER_GIFT_SHOP_USES_PER_RUN,
+  MEEKER_MANSION_HISTORY_URL,
   PACE_REFERENCE_DAYS,
   TARGET_TRAVEL_DAYS,
   TOTAL_TRAIL_MILES,
@@ -28,6 +29,12 @@ import { landmarkAtMiles, nextRiverAhead, LANDMARKS } from "./map";
 import { PROFILES, PROFILE_ORDER } from "./profiles";
 import { idealOutfitCostCents, priceAmmo, priceClothes, priceFood, priceOxen, priceParts } from "./store";
 import { pickTriviaForDay, TRIVIA_BANK, type TriviaItem } from "./trivia";
+import {
+  pickMansionTimelineNote,
+  pickMansionTrailFlavor,
+  TRAINING_MANSION_COACH,
+  TRAINING_MANSION_PAGES,
+} from "../data/mansionHistory";
 import type {
   DashboardSnapshot,
   DeathCause,
@@ -98,30 +105,9 @@ function formatMoney(cents: number): string {
   return `${neg ? "-" : ""}$${d}.${cc.toString().padStart(2, "0")}`;
 }
 
-/** Training slideshow before the warm-up quiz — length drives Next / quiz transition. */
-const TRAINING_INTRO_PAGES: string[][] = [
-  [
-    "Ezra Meeker",
-    "• 5′1″ · Oregon Trail 1850s · hops & roads · retraced the trail into the 1920s",
-    "• Daily quizzes draw from a large trail / Meeker / hops bank (your first-draft set, tuned here).",
-  ],
-  [
-    "How it plays",
-    "• Each travel day → one quiz; late game leans toward land-claim & Puyallup threads.",
-    "• Cash won’t buy everything — hunt, games, and luck fill the gap.",
-  ],
-  [
-    "Keys & taps",
-    "• Numbers 1–9 match the menu — or click / tap any line you like.",
-    "• Story pop-ups: Space or OK. Hunt: aim, then shoot. Sidebar = party & supplies.",
-  ],
-];
-
-const TRAINING_COACH: string[] = [
-  "No rush — read in your own time. Next (or press 1) moves on when you’re ready.",
-  "You’ll see this same flow on the trail: a bit of text, then a short list to pick from.",
-  "After this page: a tiny warm-up quiz, then you’ll name your wagon party.",
-];
+/** Training slideshow before the warm-up quiz — sourced from Meeker Mansion museum history. */
+const TRAINING_INTRO_PAGES = TRAINING_MANSION_PAGES;
+const TRAINING_COACH = TRAINING_MANSION_COACH;
 
 const RUN_SAVE_VERSION = 1;
 
@@ -351,10 +337,10 @@ export class GameEngine {
           },
           lines: [
             "The Oregon Trail — real history, not Hollywood.",
-            "Ezra Meeker rode this route twice: pioneer, then preservationist.",
+            "Ezra Meeker rode west in 1852, became Hop King, built Meeker Mansion (1890), then saved the trail from oblivion.",
             "Name your wagon. Stock supplies. Survive to hop country.",
           ],
-          coach: "Play now jumps straight in. Learn first adds a short true-history intro.",
+          coach: "Play now jumps straight in. Learn first walks museum history from thehopking.com/mansion-history.",
           choices: [
             { n: 1, text: "Play now" },
             { n: 2, text: "Learn the trail first" },
@@ -436,6 +422,7 @@ export class GameEngine {
           lines: [
             "Hop King · Meeker-branded gift shop",
             `Claim here: +${MEEKER_GIFT_SHOP_FOOD_LB} lb food and rest one day (${left} left this run).`,
+            `Museum: ${MEEKER_MANSION_HISTORY_URL}`,
           ],
           choices: [
             { n: 1, text: "Open Hop King shop" },
@@ -474,7 +461,7 @@ export class GameEngine {
             { n: 4, text: "Chance games" },
             { n: 5, text: "Change pace" },
             { n: 6, text: "Change rations" },
-            { n: 7, text: "Ezra timeline note" },
+            { n: 7, text: "Meeker Mansion history note" },
             ...campGift,
           ],
         };
@@ -590,13 +577,17 @@ export class GameEngine {
       case "land_pick":
         return {
           phase: "land_pick",
-          coach: "Near the journey’s end — each path changes the epilogue. Read, then choose what fits your run.",
-          lines: ["Land claim", "Pick a path:"],
+          badge: "Homestead choice",
+          prompt: "Where does your story land?",
+          coach: "Ezra filed donation claims near Puyallup — patents took twenty years. Pick your epilogue path.",
+          lines: [
+            "Oregon donation · slow prove-up · Puget Sound fees · or Puyallup hops toward Meeker Mansion country.",
+          ],
           choices: [
             { n: 1, text: "Oregon donation claim" },
             { n: 2, text: "Slow prove-up" },
             { n: 3, text: "Puget Sound / WA fees" },
-            { n: 4, text: "Puyallup hops (Hop King)" },
+            { n: 4, text: "Puyallup hops · Hop King path" },
           ],
         };
 
@@ -686,6 +677,7 @@ export class GameEngine {
             this.lastLandResult?.hopKing ? "Hop King bonus (land)" : "",
             "",
             "Your score is saved on this device.",
+            `Real epilogue: ${MEEKER_MANSION_HISTORY_URL}`,
           ].filter(Boolean),
           choices: [{ n: 1, text: "Title" }],
         };
@@ -993,10 +985,8 @@ export class GameEngine {
       return;
     }
     if (n === 7) {
-      this.pendingLog = [
-        "Ezra note",
-        "5′1″ · trail · hops · retraced the road into the 1920s — swap in your citations.",
-      ];
+      const note = pickMansionTimelineNote();
+      this.pendingLog = [note.title, ...note.lines, "", `More: ${MEEKER_MANSION_HISTORY_URL}`];
       this.travelLogPhase = "prompt_trivia";
       this.phase = "travel_log";
     }
@@ -1303,6 +1293,7 @@ export class GameEngine {
       "Crickets and coyotes trade complaints at dusk.",
       "Someone tells a story about a ferryman who never blinks.",
       "A child counts oxen hooves until they fall asleep.",
+      pickMansionTrailFlavor(),
     ];
     return [o[Math.floor(Math.random() * o.length)]!];
   }

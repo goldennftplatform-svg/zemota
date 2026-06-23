@@ -19,8 +19,8 @@ export function resolveStage2Pick(menuIndex: number, ctx: { hopKing: boolean }):
           pick: "hop_push",
           title: "Hop King of the valley",
           lines: [
-            "You double down on kilns and contracts — Meeker’s Puyallup thread becomes your ledger.",
-            "Investors quote your name beside Ezra’s in the same breath (almost).",
+            "You double down on kilns and contracts — 500+ acres like Ezra at the hop boom’s height.",
+            "312 Spring Street waits: Italianate Victorian, stained glass, speaking tubes — museum open since 1970.",
           ],
           scoreBonus: 520,
         };

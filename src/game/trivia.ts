@@ -5,6 +5,7 @@
  */
 
 import { TRIVIA_DRAFT_RAW } from "./triviaDraftRaw";
+import { MANSION_TRIVIA_RAW } from "../data/mansionHistory";
 import { shuffleTriviaChoices } from "./triviaShuffle";
 
 export interface TriviaItem {
@@ -147,6 +148,7 @@ const TRIVIA_CORE_RAW: TriviaItem[] = [
 
 export const TRIVIA_BANK: TriviaItem[] = [
   ...TRIVIA_CORE_RAW.map(finalizeCore),
+  ...MANSION_TRIVIA_RAW.map(finalizeCore),
   ...TRIVIA_DRAFT_RAW.map(finalizeDraft),
 ];
 

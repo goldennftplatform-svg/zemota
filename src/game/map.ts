@@ -1,4 +1,10 @@
 import type { Landmark } from "./types";
+import { MANSION_LANDMARK_ADDENDUM } from "../data/mansionHistory";
+
+function blurb(name: string, base: string): string {
+  const add = MANSION_LANDMARK_ADDENDUM[name];
+  return add ? `${base} ${add}` : base;
+}
 
 /** ~2,000 mi narrative; game compresses into TARGET_TRAVEL_DAYS steps in config. */
 export const LANDMARKS: Landmark[] = [
@@ -27,7 +33,7 @@ export const LANDMARKS: Landmark[] = [
   {
     name: "Chimney Rock",
     milesFromStart: 554,
-    blurb: "A spire in the sky — emigrants carved names and dates.",
+    blurb: blurb("Chimney Rock", "A spire in the sky — emigrants carved names and dates."),
   },
   {
     name: "Fort Laramie",
@@ -37,7 +43,7 @@ export const LANDMARKS: Landmark[] = [
   {
     name: "Independence Rock",
     milesFromStart: 830,
-    blurb: "Reach it by July 4th or feel the season slipping.",
+    blurb: blurb("Independence Rock", "Reach it by July 4th or feel the season slipping."),
   },
   {
     name: "South Pass",
@@ -53,23 +59,23 @@ export const LANDMARKS: Landmark[] = [
     name: "Snake River",
     milesFromStart: 1375,
     river: true,
-    blurb: "Rafts, ropes, and shouting — a famous choke point.",
+    blurb: blurb("Snake River", "Rafts, ropes, and shouting — a famous choke point."),
   },
   {
     name: "Fort Boise",
     milesFromStart: 1548,
-    blurb: "Hudson’s Bay trade post feel; the endgame of the Snake.",
+    blurb: blurb("Fort Boise", "Hudson’s Bay trade post feel; the endgame of the Snake."),
   },
   {
     name: "The Dalles",
     milesFromStart: 1632,
     river: true,
-    blurb: "Columbia River gorge — rapids, roads, or tolls.",
+    blurb: blurb("The Dalles", "Columbia River gorge — rapids, roads, or tolls."),
   },
   {
     name: "Oregon City",
     milesFromStart: 1990,
-    blurb: "End of the measured trail — land claim and new politics begin.",
+    blurb: blurb("Oregon City", "End of the measured trail — land claim and new politics begin."),
   },
 ];
 

@@ -29,6 +29,9 @@ export const BOOT_LANDING_INTRO_MS = 1600;
 export const MEEKER_GIFT_SHOP_URL =
   "https://thehopking.com/gift-shop?filter=mmbranded";
 
+/** Meeker Mansion museum history (Hop King / Puyallup Historical Society). */
+export const MEEKER_MANSION_HISTORY_URL = "https://thehopking.com/mansion-history";
+
 /** Rations packed when a player claims the gift-shop thank-you. */
 export const MEEKER_GIFT_SHOP_FOOD_LB = 100;
 

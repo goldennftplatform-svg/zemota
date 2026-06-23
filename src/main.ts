@@ -2,7 +2,7 @@ import "./style.css";
 import { runBootSplash } from "./ui/bootSplash";
 import { initMobileShellClass } from "./mobile-detect";
 import { GameEngine, type EnginePhase } from "./game/engine";
-import { MEEKER_GIFT_SHOP_URL } from "./game/config";
+import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
@@ -196,7 +196,9 @@ const landCanvas = document.getElementById("land-view-canvas") as HTMLCanvasElem
 const landCaptionEl = document.getElementById("land-view-caption")!;
 const todayHighEl = document.getElementById("today-high-score")!;
 const footerGiftShopEl = document.getElementById("footer-gift-shop") as HTMLAnchorElement | null;
+const footerMansionEl = document.getElementById("footer-mansion-history") as HTMLAnchorElement | null;
 if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
+if (footerMansionEl) footerMansionEl.href = MEEKER_MANSION_HISTORY_URL;
 
 const engine = new GameEngine();
 
