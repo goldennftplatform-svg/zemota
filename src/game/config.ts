@@ -25,9 +25,9 @@ export const HUNT_MIN_AMMO_TO_HUNT = 5;
  */
 export const BOOT_LANDING_INTRO_MS = 1600;
 
-/** Beta Meeker Mansion museum gift shop — in-game thank-you (honor system; 2× per run). */
+/** Hop King / Meeker-branded gift shop — in-game thank-you (honor system; 2× per run). */
 export const MEEKER_GIFT_SHOP_URL =
-  "https://preview--meekermansion-react-revival.lovable.app/gift-shop";
+  "https://thehopking.com/gift-shop?filter=mmbranded";
 
 /** Rations packed when a player claims the gift-shop thank-you. */
 export const MEEKER_GIFT_SHOP_FOOD_LB = 100;
