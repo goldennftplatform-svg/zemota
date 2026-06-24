@@ -127,6 +127,83 @@ body {
   text-align: right;
 }
 
+.bb-header--slim {
+  padding: 0.28rem 0.65rem;
+  border-bottom-width: 1px;
+  gap: 0.35rem 0.75rem;
+}
+
+.bb-brand--slim {
+  gap: 0.45rem;
+}
+
+.bb-brand--slim .bb-brand__mark {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.bb-brand--slim .bb-brand__title {
+  font-size: clamp(0.42rem, 0.85vw, 0.55rem);
+  margin: 0;
+}
+
+.bb-header__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem 0.85rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.bb-live-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.42rem 0.18rem 0.32rem;
+  border: 1px solid #004d28;
+  background: rgba(0, 16, 10, 0.94);
+  border-radius: 3px;
+  line-height: 1;
+  box-shadow: 0 0 12px rgba(0, 255, 120, 0.08);
+}
+
+.bb-live-chip__n {
+  font-family: var(--font-pixel);
+  font-size: clamp(0.48rem, 0.8vw, 0.62rem);
+  color: var(--bb-hi);
+  min-width: 1.1em;
+  text-align: center;
+}
+
+.bb-live-chip .bb-live__dot {
+  width: 7px;
+  height: 7px;
+}
+
+.bb-live-chip.bb-live--warn .bb-live__dot,
+.bb-live-chip:not(.bb-live--ok) .bb-live__dot {
+  background: var(--bb-warn);
+  box-shadow: 0 0 8px var(--bb-warn);
+  animation: none;
+}
+
+.bb-conn-warn {
+  position: absolute;
+  top: 0.35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 14;
+  max-width: min(90%, 28rem);
+  padding: 0.25rem 0.55rem;
+  font-size: clamp(0.72rem, 1vw, 0.88rem);
+  color: var(--bb-warn);
+  background: rgba(0, 12, 8, 0.92);
+  border: 1px solid var(--bb-warn);
+  text-align: center;
+  pointer-events: none;
+}
+
 .bb-stat.bb-live {
   font-family: var(--font-pixel);
   font-size: clamp(0.45rem, 0.9vw, 0.58rem);
@@ -1089,6 +1166,23 @@ html.bb-wall .bb-dock {
 /* —— Projector / TV wall (auto at 1100px+ or ?wall=1) —— */
 html.bb-wall .bb-vignette {
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.25);
+}
+
+html.bb-wall .bb-header {
+  display: none;
+}
+
+html.bb-wall .bb-map-wrap .bb-live-chip {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.4rem;
+  z-index: 15;
+  pointer-events: none;
+}
+
+html.bb-wall .bb-main {
+  flex: 1;
+  min-height: 0;
 }
 
 html.bb-wall .bb-lb {

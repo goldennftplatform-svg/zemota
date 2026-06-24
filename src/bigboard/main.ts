@@ -328,35 +328,46 @@ function render(): void {
   const connHint =
     conn !== "ok"
       ? `<span class="bb-stat bb-stat--warn">${escapeHtml(socketTargetDisplay())}</span>`
-      : wall
-        ? ""
-        : `<span class="bb-stat bb-stat--muted">Updates as people play</span>`;
+      : !wall
+        ? `<span class="bb-stat bb-stat--muted">Updates as people play</span>`
+        : "";
+
+  const liveChip = `<span class="bb-live-chip ${connClass}" role="status" aria-label="${escapeHtml(connLabel)} · ${wagonCount} wagons on trail">
+    <span class="bb-live__dot" aria-hidden="true"></span>
+    <span class="bb-live-chip__n">${wagonCount}</span>
+  </span>`;
+
+  const headerHtml = wall
+    ? ""
+    : `<header class="bb-header bb-header--slim">
+        <div class="bb-brand bb-brand--slim">
+          <img class="bb-brand__mark" src="/art/drunkcowboy-pioneer.png" width="32" height="32" alt="" decoding="async" />
+          <span class="bb-brand__title">EMOTA</span>
+        </div>
+        <div class="bb-header__end">
+          ${liveChip}
+          ${topScoreHtml}
+          ${connHint}
+        </div>
+      </header>`;
+
+  const lbSection = wall
+    ? ""
+    : `<section class="bb-lb" aria-labelledby="bb-lb-title">
+        <h2 id="bb-lb-title" class="bb-lb__title">Leaderboard</h2>
+        <div class="bb-lb__body">${leaderboardBody}</div>
+      </section>`;
 
   app.innerHTML = `
     <div class="bb-root">
       <div class="bb-vignette" aria-hidden="true"></div>
-      <header class="bb-header">
-        <div class="bb-brand">
-          <img class="bb-brand__mark" src="/art/drunkcowboy-pioneer.png" width="48" height="48" alt="" decoding="async" />
-          <div>
-            <div class="bb-brand__title">EMOTA · Live Trail</div>
-            <div class="bb-brand__sub">Oregon · ${TOTAL_TRAIL_MILES} miles west</div>
-          </div>
-        </div>
-        <div class="bb-stats">
-          <span class="bb-stat bb-live ${connClass}"><span class="bb-live__dot" aria-hidden="true"></span><span class="bb-stat__lbl">${connLabel}</span></span>
-          <span class="bb-stat"><span class="bb-stat__val">${wagonCount}</span><span class="bb-stat__lbl">wagons</span></span>
-          ${topScoreHtml}
-          ${connHint}
-        </div>
-      </header>
+      ${headerHtml}
       ${joinBanner}
-      <section class="bb-lb" aria-labelledby="bb-lb-title">
-        <h2 id="bb-lb-title" class="bb-lb__title">Leaderboard</h2>
-        <div class="bb-lb__body">${leaderboardBody}</div>
-      </section>
+      ${lbSection}
       <div class="bb-main">
         <div class="bb-map-wrap">
+          ${wall ? liveChip : ""}
+          ${conn !== "ok" && wall ? `<div class="bb-conn-warn" role="alert">${escapeHtml(socketTargetDisplay())}</div>` : ""}
           <div class="bb-map-stage" id="bb-map-stage">
             ${lobbyHint}
             <div class="bb-map-inner" id="bb-map-inner">
