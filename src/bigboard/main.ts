@@ -11,7 +11,11 @@ import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
-import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
+import {
+  BIGBOARD_MUSEUM_STATS,
+  bigboardHistoryContent,
+  MEEKER_MANSION_HISTORY_URL,
+} from "../data/mansionHistory";
 import "./bigboard.css";
 
 initMobileShellClass();
@@ -34,6 +38,11 @@ function applyWallClass(): void {
 applyWallClass();
 window.addEventListener("resize", applyWallClass);
 window.addEventListener("resize", () => render());
+
+/** Rotate Meeker history panel on the wall without waiting for trail events. */
+setInterval(() => {
+  if (isWallMode()) render();
+}, 45_000);
 
 const FEED_MAX_DOM = 48;
 const FEED_MAX_WALL = 8;
@@ -182,6 +191,13 @@ function renderDock(wall: boolean): string {
     ? `${escapeHtml(leader.displayName)} · ${Math.round(leader.miles)} mi`
     : "—";
 
+  const historyTick = Math.floor(Date.now() / 45_000);
+  const leadMiles = leader?.miles ?? 0;
+  const history = bigboardHistoryContent(leadMiles, historyTick, leader?.landmark);
+  const museumStats = BIGBOARD_MUSEUM_STATS.map(
+    (s) => `<span class="bb-dock__chip"><span class="bb-dock__chip-k">${escapeHtml(s.k)}</span> ${escapeHtml(s.v)}</span>`,
+  ).join("");
+
   return `<section class="bb-dock" aria-label="Trail dashboard">
     <div class="bb-dock__panel">
       <h3 class="bb-dock__head">Wagons on trail</h3>
@@ -200,6 +216,13 @@ function renderDock(wall: boolean): string {
     <div class="bb-dock__panel">
       <h3 class="bb-dock__head">Top scores</h3>
       <ol class="bb-dock__list">${lbList}</ol>
+    </div>
+    <div class="bb-dock__panel bb-dock__panel--history">
+      <h3 class="bb-dock__head">Meeker Mansion · history</h3>
+      <p class="bb-dock__history-title">${escapeHtml(history.title)}</p>
+      <p class="bb-dock__history-body">${escapeHtml(history.body)}</p>
+      <div class="bb-dock__chips">${museumStats}</div>
+      <a class="bb-dock__link" href="${MEEKER_MANSION_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Full museum story →</a>
     </div>
   </section>`;
 }

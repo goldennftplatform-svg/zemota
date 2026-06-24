@@ -558,6 +558,10 @@ body {
   background: linear-gradient(180deg, rgba(0, 22, 12, 0.98) 0%, rgba(0, 12, 8, 0.99) 100%);
 }
 
+html.bb-wall .bb-dock {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .bb-dock__panel {
   min-width: 0;
   border: 1px solid #004d28;
@@ -643,6 +647,64 @@ body {
 .bb-dock__news strong {
   color: var(--bb-fg);
   font-weight: normal;
+}
+
+.bb-dock__panel--history {
+  grid-column: span 1;
+}
+
+.bb-dock__history-title {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.34rem, 0.62vw, 0.44rem);
+  color: var(--bb-gold);
+  line-height: 1.35;
+}
+
+.bb-dock__history-body {
+  margin: 0;
+  flex: 1;
+  font-size: clamp(0.72rem, 1vw, 0.86rem);
+  line-height: 1.32;
+  color: var(--bb-hi);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bb-dock__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.35rem;
+  margin-top: 0.3rem;
+}
+
+.bb-dock__chip {
+  font-size: clamp(0.62rem, 0.9vw, 0.75rem);
+  color: var(--bb-fg);
+  opacity: 0.85;
+  border: 1px solid #004422;
+  padding: 0.1rem 0.3rem;
+  border-radius: 2px;
+}
+
+.bb-dock__chip-k {
+  font-family: var(--font-pixel);
+  font-size: 0.85em;
+  color: var(--bb-hi);
+}
+
+.bb-dock__link {
+  margin-top: 0.25rem;
+  font-size: clamp(0.68rem, 0.95vw, 0.82rem);
+  color: var(--bb-warn);
+  text-decoration: none;
+}
+
+.bb-dock__link:hover {
+  color: var(--bb-hi);
+  text-decoration: underline;
 }
 
 .bb-map__raster {

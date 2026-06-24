@@ -156,6 +156,113 @@ export const MANSION_LANDMARK_ADDENDUM: Record<string, string> = {
     "Ezra Meeker finished his 1852 trail here October 1 with $3.25 left — donation claims, Puget Sound, hops, mansion, and trail monuments all lay ahead.",
 };
 
+/** Quick museum stats (Hop King / Meeker Mansion site). */
+export const BIGBOARD_MUSEUM_STATS: { k: string; v: string }[] = [
+  { k: "Built", v: "1890" },
+  { k: "Fireplaces", v: "6" },
+  { k: "NRHP", v: "1972" },
+  { k: "Hop peak", v: "500+ ac" },
+];
+
+const BIGBOARD_TRAIL_HISTORY: { maxMiles: number; title: string; body: string }[] = [
+  {
+    maxMiles: 150,
+    title: "March 1852 · Iowa",
+    body: "Marion Jasper Meeker was six weeks old when the wagons rolled — Eliza Jane packed food for six months on the trail.",
+  },
+  {
+    maxMiles: 320,
+    title: "May 1852 · Missouri River",
+    body: "Emigrants dug a buried ferry from the sand; Ezra wrote that a hundred guns appeared before the sheriff stood down.",
+  },
+  {
+    maxMiles: 550,
+    title: "June 1852 · Pawnee country",
+    body: "Eliza McAuley's diary records the Meeker band — the kind of eyewitness history Ezra later crusaded to save.",
+  },
+  {
+    maxMiles: 850,
+    title: "Platte & Laramie",
+    body: "At 76, Ezra would dress as an aging pioneer and retrace this road by ox cart, auto, and airplane.",
+  },
+  {
+    maxMiles: 1150,
+    title: "Sweetwater · Devil's Gate",
+    body: "In 1854 young Clark Meeker drowned here on the family's return trip — Oliver searched the gorge calling his name.",
+  },
+  {
+    maxMiles: 1400,
+    title: "Fort Boise · Snake River",
+    body: "The Meeker brothers sold wagon-box ferry rights in 1852; Edward Jay Allen's diary later proved the deal.",
+  },
+  {
+    maxMiles: 1750,
+    title: "The Dalles · Columbia",
+    body: "Meeker floated the great scow toward Portland — the Columbia leg that finished his 1852 journey.",
+  },
+  {
+    maxMiles: 1990,
+    title: "October 1852 · Portland",
+    body: "The Meekers arrived with $3.25 in their pockets — hops, the 1890 mansion, and trail monuments lay ahead.",
+  },
+];
+
+const BIGBOARD_MANSION_EXTRAS: { title: string; body: string }[] = [
+  {
+    title: "Italianate Victorian",
+    body: "Ornate brackets, bay windows, and prismatic stained glass at 312 Spring Street, Puyallup.",
+  },
+  {
+    title: "Speaking tubes",
+    body: "Nickel-plated speaking tubes still connect every floor — Gilded-Age domestic technology.",
+  },
+  {
+    title: "Hop King era",
+    body: "1865–1885: Ezra cultivated 500+ acres of hops and revolutionized valley agriculture.",
+  },
+  {
+    title: "Forgiven debts",
+    body: "When the hop bust hit, Ezra forgave ~$100,000 in local hop loans — roughly $4M today.",
+  },
+  {
+    title: "Trail crusade wagon",
+    body: "January 1919: Ezra donated his monument wagon and ~50,000 pages of papers to Washington State Historical Society.",
+  },
+  {
+    title: "Heritage Center 2026",
+    body: "Groundbreaking for Ezra's Heritage Center — a $35M chapter so the mansion story endures.",
+  },
+  {
+    title: "Puyallup Historical Society",
+    body: "Volunteers acquired the mansion in 1970 — 50+ years stewarding a National Register treasure.",
+  },
+];
+
+function landmarkHistoryBlurb(landmark?: string): string | undefined {
+  if (!landmark) return undefined;
+  const hit = Object.entries(MANSION_LANDMARK_ADDENDUM).find(
+    ([key]) => landmark.includes(key) || key.includes(landmark),
+  );
+  return hit?.[1];
+}
+
+/** History panel for the live bigboard — alternates trail-era facts with mansion museum notes. */
+export function bigboardHistoryContent(
+  leadMiles: number,
+  tick = 0,
+  landmark?: string,
+): { title: string; body: string } {
+  const landmarkBlurb = landmarkHistoryBlurb(landmark);
+  if (landmarkBlurb && landmark && tick % 3 === 0) {
+    return { title: landmark, body: landmarkBlurb };
+  }
+  const trail =
+    BIGBOARD_TRAIL_HISTORY.find((h) => leadMiles <= h.maxMiles) ??
+    BIGBOARD_TRAIL_HISTORY[BIGBOARD_TRAIL_HISTORY.length - 1]!;
+  if (tick % 2 === 0) return trail;
+  return BIGBOARD_MANSION_EXTRAS[tick % BIGBOARD_MANSION_EXTRAS.length]!;
+}
+
 /** Raw trivia — merged in trivia.ts */
 export const MANSION_TRIVIA_RAW: {
   id: string;
