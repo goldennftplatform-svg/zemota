@@ -35,6 +35,7 @@ import {
 import { calendarDayKeyPST, todayCalendarKeyPST } from "./game/pstDate";
 import { getTravelerNumber } from "./game/playerNumber";
 import { showTrailInterstitial } from "./ui/trailInterstitial";
+import { showJourneyRecap } from "./ui/journeyRecap";
 
 initMobileShellClass();
 
@@ -534,6 +535,30 @@ function refreshPopupOverlay(): void {
 function render(): void {
   if (engine.takeTravelInterstitial()) {
     void showTrailInterstitial().then(() => render());
+    return;
+  }
+
+  if (engine.takeJourneyRecap()) {
+    const data = engine.getJourneyRecapData(getDisplayName());
+    if (data.outcome === "victory" && !scoreCommitted) {
+      scoreCommitted = true;
+      const hop = engine.lastLandResult?.hopKing ?? false;
+      const name = getDisplayName();
+      saveLocalScore({ name, score: data.score, at: new Date().toISOString() });
+      mp.submitScore(name, data.score, {
+        hopKing: hop,
+        profile: engine.profile,
+        travelerNo: getTravelerNumber(),
+      });
+    }
+    pushNetworkProgress();
+    syncTrailBroadcast();
+    void showJourneyRecap(data).then(() => {
+      clearRunSave();
+      engine.resetFromTitle();
+      scoreCommitted = false;
+      render();
+    });
     return;
   }
 

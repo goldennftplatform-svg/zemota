@@ -24,6 +24,7 @@ import { pickEncounter, TRAIL_ENCOUNTERS, type EncounterMeta } from "./encounter
 import { applyDeaths, rollDailyDeaths } from "./deaths";
 import { resolveLandChoice, type LandChoice, type LandOutcome } from "./landClaim";
 import { getTravelerNumber } from "./playerNumber";
+import type { JourneyRecapData } from "../ui/journeyRecap";
 import { resolveStage2Pick, type Stage2Outcome, type Stage2Pick } from "./stage2Bonus";
 import { landmarkAtMiles, nextRiverAhead, LANDMARKS } from "./map";
 import { PROFILES, PROFILE_ORDER } from "./profiles";
@@ -224,6 +225,7 @@ export class GameEngine {
   private _giftShopReturnPhase: "travel_menu" | "store" = "travel_menu";
 
   private _pendingTravelInterstitial = false;
+  private _pendingJourneyRecap = false;
 
   resetFromTitle(): void {
     Object.assign(this, new GameEngine());
@@ -323,6 +325,51 @@ export class GameEngine {
     if (!this._pendingTravelInterstitial) return false;
     this._pendingTravelInterstitial = false;
     return true;
+  }
+
+  /** One-shot: true when entering victory / game over — main shows journey recap. */
+  takeJourneyRecap(): boolean {
+    if (!this._pendingJourneyRecap) return false;
+    this._pendingJourneyRecap = false;
+    return true;
+  }
+
+  getJourneyRecapData(wagonName: string): JourneyRecapData {
+    const snap = this.getDashboardSnapshot();
+    const survivors = this.party.filter((p) => p.alive).map((p) => p.name);
+    const fallen = this.party
+      .filter((p) => !p.alive)
+      .map((p) => ({ name: p.name, cause: p.cause }));
+    return {
+      outcome: this.phase === "victory" ? "victory" : "game_over",
+      wagonName,
+      score: this.computeScore(),
+      day: this.day,
+      miles: this.miles,
+      totalMiles: TOTAL_TRAIL_MILES,
+      landmark: snap.landmark,
+      alive: this.livingCount(),
+      partyCap: MAX_PARTY,
+      survivors,
+      fallen,
+      profileTitle: snap.profileTitle,
+      triviaCorrect: this.triviaCorrect,
+      money: snap.money,
+      landTitle: this.lastLandResult?.title,
+      hopKing: this.lastLandResult?.hopKing ?? false,
+      stage2Archetype: this.stage2Archetype || undefined,
+      stage2Bonus: this.stage2ScoreBonus,
+    };
+  }
+
+  private enterGameOver(): void {
+    this.phase = "game_over";
+    this._pendingJourneyRecap = true;
+  }
+
+  private enterVictory(): void {
+    this.phase = "victory";
+    this._pendingJourneyRecap = true;
   }
 
   getScreen(): ScreenDescriptor {
@@ -856,7 +903,7 @@ export class GameEngine {
             this.stage2Archetype = this.stage2Pending.title;
             this.stage2Pending = null;
           }
-          this.phase = "victory";
+          this.enterVictory();
         }
         break;
 
@@ -1093,7 +1140,7 @@ export class GameEngine {
     logs.push(...deathLines);
 
     if (this.livingCount() === 0) {
-      this.phase = "game_over";
+      this.enterGameOver();
       return;
     }
 
@@ -1382,7 +1429,7 @@ export class GameEngine {
     });
     logs.push(...applyDeaths(this.party, deaths));
     if (this.livingCount() === 0) {
-      this.phase = "game_over";
+      this.enterGameOver();
       return;
     }
     if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
