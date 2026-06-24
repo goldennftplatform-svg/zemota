@@ -107,13 +107,6 @@ html.emota-mobile .party-continue-btn:active {
   box-shadow: 0 2px 0 var(--shadow);
 }
 
-html.emota-mobile .sidebar {
-  flex-shrink: 0;
-  max-height: min(38dvh, 16rem);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 html.emota-mobile .app-footer {
   flex-shrink: 0;
   padding-top: 0.25rem;

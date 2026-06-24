@@ -81,7 +81,11 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export function renderTrailMinimap(miles: number, landmarkName: string): string {
+export function renderTrailMinimap(
+  miles: number,
+  landmarkName: string,
+  variant: "full" | "ribbon" = "full",
+): string {
   const { x, y } = trailPosition(miles);
   const pct = Math.round((miles / TOTAL_TRAIL_MILES) * 100);
   const poly = trailPolylinePoints();
@@ -100,7 +104,7 @@ export function renderTrailMinimap(miles: number, landmarkName: string): string 
   const bottomY = VB.y + VB.h - 8;
 
   return `
-<svg class="minimap-svg" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress across the United States">
+<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress across the United States">
   <title>${title}</title>
   <defs>
     <clipPath id="minimap-us-clip">
@@ -124,7 +128,7 @@ export function renderTrailMinimap(miles: number, landmarkName: string): string 
   <text class="minimap-tag minimap-tag--e" x="258" y="112">MO</text>
   <text class="minimap-tag minimap-tag--w" x="22" y="86">OR</text>
   <text class="minimap-pct" x="${midX.toFixed(1)}" y="${VB.y + 220}" text-anchor="middle">${pct}% trail</text>
-  <text class="minimap-credit" x="${rightX.toFixed(1)}" y="${bottomY.toFixed(1)}" text-anchor="end">terraink.app</text>
+  ${variant === "full" ? `<text class="minimap-credit" x="${rightX.toFixed(1)}" y="${bottomY.toFixed(1)}" text-anchor="end">terraink.app</text>` : ""}
 </svg>
 `.trim();
 }

@@ -1,4 +1,5 @@
 import type { DashboardSnapshot } from "../game/types";
+import { GAME_ART } from "../game/artAssets";
 import { renderTrailMinimap } from "./trailMinimap";
 
 const PHASE_LABEL: Record<string, string> = {
@@ -132,6 +133,29 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
         <h2 class="dash-section__title">Party</h2>
         <div class="dash-party">${partyHtml}</div>
       </section>
+    </div>
+  `.trim();
+}
+
+/** Slim top ribbon on mobile — map + trail stats beside the pioneer, not a giant sidebar. */
+export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): string {
+  const chip = PHASE_LABEL[phase] ?? "Trail";
+  const pct = Math.round((s.miles / s.totalMiles) * 100);
+  const loc =
+    s.landmark.length > 28 ? `${s.landmark.slice(0, 27)}…` : s.landmark;
+  const minimap = renderTrailMinimap(s.miles, s.landmark, "ribbon");
+
+  return `
+    <div class="trail-ribbon" role="region" aria-label="Trail progress">
+      <div class="trail-ribbon__mark" aria-hidden="true">
+        <img class="trail-ribbon__portrait" src="${GAME_ART.drunkcowboyPioneer}" width="48" height="48" alt="" decoding="async" />
+      </div>
+      <div class="trail-ribbon__map">${minimap}</div>
+      <div class="trail-ribbon__meta">
+        <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>
+        <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>
+        <p class="trail-ribbon__stats">Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}</p>
+      </div>
     </div>
   `.trim();
 }

@@ -1,0 +1,116 @@
+/* Mobile trail ribbon — header-height map strip, not a 30% sidebar */
+
+.trail-ribbon-host[hidden] {
+  display: none !important;
+}
+
+html.emota-mobile .trail-ribbon-host {
+  flex-shrink: 0;
+  margin-bottom: 0.35rem;
+}
+
+html.emota-mobile .trail-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.28rem 0.45rem;
+  border: 2px solid rgba(0, 168, 77, 0.45);
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(9, 32, 22, 0.98) 0%, rgba(0, 14, 8, 0.98) 100%);
+  box-shadow: 3px 3px 0 var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  max-height: 3.35rem;
+  overflow: hidden;
+}
+
+html.emota-mobile .trail-ribbon__mark {
+  flex-shrink: 0;
+  padding: 2px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(0, 32, 18, 0.95) 0%, rgba(0, 12, 8, 0.98) 100%);
+  box-shadow: 2px 2px 0 var(--shadow), 0 0 12px rgba(0, 255, 119, 0.12);
+  animation: seal-hum 4s ease-in-out infinite;
+}
+
+html.emota-mobile .trail-ribbon__portrait {
+  display: block;
+  width: 2.15rem;
+  height: 2.15rem;
+  object-fit: contain;
+  object-position: center bottom;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+html.emota-mobile .trail-ribbon__map {
+  flex-shrink: 0;
+  width: 4.75rem;
+  max-height: 2.65rem;
+  overflow: hidden;
+  border-radius: 6px;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 119, 0.12));
+}
+
+html.emota-mobile .trail-ribbon__map .minimap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 2.65rem;
+}
+
+html.emota-mobile .minimap-svg--ribbon .minimap-credit,
+html.emota-mobile .minimap-svg--ribbon .minimap-rule,
+html.emota-mobile .minimap-svg--ribbon .minimap-tag {
+  display: none;
+}
+
+html.emota-mobile .minimap-svg--ribbon .minimap-pct {
+  font-size: 7px;
+}
+
+html.emota-mobile .trail-ribbon__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  line-height: 1.15;
+}
+
+html.emota-mobile .trail-ribbon__chip {
+  align-self: flex-start;
+  font-family: var(--font-head);
+  font-size: 0.42rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--shadow-deep);
+  background: linear-gradient(180deg, #00ff88 0%, var(--border-hi) 100%);
+  border: 1px solid var(--border);
+  padding: 0.12rem 0.32rem;
+  border-radius: 4px;
+}
+
+html.emota-mobile .trail-ribbon__loc {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 0.92rem;
+  color: var(--hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html.emota-mobile .trail-ribbon__stats {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sidebar is desktop-only — mobile uses ribbon + in-screen HUDs */
+html.emota-mobile .sidebar {
+  display: none !important;
+}

@@ -12,6 +12,7 @@ import { randomHistoricPartyLine } from "./data/historicNames";
 import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
 import {
   buildDashboardSidebar,
+  buildMobileTrailRibbon,
   buildTravelMenuMobileHud,
   choiceLeadingIcon,
   trailPhaseLabel,
@@ -112,7 +113,7 @@ function isMobileShell(): boolean {
   return document.documentElement.classList.contains("emota-mobile");
 }
 
-/** Sidebar is hidden on mobile during setup; shown once the trail opens. */
+/** Trail phases: desktop sidebar · mobile top ribbon (see trail-ribbon.css). */
 const MOBILE_SIDEBAR_PHASES = new Set<EnginePhase>([
   "travel_menu",
   "river",
@@ -191,6 +192,7 @@ const sidebarEl = document.getElementById("sidebar")!;
 const onboardRailEl = document.getElementById("onboard-rail")!;
 const supplyStripEl = document.getElementById("supply-strip-host")!;
 const travelMenuHudEl = document.getElementById("travel-menu-mobile-hud")!;
+const trailRibbonEl = document.getElementById("trail-ribbon-host")!;
 const canvas = document.getElementById("overhead") as HTMLCanvasElement;
 const popupRoot = document.getElementById("emota-popups")!;
 const landSlot = document.getElementById("land-view-slot")!;
@@ -594,8 +596,19 @@ function render(): void {
     supplyStripEl.innerHTML = stripHtml;
   }
 
-  const showSidebarMobile = !mobile || MOBILE_SIDEBAR_PHASES.has(sc.phase);
+  const showSidebarMobile = !mobile && !isTitle;
+  const showMobileTrailRibbon =
+    mobile && !isTitle && MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
+
+  if (showMobileTrailRibbon) {
+    trailRibbonEl.hidden = false;
+    trailRibbonEl.innerHTML = buildMobileTrailRibbon(dashSnap, sc.phase);
+  } else {
+    trailRibbonEl.hidden = true;
+    trailRibbonEl.innerHTML = "";
+  }
+
   if (isTitle || !showSidebarMobile) {
     sidebarEl.hidden = true;
     if (!isTitle) sidebarEl.innerHTML = "";
