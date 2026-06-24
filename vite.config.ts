@@ -21,6 +21,18 @@ export default defineConfig(({ mode }) => {
     publicDir: "public",
     plugins: [
       {
+        name: "emota-html-routes",
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            const pathOnly = req.url?.split("?")[0] ?? "";
+            if (pathOnly === "/join" || pathOnly === "/event") req.url = "/join.html";
+            else if (pathOnly === "/play") req.url = "/index.html";
+            else if (pathOnly === "/bigboard") req.url = "/bigboard.html";
+            next();
+          });
+        },
+      },
+      {
         name: "emota-trail-json-origin",
         /** So /trail.json on the deployed site matches VITE_TRAIL_SERVER_URL (bigboard + `trail-bots --site`). */
         closeBundle() {
@@ -45,6 +57,7 @@ export default defineConfig(({ mode }) => {
         input: {
           main: path.resolve(__dirname, "index.html"),
           bigboard: path.resolve(__dirname, "bigboard.html"),
+          join: path.resolve(__dirname, "join.html"),
         },
       },
     },

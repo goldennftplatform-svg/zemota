@@ -171,15 +171,21 @@ function render(): void {
     })
     .join("");
 
+  const playLink =
+    typeof window !== "undefined" ? `${window.location.host}/play` : "zemota.vercel.app/play";
+  const joinLink =
+    typeof window !== "undefined" ? `${window.location.host}/join` : "zemota.vercel.app/join";
+
   const lobbyHint =
     conn === "ok" && peers.length === 0
       ? `<div class="bb-lobby" role="status">
           <strong>Waiting for wagons.</strong>
           <ol class="bb-lobby__steps">
-            <li>On a phone, open <strong>zemota.vercel.app</strong></li>
+            <li>Scan the QR on the sign — or open <strong>${escapeHtml(playLink)}</strong></li>
             <li>Tap <strong>Play now</strong></li>
-            <li>Wagons appear here automatically — no extra steps</li>
+            <li>Wagons appear here automatically</li>
           </ol>
+          <p class="bb-lobby__host">No sign yet? Host prints one at <strong>${escapeHtml(joinLink)}</strong></p>
         </div>`
       : "";
 

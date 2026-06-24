@@ -577,6 +577,17 @@ body {
   color: var(--bb-hi);
 }
 
+.bb-lobby__host {
+  margin: 0.65rem 0 0;
+  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+  color: var(--bb-fg);
+  opacity: 0.8;
+}
+
+.bb-lobby__host strong {
+  color: var(--bb-warn);
+}
+
 .bb-join-banner {
   flex: 0 0 auto;
   padding: 0.45rem 1rem;

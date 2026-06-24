@@ -21,7 +21,7 @@ Use your real trail API origin (no trailing slash). Omit locally: Vite proxies `
 
 - Connect repo; framework “Other”; output `dist`; build `npm run build`.
 - Set `VITE_TRAIL_SERVER_URL` to your deployed trail server **HTTPS** URL.
-- `vercel.json` maps `/bigboard` → `bigboard.html` and long-cache hashes under `/assets/`.
+- `vercel.json` maps `/bigboard`, `/join`, `/event`, `/play` → built HTML; long-cache hashes under `/assets/`.
 
 ## Trail server in production
 

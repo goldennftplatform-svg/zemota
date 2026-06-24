@@ -4,9 +4,17 @@ Players only need **one link** on their phone. You set up the trail server **onc
 
 ## For players (share this)
 
-1. Open **https://zemota.vercel.app** on your phone  
-2. Tap **Play now**  
-3. Play the game — your wagon shows on the **live board** automatically  
+**Easiest:** scan the QR on the printed sign, or open:
+
+**https://zemota.vercel.app/play**
+
+(Short link — same as the main game.)
+
+1. Tap **Play now**  
+2. Play the game — your wagon shows on the **live board** automatically  
+
+**Printable sign with QR codes (for you):**  
+**https://zemota.vercel.app/join** — open on a laptop, tap **Print this sign**, put it on a table.
 
 **Live board (TV / projector):**  
 **https://zemota.vercel.app/bigboard?wall=1**
@@ -39,8 +47,9 @@ After that, phones and the bigboard connect automatically — **no `?trail=` lin
 
 ### Step 3 — Test
 
-1. Phone: **https://zemota.vercel.app** — banner should say **LIVE — your wagon is on the big screen**  
-2. TV: **https://zemota.vercel.app/bigboard?wall=1** — top should say **Live**, wagon count ≥ 1  
+1. **Sign:** **https://zemota.vercel.app/join** — print or show on a tablet; scan the big QR with your phone  
+2. Phone should open **/play** and banner says **LIVE — your wagon is on the big screen**  
+3. TV: **https://zemota.vercel.app/bigboard?wall=1** — top should say **Live**, wagon count ≥ 1  
 
 ---
 
@@ -79,3 +88,4 @@ The `?trail=` link is remembered on that phone after the first visit.
 | Phone banner says **phone only** | Same — trail server URL not baked into the build |
 | Render sleeps (free tier) | First visitor waits ~30s while server wakes; open bigboard first at an event |
 | Name shows as **Party 1** | Tap to name your wagon in Step 1 of the game — that name appears on the board |
+| Need a printed QR sign | Open **/join** on a laptop → **Print this sign** |

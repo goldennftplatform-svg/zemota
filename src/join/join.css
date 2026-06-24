@@ -1,0 +1,253 @@
+/* Event sign — screen + print */
+
+:root {
+  --join-bg: #020a06;
+  --join-panel: rgba(0, 28, 16, 0.94);
+  --join-border: rgba(57, 255, 122, 0.35);
+  --join-hi: #c8ffe0;
+  --join-text: #d8eadf;
+  --join-dim: #8aa898;
+  --font: "VT323", "Segoe UI", system-ui, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body.join-body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--join-bg);
+  color: var(--join-text);
+  font-family: var(--font);
+  font-size: clamp(1.15rem, 3.6vw, 1.45rem);
+  line-height: 1.4;
+}
+
+.join-app {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.join-header {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.join-kicker {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.45rem, 2vw, 0.58rem);
+  letter-spacing: 0.06em;
+  color: var(--join-dim);
+}
+
+.join-title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: clamp(1rem, 4.5vw, 1.35rem);
+  line-height: 1.5;
+  color: var(--join-hi);
+}
+
+.join-lead {
+  margin: 0.65rem 0 0;
+  font-size: clamp(1.1rem, 3.8vw, 1.35rem);
+  color: var(--join-dim);
+}
+
+.join-card {
+  margin: 0 0 1rem;
+  padding: 1rem 1.1rem 1.15rem;
+  border: 2px solid var(--join-border);
+  border-radius: 12px;
+  background: var(--join-panel);
+}
+
+.join-card--play {
+  border-color: rgba(57, 255, 122, 0.55);
+  box-shadow: 0 0 24px rgba(0, 255, 119, 0.08);
+}
+
+.join-card__heading {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.55rem, 2.4vw, 0.72rem);
+  line-height: 1.6;
+  color: var(--join-hi);
+}
+
+.join-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.25rem 0 0.65rem;
+  padding: 0.65rem;
+  background: #fff;
+  border-radius: 10px;
+}
+
+.join-qr-wrap--small {
+  padding: 0.5rem;
+}
+
+.join-qr {
+  display: block;
+  width: min(280px, 72vw);
+  height: auto;
+}
+
+.join-qr--small {
+  width: min(200px, 52vw);
+}
+
+.join-url {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(1.35rem, 5vw, 1.75rem);
+  font-weight: 400;
+  color: var(--join-hi);
+  word-break: break-all;
+}
+
+.join-url--dim {
+  font-size: clamp(1.05rem, 3.8vw, 1.25rem);
+  color: var(--join-text);
+}
+
+.join-steps {
+  margin: 0.85rem 0 0;
+  padding-left: 1.35rem;
+  font-size: clamp(1.15rem, 3.8vw, 1.4rem);
+}
+
+.join-steps li {
+  margin: 0.4rem 0;
+}
+
+.join-steps strong {
+  color: var(--join-hi);
+}
+
+.join-note {
+  margin: 0.5rem 0 0;
+  color: var(--join-dim);
+  font-size: clamp(1.05rem, 3.4vw, 1.25rem);
+}
+
+.join-note--hi {
+  margin: 0;
+  color: var(--join-text);
+  font-size: clamp(1.15rem, 3.8vw, 1.35rem);
+}
+
+.join-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.join-btn {
+  flex: 1 1 auto;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.85rem;
+  border: 2px solid rgba(57, 255, 122, 0.45);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #2acf62 0%, #1a9a48 100%);
+  color: #021208;
+  font-family: var(--font);
+  font-size: clamp(1.1rem, 3.6vw, 1.3rem);
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+
+.join-btn--ghost {
+  background: transparent;
+  color: var(--join-hi);
+}
+
+.join-btn--print {
+  width: 100%;
+  font-size: clamp(1.2rem, 4vw, 1.45rem);
+}
+
+.join-footer {
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.join-footer__meta {
+  margin: 0.65rem 0 0;
+  font-size: 0.95rem;
+  color: var(--join-dim);
+}
+
+/* Print — one-page sign for table / wall */
+
+@media print {
+  html,
+  body.join-body {
+    background: #fff;
+    color: #000;
+    font-size: 14pt;
+  }
+
+  .join-app {
+    max-width: none;
+    padding: 0.25in;
+  }
+
+  .join-card {
+    break-inside: avoid;
+    border-color: #333;
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .join-title,
+  .join-card__heading,
+  .join-url,
+  .join-steps strong {
+    color: #000;
+  }
+
+  .join-kicker,
+  .join-lead,
+  .join-note,
+  .join-footer__meta {
+    color: #333;
+  }
+
+  .join-actions,
+  .join-card--after,
+  .join-footer .join-btn--print {
+    display: none !important;
+  }
+
+  .join-card--play {
+    border-width: 3px;
+  }
+
+  .join-qr-wrap {
+    padding: 0.15in;
+  }
+
+  .join-qr {
+    width: 2.75in !important;
+    max-width: none;
+  }
+
+  .join-qr--small {
+    width: 1.65in !important;
+  }
+
+  .join-steps {
+    font-size: 13pt;
+  }
+}

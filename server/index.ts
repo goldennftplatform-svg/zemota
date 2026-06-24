@@ -172,6 +172,18 @@ app.get("/bigboard", (_req, res) => {
   res.sendFile(path.join(distDir, "bigboard.html"));
 });
 
+app.get("/join", (_req, res) => {
+  res.sendFile(path.join(distDir, "join.html"));
+});
+
+app.get("/event", (_req, res) => {
+  res.sendFile(path.join(distDir, "join.html"));
+});
+
+app.get("/play", (_req, res) => {
+  res.sendFile(path.join(distDir, "index.html"));
+});
+
 io.on("connection", (socket) => {
   socket.emit("scores:list", scores);
   socket.emit("trail:feed:sync", feed.slice(-120));
@@ -287,6 +299,8 @@ httpServer.listen(PORT, () => {
     `EMOTA trail server http://127.0.0.1:${PORT} (Socket.IO /socket.io, max ${MULTIPLAYER_CAP} players)`,
   );
   console.log(`  Bigboard (projector): http://127.0.0.1:${PORT}/bigboard`);
+  console.log(`  Event sign (QR):      http://127.0.0.1:${PORT}/join`);
+  console.log(`  Short play link:      http://127.0.0.1:${PORT}/play`);
   console.log(`  Trail data dir: ${getTrailDataDir()}`);
   if (ADMIN_TOKEN) {
     console.log(`  Admin: set header X-Emota-Admin or ?token= on /trail/admin/*`);

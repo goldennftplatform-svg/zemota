@@ -1,4 +1,20 @@
-# Event laptop — local trail + bigboard
+# Event guide
+
+## Public internet event (recommended — phones work anywhere)
+
+Players use one permanent link forever (event + at home). See **LIVE-TRAIL.md** for one-time trail-server setup.
+
+| What | URL |
+|------|-----|
+| **Printable QR sign** | https://zemota.vercel.app/join |
+| **Play (short link)** | https://zemota.vercel.app/play |
+| **Live bigboard (TV)** | https://zemota.vercel.app/bigboard?wall=1 |
+
+**Day-of:** open `/join` on a laptop → **Print this sign** → put it on a table. Phones scan → play. TV shows `/bigboard?wall=1`.
+
+---
+
+## Local laptop event (venue Wi‑Fi only)
 
 Run everything on **one laptop** on venue Wi‑Fi. No cloud required.
 
@@ -91,5 +107,5 @@ Vite on `:5173`, server on `:3333` — use only while tweaking; for events prefe
 - [ ] Laptop + charger  
 - [ ] HDMI cable  
 - [ ] USB with repo OR git pull  
-- [ ] Printed QR / sign with `http://YOUR-IP:3333`  
+- [ ] Printed QR sign from **https://zemota.vercel.app/join** (or local `http://YOUR-IP:3333/join`)
 - [ ] This file bookmarked  
