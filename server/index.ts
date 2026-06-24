@@ -294,7 +294,7 @@ startPstDayRolloverWatcher((previousPstDay) => {
   }
 });
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(
     `EMOTA trail server http://127.0.0.1:${PORT} (Socket.IO /socket.io, max ${MULTIPLAYER_CAP} players)`,
   );

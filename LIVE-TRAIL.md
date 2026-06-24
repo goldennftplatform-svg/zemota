@@ -35,15 +35,11 @@ If the board says **Live** (green) and your wagon still does not appear, wait 10
 ### Step 2 — Tell Vercel about it
 
 1. Open [vercel.com](https://vercel.com) → **zemota** project → **Settings** → **Environment Variables**  
-2. Add:
+2. **Edit** the existing `VITE_TRAIL_SERVER_URL` (do not add a second one — Vercel will reject duplicates).  
+3. Set the value to your Render URL **with no trailing slash**, e.g. `https://emota-trail.onrender.com`  
+4. **Deployments** → latest → **⋯** → **Redeploy** (required — `trail.json` is baked at build time).
 
-   | Name | Value |
-   |------|--------|
-   | `VITE_TRAIL_SERVER_URL` | `https://emota-trail.onrender.com` |
-
-3. **Redeploy** the site (Deployments → … → Redeploy).
-
-After that, phones and the bigboard connect automatically — **no `?trail=` links for players**.
+Check: open **https://zemota.vercel.app/trail.json** — `origin` must match Render, not `trycloudflare.com`.
 
 ### Step 3 — Test
 
@@ -84,7 +80,10 @@ The `?trail=` link is remembered on that phone after the first visit.
 
 | Problem | Fix |
 |---------|-----|
-| Bigboard says **Offline** or “not set up” | `VITE_TRAIL_SERVER_URL` missing on Vercel — do Step 2 and redeploy |
+| Render deploy keeps looping / never goes Live | Open **emota-trail** → **Logs**. Often `NODE_ENV=production` skipped `tsx` — redeploy after latest repo fix, or set build to `npm install --include=dev && npm run build` |
+| Vercel says variable already exists | **Edit** the existing `VITE_TRAIL_SERVER_URL` — do not create a new one |
+| `trail.json` still shows trycloudflare.com | Vercel was not **redeployed** after editing the variable |
+| Bigboard says **Offline** or “not set up” | `VITE_TRAIL_SERVER_URL` missing or wrong on Vercel — edit + redeploy |
 | Phone banner says **phone only** | Same — trail server URL not baked into the build |
 | Render sleeps (free tier) | First visitor waits ~30s while server wakes; open bigboard first at an event |
 | Name shows as **Party 1** | Tap to name your wagon in Step 1 of the game — that name appears on the board |
