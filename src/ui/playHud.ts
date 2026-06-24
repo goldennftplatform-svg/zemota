@@ -48,7 +48,7 @@ export function buildSupplyStrip(s: DashboardSnapshot, phase: string): string {
 
   if (phase === "party_names") {
     return `<div class="supply-strip supply-strip--onboard" role="region" aria-label="Setup">
-      <p class="supply-strip__lead">Step 1 · Name your wagon and five travelers</p>
+      <p class="supply-strip__lead">Shuffle for historic names · edit wagon or party · Continue</p>
     </div>`;
   }
 

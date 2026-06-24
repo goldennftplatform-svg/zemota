@@ -380,10 +380,12 @@ export class GameEngine {
       case "party_names":
         return {
           phase: "party_names",
-          lines: ["Name your wagon, then your five travelers."],
-          coach: "Wagon name = scoreboard. Party box = five first names, commas ok. Tap Continue.",
+          badge: "Step 1 · Names",
+          prompt: "Wagon name + five travelers",
+          lines: [],
+          coach: "Tap Shuffle for new historic names, or edit either field.",
           inputLine: {
-            placeholder: "Mary, John, …",
+            placeholder: "Five first names, commas ok",
             hint: "Party names",
           },
         };

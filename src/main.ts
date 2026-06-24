@@ -715,27 +715,35 @@ function render(): void {
   } else if (sc.choices?.length) {
     choicesHtml = renderChoicesHtml(sc.phase, sc.choices, renderChoiceLead);
   }
-  let trailDisplayNameHtml = "";
+  let partySetupHtml = "";
   if (sc.phase === "party_names" && sc.inputLine) {
     const dn = escapeHtml(getDisplayName());
-    trailDisplayNameHtml = `<div class="trail-display-name" role="region" aria-label="Wagon name for leaderboard and trail">
-  <p class="trail-display-name__label">Wagon name · scores &amp; live trail</p>
-  <input type="text" class="trail-display-name__input" maxlength="24" spellcheck="false" autocomplete="nickname" value="${dn}" aria-label="Wagon name for leaderboard and trail feed" />
-  <p class="trail-display-name__hint">Your five travelers go in the box below.</p>
+    const partySetup = `<div class="party-setup" role="form" aria-label="Wagon and party names">
+  <div class="party-setup__row">
+    <label class="party-setup__lbl" for="party-wagon-input">Wagon</label>
+    <input id="party-wagon-input" type="text" class="party-setup__input" maxlength="24" spellcheck="false" autocomplete="nickname" value="${dn}" aria-label="Wagon name for leaderboard" />
+  </div>
+  <div class="party-setup__row">
+    <label class="party-setup__lbl" for="party-names-input">Party · 5</label>
+    <input id="party-names-input" class="line-input party-setup__input" type="text" placeholder="${escapeHtml(sc.inputLine.placeholder)}" aria-label="${escapeHtml(sc.inputLine.hint)}" />
+  </div>
+  <div class="party-setup__actions">
+    <button type="button" class="party-shuffle-btn">Shuffle names</button>
+    <button type="button" class="party-continue-btn">Continue</button>
+  </div>
 </div>`;
+    partySetupHtml = partySetup;
   }
 
   let inputHtml = "";
-  if (sc.inputLine) {
+  if (sc.inputLine && sc.phase !== "party_names") {
     inputHtml = `<input class="line-input" type="text" placeholder="${escapeHtml(sc.inputLine.placeholder)}" aria-label="${escapeHtml(sc.inputLine.hint)}" />`;
-    if (sc.phase === "party_names") {
-      inputHtml += `<button type="button" class="party-continue-btn">Continue</button>`;
-    }
   }
 
-  const coachHtml = sc.coach
-    ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
-    : "";
+  const coachHtml =
+    sc.coach && sc.phase !== "party_names"
+      ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
+      : "";
 
   let heroHtml = sc.heroImage
     ? `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`
@@ -743,11 +751,12 @@ function render(): void {
   if (mobile && onboard) heroHtml = "";
 
   const setupInputsHtml =
-    sc.phase === "party_names" ? `${trailDisplayNameHtml}${inputHtml}` : sc.inputLine ? inputHtml : "";
+    sc.phase === "party_names" ? partySetupHtml : sc.inputLine ? inputHtml : "";
 
   screenEl.className = "screen";
   if (pickScreen) screenEl.classList.add("screen--pick");
   if (quizScreen) screenEl.classList.add("screen--quiz");
+  if (sc.phase === "party_names") screenEl.classList.add("screen--party-setup");
 
   screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${choicesHtml}`;
 
@@ -768,7 +777,35 @@ function render(): void {
     todayHighEl.textContent = "";
   }
 
-  const trailDisplayInput = screenEl.querySelector<HTMLInputElement>(".trail-display-name__input");
+  const trailDisplayInput = screenEl.querySelector<HTMLInputElement>("#party-wagon-input, .trail-display-name__input");
+  const partyNamesInput = screenEl.querySelector<HTMLInputElement>("#party-names-input, .party-setup .line-input");
+  const input = partyNamesInput ?? screenEl.querySelector<HTMLInputElement>(".line-input");
+
+  const submitPartyFromScreen = (): void => {
+    const partyField = partyNamesInput ?? input;
+    if (!partyField) return;
+    const v = partyField.value.trim();
+    if (engine.phase === "party_names" && v) {
+      if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
+      engine.submitPartyNames(v);
+      render();
+    }
+  };
+
+  const fillPartyNames = (): void => {
+    const partyField = partyNamesInput ?? input;
+    if (partyField) partyField.value = randomHistoricPartyLine();
+  };
+
+  screenEl.querySelector<HTMLButtonElement>(".party-shuffle-btn")?.addEventListener("click", () => {
+    fillPartyNames();
+    partyNamesInput?.focus();
+  });
+
+  screenEl.querySelector<HTMLButtonElement>(".party-continue-btn")?.addEventListener("click", () => {
+    submitPartyFromScreen();
+  });
+
   if (trailDisplayInput) {
     const commitTrailName = (): void => {
       setDisplayName(trailDisplayInput.value.trim());
@@ -779,32 +816,16 @@ function render(): void {
       if (e.key === "Enter") {
         e.preventDefault();
         commitTrailName();
-        screenEl.querySelector<HTMLInputElement>(".line-input")?.focus();
+        partyNamesInput?.focus();
       }
     });
   }
-
-  const input = screenEl.querySelector<HTMLInputElement>(".line-input");
-  const submitPartyFromScreen = (): void => {
-    if (!input) return;
-    const v = input.value.trim();
-    if (engine.phase === "party_names" && v) {
-      if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
-      engine.submitPartyNames(v);
-      render();
-    }
-  };
-
-  screenEl.querySelector<HTMLButtonElement>(".party-continue-btn")?.addEventListener("click", () => {
-    submitPartyFromScreen();
-    if (engine.phase === "party_names") input?.focus();
-  });
 
   if (input) {
     if (enteringPartyNames) {
       input.value = randomHistoricPartyLine();
     }
-    if (!isEasyReadUI()) input.focus();
+    if (!isEasyReadUI() && sc.phase !== "party_names") input.focus();
     input.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();

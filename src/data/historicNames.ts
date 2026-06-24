@@ -1,80 +1,91 @@
 /**
- * First names plausible for an 1840s–60s overland party (U.S. emigrant pool).
- * Avoids obviously modern spellings; players can edit the field.
+ * Period first names for an 1840s–60s overland party (U.S. emigrant pool).
+ * 45 male · 28 female — five defaults picked as a mixed wagon (3M + 2F, shuffled).
  */
-const POOL: readonly string[] = [
+
+export const MALE_FIRST_NAMES: readonly string[] = [
   "Abijah",
-  "Almira",
+  "Alonzo",
   "Amos",
-  "Angeline",
+  "Ambrose",
   "Asa",
-  "Augusta",
   "Augustus",
-  "Azubah",
   "Barnabas",
-  "Beulah",
   "Caleb",
-  "Calista",
+  "Chauncey",
   "Chester",
   "Cornelius",
   "Cyrus",
-  "Delilah",
-  "Drusilla",
   "Elias",
   "Eliphalet",
-  "Emeline",
   "Enoch",
   "Ephraim",
   "Erastus",
-  "Eunice",
-  "Experience",
   "Ezra",
-  "Hepsibah",
+  "Gideon",
   "Hezekiah",
   "Hiram",
   "Horace",
   "Ichabod",
   "Ira",
   "Jasper",
-  "Jerusha",
+  "Jedediah",
   "Joab",
   "Josiah",
-  "Lavinia",
   "Lemuel",
   "Levi",
   "Lorenzo",
-  "Lucinda",
   "Lyman",
-  "Marilla",
-  "Matilda",
-  "Mercy",
   "Millard",
-  "Minerva",
+  "Moses",
   "Myron",
   "Obadiah",
   "Orville",
+  "Phineas",
+  "Reuben",
+  "Rufus",
+  "Silas",
+  "Solomon",
+  "Thaddeus",
+  "Warren",
+  "Zebulon",
+] as const;
+
+export const FEMALE_FIRST_NAMES: readonly string[] = [
+  "Almira",
+  "Angeline",
+  "Azubah",
+  "Beulah",
+  "Calista",
+  "Delilah",
+  "Drusilla",
+  "Emeline",
+  "Eunice",
+  "Hepsibah",
+  "Jerusha",
+  "Lavinia",
+  "Lucinda",
+  "Marilla",
+  "Matilda",
+  "Mercy",
+  "Minerva",
   "Parthenia",
   "Patience",
   "Permelia",
-  "Phineas",
   "Prudence",
   "Rhoda",
-  "Rufus",
-  "Selah",
-  "Silas",
-  "Solomon",
   "Sophronia",
   "Submit",
-  "Sylvanus",
-  "Sylvester",
   "Temperance",
-  "Thaddeus",
   "Tryphena",
-  "Warren",
   "Weltha",
-  "Zebulon",
   "Zilpah",
-];
+] as const;
+
+export const HISTORIC_NAME_COUNTS = {
+  male: MALE_FIRST_NAMES.length,
+  female: FEMALE_FIRST_NAMES.length,
+} as const;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -87,9 +98,17 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-/** Five comma-separated historic first names for the party field. */
+function pickN<T>(pool: readonly T[], n: number): T[] {
+  return shuffle([...pool]).slice(0, n);
+}
+
+/** Five first names: 3 from male pool + 2 from female pool, order shuffled. */
 export function randomHistoricPartyLine(): string {
-  return shuffle([...POOL])
-    .slice(0, 5)
-    .join(", ");
+  return randomHistoricPartyNames().join(", ");
+}
+
+export function randomHistoricPartyNames(): string[] {
+  const males = pickN(MALE_FIRST_NAMES, 3);
+  const females = pickN(FEMALE_FIRST_NAMES, 2);
+  return shuffle([...males, ...females]);
 }
