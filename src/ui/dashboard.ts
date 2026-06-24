@@ -1,5 +1,4 @@
 import type { DashboardSnapshot } from "../game/types";
-import { GAME_ART } from "../game/artAssets";
 import { renderTrailMinimap } from "./trailMinimap";
 
 const PHASE_LABEL: Record<string, string> = {
@@ -147,9 +146,6 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
 
   return `
     <div class="trail-ribbon" role="region" aria-label="Trail progress">
-      <div class="trail-ribbon__mark" aria-hidden="true">
-        <img class="trail-ribbon__portrait" src="${GAME_ART.drunkcowboyPioneer}" width="48" height="48" alt="" decoding="async" />
-      </div>
       <div class="trail-ribbon__map">${minimap}</div>
       <div class="trail-ribbon__meta">
         <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>

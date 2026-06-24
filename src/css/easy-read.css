@@ -57,7 +57,11 @@ html.emota-mobile .land-view-caption {
 
 html.emota-mobile .screen {
   padding: 1rem 0.85rem;
-  min-height: min(58dvh, 32rem);
+}
+
+html.emota-mobile .app-layout:not(.is-title) .screen {
+  min-height: 0 !important;
+  padding: 0.65rem 0.7rem;
 }
 
 html.emota-mobile .screen .block {

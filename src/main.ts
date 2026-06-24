@@ -13,7 +13,6 @@ import { landViewCaption, paintLandView, type LandViewState } from "./ui/landVie
 import {
   buildDashboardSidebar,
   buildMobileTrailRibbon,
-  buildTravelMenuMobileHud,
   choiceLeadingIcon,
   trailPhaseLabel,
 } from "./ui/dashboard";
@@ -588,18 +587,24 @@ function render(): void {
   const railHtml = buildOnboardRail(sc.phase);
   onboardRailEl.hidden = !railHtml;
   onboardRailEl.innerHTML = railHtml;
-  const stripHtml = buildSupplyStrip(dashSnap, sc.phase);
-  if (storeRepurchase && tryPatchSupplyStrip(supplyStripEl, dashSnap)) {
-    supplyStripEl.hidden = false;
-  } else {
-    supplyStripEl.hidden = !stripHtml;
-    supplyStripEl.innerHTML = stripHtml;
-  }
-
-  const showSidebarMobile = !mobile && !isTitle;
   const showMobileTrailRibbon =
     mobile && !isTitle && MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
+  appLayout.classList.toggle("is-trail-play", showMobileTrailRibbon);
+
+  const stripHtml = buildSupplyStrip(dashSnap, sc.phase);
+  const showSupplyStrip = !!stripHtml && !showMobileTrailRibbon;
+  if (storeRepurchase && showSupplyStrip && tryPatchSupplyStrip(supplyStripEl, dashSnap)) {
+    supplyStripEl.hidden = false;
+  } else if (showSupplyStrip) {
+    supplyStripEl.hidden = false;
+    supplyStripEl.innerHTML = stripHtml;
+  } else {
+    supplyStripEl.hidden = true;
+    supplyStripEl.innerHTML = "";
+  }
+
+  const showSidebarMobile = !mobile && !isTitle;
 
   if (showMobileTrailRibbon) {
     trailRibbonEl.hidden = false;
@@ -623,17 +628,8 @@ function render(): void {
     travelMenuHudEl.innerHTML = "";
   } else {
     landSlot.hidden = mobile;
-    const showTravelHud =
-      sc.phase === "travel_menu" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 899px)").matches;
-    if (showTravelHud) {
-      travelMenuHudEl.hidden = false;
-      travelMenuHudEl.innerHTML = buildTravelMenuMobileHud(engine.getDashboardSnapshot());
-    } else {
-      travelMenuHudEl.hidden = true;
-      travelMenuHudEl.innerHTML = "";
-    }
+    travelMenuHudEl.hidden = true;
+    travelMenuHudEl.innerHTML = "";
     if (!mobile) {
       const landState: LandViewState = {
         miles: engine.miles,
