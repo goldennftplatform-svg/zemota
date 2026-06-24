@@ -16,6 +16,7 @@ import {
   bigboardHistoryContent,
   MEEKER_MANSION_HISTORY_URL,
 } from "../data/mansionHistory";
+import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
 
 initMobileShellClass();
@@ -48,6 +49,8 @@ const FEED_MAX_DOM = 48;
 const FEED_MAX_WALL = 8;
 const POPUP_MS_WALL = 4200;
 const POPUP_MS_DEFAULT = 5500;
+const WAGON_LOSS_FLASH_MS = 2800;
+const LOSS_CALLOUT_MS = 5200;
 const LB_WALL = 6;
 const LB_DEFAULT = 12;
 
@@ -57,6 +60,10 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function escapeAttr(s: string): string {
+  return escapeHtml(s).replace(/'/g, "&#39;");
 }
 
 function hueFor(name: string): number {
@@ -113,6 +120,42 @@ let joinToastTimer: ReturnType<typeof setTimeout> | null = null;
 let lastResolvedOrigin: string | undefined;
 let serverReportedPeers = -1;
 let bbSocket: Socket | null = null;
+let deathCallout: string | null = null;
+let deathCalloutTimer: ReturnType<typeof setTimeout> | null = null;
+/** displayName → flash end timestamp (ms) */
+const wagonLossFlashUntil = new Map<string, number>();
+const wagonLossFlashTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function isWagonLossFlashing(displayName: string): boolean {
+  const until = wagonLossFlashUntil.get(displayName);
+  return until != null && until > Date.now();
+}
+
+function startWagonLossFlash(displayName: string): void {
+  const name = displayName.trim();
+  if (!name) return;
+  wagonLossFlashUntil.set(name, Date.now() + WAGON_LOSS_FLASH_MS);
+  const prev = wagonLossFlashTimers.get(name);
+  if (prev) clearTimeout(prev);
+  wagonLossFlashTimers.set(
+    name,
+    setTimeout(() => {
+      wagonLossFlashUntil.delete(name);
+      wagonLossFlashTimers.delete(name);
+      render();
+    }, WAGON_LOSS_FLASH_MS),
+  );
+}
+
+function showLossCallout(ev: TrailFeedEvent): void {
+  deathCallout = `${ev.displayName} — ${ev.text}`;
+  if (deathCalloutTimer) clearTimeout(deathCalloutTimer);
+  deathCalloutTimer = setTimeout(() => {
+    deathCallout = null;
+    render();
+  }, LOSS_CALLOUT_MS);
+  startWagonLossFlash(ev.displayName);
+}
 
 /** Simple covered-wagon icon (reads on projector / wall). */
 function wagonIconSvg(): string {
@@ -180,7 +223,7 @@ function renderDock(wall: boolean): string {
           .slice(0, 4)
           .map(
             (ev) =>
-              `<li class="bb-dock__news"><strong>${escapeHtml(ev.displayName)}</strong> · ${escapeHtml(ev.text)}</li>`,
+              `<li class="bb-dock__news${ev.kind === "death" || ev.kind === "wipeout" ? " bb-dock__news--loss" : ""}"><strong>${escapeHtml(ev.displayName)}</strong> · ${escapeHtml(ev.text)}</li>`,
           )
           .join("")
       : `<li class="bb-dock__empty">Trail news will appear here</li>`;
@@ -281,10 +324,11 @@ function render(): void {
   const markersHtml = peers
     .map((p) => {
       const h = hueFor(p.displayName);
+      const flashing = isWagonLossFlashing(p.displayName);
       const meta = wall
         ? `${Math.round(p.miles)} mi`
         : `${Math.round(p.miles)} mi · day ${p.day}${p.alive != null ? ` · ${p.alive} alive` : ""}`;
-      return `<div class="bb-wagon" data-miles="${p.miles}" style="--h:${h}">
+      return `<div class="bb-wagon${flashing ? " bb-wagon--loss-flash" : ""}" data-miles="${p.miles}" data-display-name="${escapeAttr(p.displayName)}" style="--h:${h}">
         <div class="bb-wagon__icon" style="filter:hue-rotate(${h % 80}deg) drop-shadow(0 0 10px rgba(57,255,120,0.55))">${wagonIconSvg()}</div>
         <div class="bb-wagon__name">${escapeHtml(p.displayName)}</div>
         <div class="bb-wagon__meta">${escapeHtml(meta)}</div>
@@ -317,6 +361,13 @@ function render(): void {
 
   const joinBanner = joinToast
     ? `<div class="bb-join-banner" role="status">${escapeHtml(joinToast)}</div>`
+    : "";
+
+  const lossCalloutHtml = deathCallout
+    ? `<div class="bb-loss-callout" role="alert">
+        <span class="bb-loss-callout__ico">${bbFeedIcon("death")}</span>
+        <span class="bb-loss-callout__text">${escapeHtml(deathCallout)}</span>
+      </div>`
     : "";
 
   const top = scoreRows[0];
@@ -386,6 +437,7 @@ function render(): void {
           ${conn !== "ok" && wall ? `<div class="bb-conn-warn" role="alert">${escapeHtml(socketTargetDisplay())}</div>` : ""}
           <div class="bb-map-stage" id="bb-map-stage">
             ${lobbyHint}
+            ${lossCalloutHtml}
             <div class="bb-map-inner" id="bb-map-inner">
               <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
               <div class="bb-markers" id="markers">${markersHtml}</div>
@@ -453,6 +505,9 @@ function showBigPopup(ev: TrailFeedEvent): void {
 
 function prependFeed(ev: TrailFeedEvent): void {
   feed = [ev, ...feed].slice(0, 200);
+  if (ev.kind === "death" || ev.kind === "wipeout") {
+    showLossCallout(ev);
+  }
   render();
   showBigPopup(ev);
 }
