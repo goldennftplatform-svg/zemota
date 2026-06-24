@@ -7,8 +7,21 @@
  *
  * Async `resolveTrailOrigin()` also reads `/trail.json` when nothing above is set.
  */
+const LS_TRAIL = "emota_trail_server";
+
 function normalizeOrigin(s: string): string {
   return s.trim().replace(/\/$/, "");
+}
+
+/** Save `?trail=https://…` once — phones keep the same room without retyping the link. */
+export function persistTrailOriginFromQuery(): void {
+  if (typeof window === "undefined") return;
+  try {
+    const q = new URLSearchParams(window.location.search).get("trail");
+    if (q?.trim()) localStorage.setItem(LS_TRAIL, normalizeOrigin(q));
+  } catch {
+    /* private mode */
+  }
 }
 
 function trailOverrideFromBrowser(): string | undefined {
@@ -16,7 +29,7 @@ function trailOverrideFromBrowser(): string | undefined {
   try {
     const q = new URLSearchParams(window.location.search).get("trail");
     if (q?.trim()) return normalizeOrigin(q);
-    const ls = localStorage.getItem("emota_trail_server");
+    const ls = localStorage.getItem(LS_TRAIL);
     if (ls?.trim()) return normalizeOrigin(ls);
   } catch {
     return undefined;

@@ -6,6 +6,8 @@ import { resolveTrailOrigin } from "./socketUrl";
 
 export type { TrailPeer, TrailFeedEvent, TrailPeerPartyRow };
 
+export type TrailConnectionState = "connecting" | "live" | "solo" | "dropped";
+
 const LS_NAME = "emota_display_name";
 const LS_CLIENT = "emota_trail_client_id";
 
@@ -63,42 +65,53 @@ export class TrailMultiplayer {
   private socket: Socket | null = null;
   private onPeers: (peers: TrailPeer[]) => void;
   private onScores: (rows: { name: string; score: number; at: string }[]) => void;
-  private onStatus: (msg: string) => void;
+  private onConnection: (state: TrailConnectionState, detail: string) => void;
+  private live = false;
 
   constructor(
     onPeers: (peers: TrailPeer[]) => void,
     onScores: (rows: { name: string; score: number; at: string }[]) => void,
-    onStatus: (msg: string) => void,
+    onConnection: (state: TrailConnectionState, detail: string) => void,
   ) {
     this.onPeers = onPeers;
     this.onScores = onScores;
-    this.onStatus = onStatus;
+    this.onConnection = onConnection;
+  }
+
+  isLive(): boolean {
+    return this.live;
   }
 
   async connect(): Promise<void> {
     if (this.socket?.connected) return;
+    this.onConnection("connecting", "Connecting to the live trail…");
     const origin = await resolveTrailOrigin();
-    this.onStatus("Connecting…");
     const opts = {
       ...EMOTA_SOCKET_BASE,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 8,
     };
     const s = origin ? io(origin, opts) : io(opts);
     this.socket = s;
 
     s.on("connect", () => {
-      this.onStatus("Trail server connected.");
+      this.live = true;
+      this.onConnection("live", "Your wagon is on the live trail.");
       s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
     });
 
     s.on("trail:room", (peers: TrailPeer[]) => this.onPeers(peers ?? []));
     s.on("scores:list", (rows) => this.onScores(rows ?? []));
     s.on("connect_error", () => {
-      this.onStatus("Playing solo — trail server unavailable.");
+      this.live = false;
+      this.onConnection(
+        "solo",
+        "Playing on this phone only — the big screen cannot see your wagon yet.",
+      );
       this.onPeers([]);
     });
     s.on("disconnect", () => {
-      this.onStatus("Connection dropped — you’re on your own until it returns.");
+      this.live = false;
+      this.onConnection("dropped", "Live trail paused — trying to reconnect…");
     });
   }
 
@@ -127,5 +140,6 @@ export class TrailMultiplayer {
   disconnect(): void {
     this.socket?.disconnect();
     this.socket = null;
+    this.live = false;
   }
 }

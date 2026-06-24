@@ -1,12 +1,13 @@
 import "./style.css";
 import { runBootSplash } from "./ui/bootSplash";
 import { initMobileShellClass } from "./mobile-detect";
+import { persistTrailOriginFromQuery } from "./net/socketUrl";
 import { GameEngine, type EnginePhase } from "./game/engine";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
-import { TrailMultiplayer, getDisplayName, setDisplayName } from "./net/multiplayer";
+import { TrailMultiplayer, getDisplayName, setDisplayName, type TrailConnectionState } from "./net/multiplayer";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
 import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
@@ -38,6 +39,7 @@ import { showTrailInterstitial } from "./ui/trailInterstitial";
 import { showJourneyRecap } from "./ui/journeyRecap";
 
 initMobileShellClass();
+persistTrailOriginFromQuery();
 
 declare global {
   interface Window {
@@ -154,22 +156,52 @@ function saveLocalScore(row: { name: string; score: number; at: string }): void 
 }
 
 let netStatus = "";
+let trailConnState: TrailConnectionState = "connecting";
+let trailConnDetail = "";
+let trailPeerCount = 0;
+
+function updateTrailLiveBanner(): void {
+  if (engine.phase === "title" && trailConnState === "connecting") {
+    trailLiveBannerEl.hidden = true;
+    return;
+  }
+  trailLiveBannerEl.hidden = false;
+  trailLiveBannerEl.className = `trail-live-banner trail-live-banner--${trailConnState}`;
+
+  const name = getDisplayName();
+  let line = trailConnDetail;
+  let sub = "";
+
+  if (trailConnState === "live") {
+    line = `LIVE — “${name}” is on the big screen`;
+    const n = trailPeerCount;
+    sub =
+      n > 1
+        ? `${n} wagons traveling right now`
+        : "Your wagon is on the map — keep playing!";
+  } else if (trailConnState === "solo") {
+    line = "Playing on this phone only";
+    sub = "The TV board cannot see you yet. The host must turn on the live trail (one-time setup).";
+  } else if (trailConnState === "connecting") {
+    line = "Connecting to the live trail…";
+    sub = "A moment — your wagon will appear on the big screen when ready.";
+  } else if (trailConnState === "dropped") {
+    line = "Reconnecting to the live trail…";
+    sub = "Your wagon may disappear from the board briefly.";
+  }
+
+  trailLiveBannerEl.innerHTML = `<p class="trail-live-banner__line">${escapeHtml(line)}</p>${
+    sub ? `<p class="trail-live-banner__sub">${escapeHtml(sub)}</p>` : ""
+  }`;
+}
 
 function footerHint(phase: EnginePhase, isTitle: boolean): string {
   if (isEasyReadUI()) {
-    if (isTitle) {
-      const bits = [PHASE_SOFT_FOOTER_EASY.title ?? HINT_TITLE_EASY];
-      if (netStatus) bits.push(netStatus);
-      return bits.join(" · ");
-    }
+    if (isTitle) return PHASE_SOFT_FOOTER_EASY.title ?? HINT_TITLE_EASY;
     const soft = PHASE_SOFT_FOOTER_EASY[phase];
     return soft ?? HINT_PLAY_EASY;
   }
-  if (isTitle) {
-    const bits = [HINT_TITLE];
-    if (netStatus) bits.push(netStatus);
-    return bits.join(" · ");
-  }
+  if (isTitle) return HINT_TITLE;
   const soft = PHASE_SOFT_FOOTER[phase];
   return soft ? `${soft} · ${HINT_PLAY}` : HINT_PLAY;
 }
@@ -191,6 +223,7 @@ const screenEl = document.getElementById("screen")!;
 const hintEl = document.getElementById("hint-text")!;
 const appFooterEl = document.querySelector(".app-footer");
 const stripEl = document.getElementById("multiplayer-strip")!;
+const trailLiveBannerEl = document.getElementById("trail-live-banner")!;
 const peerSheetEl = document.getElementById("mp-peer-sheet")!;
 const sidebarEl = document.getElementById("sidebar")!;
 const onboardRailEl = document.getElementById("onboard-rail")!;
@@ -448,13 +481,18 @@ function hideTrailStrip(peers: TrailPeer[]): void {
 
 const mp = new TrailMultiplayer(
   (peers) => {
+    trailPeerCount = peers?.length ?? 0;
     hideTrailStrip(peers ?? []);
+    updateTrailLiveBanner();
   },
   () => {
     render();
   },
-  (msg) => {
-    netStatus = msg;
+  (state, detail) => {
+    trailConnState = state;
+    trailConnDetail = detail;
+    netStatus = detail;
+    updateTrailLiveBanner();
     render();
   },
 );
@@ -533,6 +571,8 @@ function refreshPopupOverlay(): void {
 }
 
 function render(): void {
+  updateTrailLiveBanner();
+
   if (engine.takeTravelInterstitial()) {
     void showTrailInterstitial().then(() => render());
     return;

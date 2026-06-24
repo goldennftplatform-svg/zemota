@@ -9,11 +9,12 @@ import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
-import { resolveTrailOrigin } from "../net/socketUrl";
+import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
 
 initMobileShellClass();
+persistTrailOriginFromQuery();
 
 /** Projector / TV layout — big map, icon feed, minimal chrome. */
 function isWallMode(): boolean {
@@ -102,10 +103,10 @@ function socketTargetDisplay(): string {
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
     if (/\.vercel\.app$/i.test(host)) {
-      return "Live trail isn’t set up for this page yet.";
+      return "Live trail not set up yet — host must add the trail server to Vercel.";
     }
   }
-  return "Can’t reach the live trail from here.";
+  return "Cannot reach the live trail — check the trail server is running.";
 }
 
 const app = document.getElementById("app")!;
@@ -173,7 +174,12 @@ function render(): void {
   const lobbyHint =
     conn === "ok" && peers.length === 0
       ? `<div class="bb-lobby" role="status">
-          <strong>Waiting for wagons.</strong> Players appear here when they start a run.
+          <strong>Waiting for wagons.</strong>
+          <ol class="bb-lobby__steps">
+            <li>On a phone, open <strong>zemota.vercel.app</strong></li>
+            <li>Tap <strong>Play now</strong></li>
+            <li>Wagons appear here automatically — no extra steps</li>
+          </ol>
         </div>`
       : "";
 

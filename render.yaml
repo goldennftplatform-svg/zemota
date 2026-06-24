@@ -1,0 +1,13 @@
+# EMOTA live trail server — deploy to Render (free tier).
+# Connect repo → New Blueprint → picks this file.
+services:
+  - type: web
+    name: emota-trail
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production

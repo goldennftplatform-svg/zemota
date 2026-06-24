@@ -1,0 +1,81 @@
+# Live trail — easy setup (game + bigboard)
+
+Players only need **one link** on their phone. You set up the trail server **once**.
+
+## For players (share this)
+
+1. Open **https://zemota.vercel.app** on your phone  
+2. Tap **Play now**  
+3. Play the game — your wagon shows on the **live board** automatically  
+
+**Live board (TV / projector):**  
+**https://zemota.vercel.app/bigboard?wall=1**
+
+If the board says **Live** (green) and your wagon still does not appear, wait 10 seconds or close and reopen the game.
+
+---
+
+## For you (one-time host setup, ~10 minutes)
+
+### Step 1 — Start the trail server on Render (free)
+
+1. Push this repo to GitHub (already done).  
+2. Go to [render.com](https://render.com) → **New** → **Blueprint** → connect the **zemota** repo.  
+3. Render reads `render.yaml` and creates **emota-trail**.  
+4. When deploy finishes, copy the URL, e.g. `https://emota-trail.onrender.com` (no trailing slash).
+
+### Step 2 — Tell Vercel about it
+
+1. Open [vercel.com](https://vercel.com) → **zemota** project → **Settings** → **Environment Variables**  
+2. Add:
+
+   | Name | Value |
+   |------|--------|
+   | `VITE_TRAIL_SERVER_URL` | `https://emota-trail.onrender.com` |
+
+3. **Redeploy** the site (Deployments → … → Redeploy).
+
+After that, phones and the bigboard connect automatically — **no `?trail=` links for players**.
+
+### Step 3 — Test
+
+1. Phone: **https://zemota.vercel.app** — banner should say **LIVE — your wagon is on the big screen**  
+2. TV: **https://zemota.vercel.app/bigboard?wall=1** — top should say **Live**, wagon count ≥ 1  
+
+---
+
+## Quick test without Render (laptop + tunnel)
+
+For a demo before Render is set up:
+
+```bash
+npm run build
+npm run live
+```
+
+Copy the `VITE_TRAIL_SERVER_URL=…` line from the terminal into Vercel, redeploy, then use the public links above.
+
+Or on the same Wi‑Fi, open on phones once (saves the room):
+
+```text
+https://zemota.vercel.app/?trail=PASTE-TUNNEL-URL-HERE
+```
+
+Bigboard:
+
+```text
+https://zemota.vercel.app/bigboard?trail=SAME-URL-HERE&wall=1
+```
+
+The `?trail=` link is remembered on that phone after the first visit.
+
+---
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| Bigboard says **Offline** or “not set up” | `VITE_TRAIL_SERVER_URL` missing on Vercel — do Step 2 and redeploy |
+| Phone banner says **phone only** | Same — trail server URL not baked into the build |
+| Render sleeps (free tier) | First visitor waits ~30s while server wakes; open bigboard first at an event |
+| Name shows as **Party 1** | Tap to name your wagon in Step 1 of the game — that name appears on the board |

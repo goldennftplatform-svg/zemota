@@ -1,0 +1,71 @@
+/* Big friendly live-trail banner — phones + projector */
+
+.trail-live-banner[hidden] {
+  display: none !important;
+}
+
+.trail-live-banner {
+  flex-shrink: 0;
+  margin: 0 0 0.4rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 2px solid rgba(0, 168, 77, 0.45);
+  background: rgba(0, 28, 16, 0.92);
+  text-align: center;
+  font-family: var(--font);
+  line-height: 1.35;
+}
+
+.trail-live-banner__line {
+  margin: 0;
+  font-size: clamp(1.05rem, 4vw, 1.2rem);
+  color: var(--hi);
+}
+
+.trail-live-banner__sub {
+  margin: 0.2rem 0 0;
+  font-size: clamp(0.92rem, 3.4vw, 1.05rem);
+  color: var(--text-dim);
+}
+
+.trail-live-banner--live {
+  border-color: rgba(57, 255, 122, 0.65);
+  background: linear-gradient(180deg, rgba(0, 48, 28, 0.95) 0%, rgba(0, 22, 12, 0.98) 100%);
+  box-shadow: 0 0 20px rgba(0, 255, 119, 0.12);
+}
+
+.trail-live-banner--live .trail-live-banner__line {
+  color: #c8ffe0;
+  font-size: clamp(1.12rem, 4.2vw, 1.28rem);
+}
+
+.trail-live-banner--solo {
+  border-color: rgba(200, 140, 60, 0.5);
+  background: linear-gradient(180deg, rgba(40, 28, 12, 0.92) 0%, rgba(20, 14, 8, 0.96) 100%);
+}
+
+.trail-live-banner--solo .trail-live-banner__line {
+  color: #f0d8a8;
+}
+
+.trail-live-banner--connecting .trail-live-banner__line {
+  color: var(--text);
+}
+
+.trail-live-banner--dropped {
+  border-color: rgba(200, 80, 60, 0.45);
+}
+
+html.emota-mobile .trail-live-banner {
+  margin-bottom: 0.35rem;
+  padding: 0.6rem 0.7rem;
+}
+
+html.emota-mobile .app-layout.is-trail-play .trail-live-banner--live {
+  margin-bottom: 0.25rem;
+  padding: 0.45rem 0.55rem;
+}
+
+html.emota-mobile .app-layout.is-trail-play .trail-live-banner--live .trail-live-banner__sub {
+  display: none;
+}
