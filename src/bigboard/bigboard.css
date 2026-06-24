@@ -796,6 +796,61 @@ html.bb-wall .bb-dock {
   text-decoration: underline;
 }
 
+.bb-dock__panel--party .party-roster {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.2rem;
+  padding: 0.25rem 0.15rem;
+  margin: 0.15rem 0 0.25rem;
+  background: rgba(0, 12, 8, 0.55);
+  border: 1px solid #004d28;
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.bb-dock__panel--party .party-roster__fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  color: var(--bb-hi);
+}
+
+.bb-dock__panel--party .party-stick {
+  width: 100%;
+  max-width: 1.65rem;
+  height: auto;
+  display: block;
+}
+
+.bb-dock__party .party-roster__fig--gone {
+  color: #5a6a60;
+  opacity: 0.5;
+  filter: grayscale(1);
+}
+
+.bb-dock__party-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.3rem, 0.58vw, 0.4rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-bg);
+  background: linear-gradient(180deg, #39ff7a 0%, #2acf62 100%);
+  border: 1px solid #004d28;
+  padding: 0.2rem 0.35rem;
+  border-radius: 3px;
+  margin-bottom: 0.2rem;
+}
+
+.bb-dock__sub--lead {
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .bb-map__raster {
   position: absolute;
   inset: 0;

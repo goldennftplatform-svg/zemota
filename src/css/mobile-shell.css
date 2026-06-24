@@ -125,7 +125,8 @@ html.emota-mobile .land-view-frame {
   border-width: 3px;
 }
 
-html.emota-mobile #land-view-canvas {
+html.emota-mobile .land-view-map,
+html.emota-mobile .land-view-map .minimap-svg--land {
   width: 100% !important;
   height: auto !important;
 }

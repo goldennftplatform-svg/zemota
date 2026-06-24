@@ -16,7 +16,7 @@ import {
 } from "./ui/trailMapPopup";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
-import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
+import { renderTrailMinimap } from "./ui/trailMinimap";
 import {
   buildDashboardSidebar,
   buildMobileTrailRibbon,
@@ -272,7 +272,7 @@ const trailRibbonEl = document.getElementById("trail-ribbon-host")!;
 const canvas = document.getElementById("overhead") as HTMLCanvasElement;
 const popupRoot = document.getElementById("emota-popups")!;
 const landSlot = document.getElementById("land-view-slot")!;
-const landCanvas = document.getElementById("land-view-canvas") as HTMLCanvasElement;
+const landMapEl = document.getElementById("land-view-map")!;
 const landCaptionEl = document.getElementById("land-view-caption")!;
 const todayHighEl = document.getElementById("today-high-score")!;
 const footerGiftShopEl = document.getElementById("footer-gift-shop") as HTMLAnchorElement | null;
@@ -764,16 +764,11 @@ function render(): void {
       travelMenuHudEl.innerHTML = "";
     }
     if (!mobile) {
-      const landState: LandViewState = {
-        miles: engine.miles,
-        day: engine.day,
-        phase: sc.phase,
-        activeRiverName:
-          sc.phase === "river" && engine.pendingRiver ? engine.pendingRiver.name : null,
-      };
-      paintLandView(landCanvas, landState);
-      landCaptionEl.textContent = landViewCaption(landState);
+      landMapEl.innerHTML = renderTrailMinimap(dashSnap.miles, dashSnap.landmark, "land");
+      const pct = Math.round((dashSnap.miles / dashSnap.totalMiles) * 100);
+      landCaptionEl.textContent = `${dashSnap.landmark} · Day ${dashSnap.day} · ${Math.round(dashSnap.miles)} mi (${pct}%)`;
     } else {
+      landMapEl.innerHTML = "";
       landCaptionEl.textContent = "";
     }
   }

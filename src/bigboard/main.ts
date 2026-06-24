@@ -16,6 +16,7 @@ import {
   MEEKER_MANSION_HISTORY_URL,
   pickBigboardRotatingFact,
 } from "../data/mansionHistory";
+import { renderPartyRoster } from "../ui/partyFigures";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
 
@@ -274,16 +275,33 @@ function renderDock(wall: boolean): string {
 
   const historyRollClass = factRotateTick > 0 ? " bb-dock__history--roll" : "";
 
+  const leaderAlive = leader?.alive ?? leader?.party?.filter((m) => m.alive).length;
+  const leaderCap = leader?.partyCap ?? 5;
+  const leaderPartyRows =
+    leader?.party && leader.party.length > 0
+      ? leader.party.map((m) => ({ name: m.name, alive: m.alive }))
+      : Array.from({ length: leaderCap }, (_, i) => ({
+          name: `Traveler ${i + 1}`,
+          alive: leaderAlive != null ? i < leaderAlive : true,
+        }));
+  const leaderPartyBlock =
+    leader && leaderPartyRows.length > 0
+      ? `<div class="bb-dock__party">
+          <span class="bb-dock__party-chip">Party · ${leaderAlive ?? "?"}/${leaderCap}</span>
+          ${renderPartyRoster(leaderPartyRows, { compact: true, showNames: false })}
+          <p class="bb-dock__sub bb-dock__sub--lead">${leadLine}</p>
+        </div>`
+      : `<p class="bb-dock__empty">Party roster when wagons join</p>`;
+
   return `<section class="bb-dock" aria-label="Trail dashboard">
     <div class="bb-dock__panel">
       <h3 class="bb-dock__head">Wagons on trail</h3>
       <ol class="bb-dock__list">${wagonList}</ol>
     </div>
-    <div class="bb-dock__panel">
-      <h3 class="bb-dock__head">Trail pulse</h3>
-      <div class="bb-dock__stat">${peers.length}</div>
-      <div class="bb-dock__sub">active · avg ${avgMiles} mi</div>
-      <div class="bb-dock__sub">Lead: ${leadLine}</div>
+    <div class="bb-dock__panel bb-dock__panel--party">
+      <h3 class="bb-dock__head">Lead wagon party</h3>
+      ${leaderPartyBlock}
+      <div class="bb-dock__sub">${peers.length} active · avg ${avgMiles} mi</div>
     </div>
     <div class="bb-dock__panel">
       <h3 class="bb-dock__head">Latest news</h3>

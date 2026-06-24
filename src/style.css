@@ -746,6 +746,88 @@ body {
   background: #000806;
 }
 
+.land-view-map {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: #000806;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.land-view-map .minimap-svg--land {
+  width: 100%;
+  height: auto;
+  display: block;
+  vertical-align: top;
+}
+
+.land-view-map:focus-visible {
+  outline: 2px solid var(--border-hi);
+  outline-offset: -2px;
+}
+
+.party-roster {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.45rem 0.5rem;
+  background: var(--warm-wash), linear-gradient(165deg, var(--bg-tile-hi) 0%, var(--bg-tile) 100%);
+  border: 2px solid color-mix(in srgb, var(--border) 78%, var(--warm-edge) 22%);
+  border-radius: 10px;
+  box-shadow: 2px 2px 0 var(--shadow), inset 0 1px 0 rgba(0, 255, 119, 0.05);
+}
+
+.party-roster--compact {
+  padding: 0.35rem 0.4rem;
+  gap: 0.25rem;
+}
+
+.party-roster__fig {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  color: var(--border-hi);
+}
+
+.party-roster__fig--alive {
+  color: var(--hi);
+}
+
+.party-roster__fig--gone {
+  color: #5a5a5a;
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.party-stick {
+  width: 100%;
+  max-width: 2.4rem;
+  height: auto;
+  display: block;
+}
+
+.party-roster__name {
+  font-size: 0.62rem;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.party-roster__fig--alive .party-roster__name {
+  color: var(--text);
+}
+
 .land-view-caption {
   margin: 0;
   padding: 0.35rem 0.5rem 0.4rem;
@@ -851,6 +933,17 @@ body {
   animation: chip-shine 3s ease-in-out infinite;
   -webkit-font-smoothing: none;
   flex-shrink: 0;
+}
+
+.dash-party-panel {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dash-chip--roster {
+  align-self: flex-start;
 }
 
 .dash-minimap-host {
@@ -1304,6 +1397,12 @@ body {
   flex-wrap: wrap;
   gap: 0.35rem 0.5rem;
   align-items: flex-end;
+}
+
+.tmh-crew.party-roster {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: start;
 }
 
 .tmh-member {

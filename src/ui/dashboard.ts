@@ -1,4 +1,5 @@
 import type { DashboardSnapshot } from "../game/types";
+import { renderPartyRoster } from "./partyFigures";
 import { renderTrailMinimap } from "./trailMinimap";
 
 const PHASE_LABEL: Record<string, string> = {
@@ -34,17 +35,10 @@ export function trailPhaseLabel(phase: string): string {
 /** Compact crew + pace/rations readout for mobile camp menu (above “What next?”). */
 export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
   const pct = Math.round((s.miles / s.totalMiles) * 100);
-  const crew = s.party
-    .map((p) => {
-      const pct = p.alive ? Math.max(4, p.health) : 0;
-      const st = p.alive ? "alive" : "gone";
-      const rawShort = p.name.length > 10 ? `${p.name.slice(0, 9)}…` : p.name;
-      return `<div class="tmh-member tmh-member--${st}" title="${escapeAttr(p.name)}">
-        <span class="tmh-member__name">${escapeHtml(rawShort)}</span>
-        <span class="tmh-member__bar" role="presentation"><i style="width:${pct}%"></i></span>
-      </div>`;
-    })
-    .join("");
+  const crew = renderPartyRoster(
+    s.party.map((p) => ({ name: p.name, alive: p.alive })),
+    { compact: true },
+  );
 
   return `
     <div class="tmh-inner" role="region" aria-label="Camp status">
@@ -87,16 +81,9 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
   const chip = PHASE_LABEL[phase] ?? "Trail";
   const minimap = renderTrailMinimap(s.miles, s.landmark);
 
-  const partyHtml = s.party
-    .map((p) => {
-      const w = p.alive ? Math.max(4, p.health) : 0;
-      const st = p.alive ? "alive" : "gone";
-      return `<div class="party-row party-row--${st}">
-        <span class="party-row__name">${escapeAttr(p.name)}</span>
-        <span class="party-row__bar" role="presentation"><i style="width:${w}%"></i></span>
-      </div>`;
-    })
-    .join("");
+  const partyHtml = renderPartyRoster(
+    s.party.map((p) => ({ name: p.name, alive: p.alive })),
+  );
 
   return `
     <div class="dash-wrap">
@@ -104,6 +91,10 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
         <div class="dash-head__top">
           <span class="dash-chip">${escapeHtml(chip)}</span>
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
+        </div>
+        <div class="dash-party-panel" aria-label="Party roster">
+          <span class="dash-chip dash-chip--roster">Party · ${s.alive}/${s.partyCap}</span>
+          ${partyHtml}
         </div>
         <button type="button" class="trail-map-trigger dash-minimap-host" data-trail-map-open aria-label="View your wagon on the trail map">
           ${minimap}
@@ -133,10 +124,6 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
       </section>
 
       <p class="dash-profile">${escapeHtml(s.profileTitle)} · ${escapeHtml(s.spareParts)}</p>
-      <section class="dash-section dash-section--party" aria-label="Party health">
-        <h2 class="dash-section__title">Party</h2>
-        <div class="dash-party">${partyHtml}</div>
-      </section>
     </div>
   `.trim();
 }

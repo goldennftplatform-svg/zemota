@@ -36,7 +36,7 @@ export { trailChartStagePercent as trailBigboardOverlayPercent };
 export function renderTrailMinimap(
   miles: number,
   landmarkName: string,
-  variant: "full" | "ribbon" = "full",
+  variant: "full" | "ribbon" | "land" = "full",
 ): string {
   const overlay = trailChartStagePercent(miles, MINIMAP_ASPECT);
   const { x, y } = pctToSvg(overlay.left, overlay.top);
@@ -52,7 +52,7 @@ export function renderTrailMinimap(
   );
 
   return `
-<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
+<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}${variant === "land" ? " minimap-svg--land" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
   <title>${title}</title>
   <rect class="minimap-frame" x="${VB.x + 0.5}" y="${VB.y + 0.5}" width="${VB.w - 1}" height="${VB.h - 1}" rx="10" ry="10" />
   <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="${VB.x}" y="${VB.y}" width="${VB.w}" height="${VB.h}" preserveAspectRatio="xMidYMid meet" />
