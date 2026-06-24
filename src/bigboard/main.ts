@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { trailBigboardOverlayPercent } from "../ui/trailMinimap";
+import { trailChartStagePercent } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
@@ -33,6 +33,7 @@ function applyWallClass(): void {
 
 applyWallClass();
 window.addEventListener("resize", applyWallClass);
+window.addEventListener("resize", () => render());
 
 const FEED_MAX_DOM = 48;
 const FEED_MAX_WALL = 8;
@@ -68,7 +69,10 @@ function feedKindLabel(kind: string): string {
 
 /** Wagon marker on the Old Oregon Trail chart (St. Joseph → Oregon City). */
 function wagonPosition(miles: number): { left: string; top: string } {
-  const { left, top } = trailBigboardOverlayPercent(miles);
+  const stage = document.getElementById("bb-map-stage");
+  const aspect =
+    stage && stage.clientHeight > 0 ? stage.clientWidth / stage.clientHeight : 16 / 9;
+  const { left, top } = trailChartStagePercent(miles, aspect);
   return { left: `${left}%`, top: `${top}%` };
 }
 
@@ -245,12 +249,14 @@ function render(): void {
       </section>
       <div class="bb-main">
         <div class="bb-map-wrap">
-          <img class="bb-map__raster" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
-          <div class="bb-markers" id="markers">${lobbyHint}${markersHtml}</div>
-          <div class="bb-map-labels">
-            <span>Oregon City</span>
-            <span>The Old Oregon Trail</span>
-            <span>St. Joseph</span>
+          <div class="bb-map-stage" id="bb-map-stage">
+            <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
+            <div class="bb-markers" id="markers">${lobbyHint}${markersHtml}</div>
+            <div class="bb-map-labels">
+              <span>Oregon City</span>
+              <span>The Old Oregon Trail</span>
+              <span>St. Joseph</span>
+            </div>
           </div>
         </div>
         <aside class="bb-feed" aria-label="Trail news">
