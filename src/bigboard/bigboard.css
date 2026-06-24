@@ -512,16 +512,20 @@ body {
 
 .bb-map-wrap {
   flex: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
   order: 1;
-  background: radial-gradient(ellipse 90% 70% at 50% 45%, #042818 0%, #010806 72%);
+  background: radial-gradient(ellipse 90% 70% at 50% 40%, #042818 0%, #010806 72%);
   overflow: hidden;
 }
 
 .bb-map-stage {
-  position: absolute;
-  inset: 1% 2%;
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 0;
+  margin: 0.5% 1.5% 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -532,12 +536,109 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  /* Pre-rotate height becomes visual width after 90° CW — fill the stage */
-  height: min(100cqw, calc(100cqh * 1024 / 409));
+  /* -90° CCW: east (bottom) → right, west (top) → left; text stays upright */
+  height: min(92cqh, calc(78cqw * 1024 / 409));
   width: auto;
   aspect-ratio: 409 / 1024;
-  transform: translate(-50%, -50%) rotate(90deg);
+  transform: translate(-50%, -50%) rotate(-90deg);
   transform-origin: center center;
+}
+
+.bb-dock {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.4rem 0.75rem 0.5rem;
+  border-top: 2px solid var(--bb-border);
+  background: linear-gradient(180deg, rgba(0, 22, 12, 0.98) 0%, rgba(0, 12, 8, 0.99) 100%);
+}
+
+.bb-dock__panel {
+  min-width: 0;
+  border: 1px solid #004d28;
+  background: rgba(0, 28, 16, 0.82);
+  padding: 0.35rem 0.45rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 5.5rem;
+}
+
+.bb-dock__head {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.32rem, 0.62vw, 0.42rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-hi);
+}
+
+.bb-dock__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.bb-dock__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.35rem;
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
+  line-height: 1.25;
+}
+
+.bb-dock__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--bb-fg);
+}
+
+.bb-dock__val {
+  flex-shrink: 0;
+  color: var(--bb-hi);
+  font-family: var(--font-pixel);
+  font-size: clamp(0.38rem, 0.72vw, 0.48rem);
+}
+
+.bb-dock__stat {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  font-family: var(--font-pixel);
+  color: var(--bb-hi);
+  line-height: 1.2;
+}
+
+.bb-dock__sub {
+  margin-top: 0.15rem;
+  font-size: clamp(0.72rem, 1vw, 0.88rem);
+  color: var(--bb-fg);
+  opacity: 0.75;
+}
+
+.bb-dock__empty {
+  font-size: clamp(0.78rem, 1.1vw, 0.92rem);
+  color: var(--bb-warn);
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.bb-dock__news {
+  font-size: clamp(0.72rem, 1vw, 0.88rem);
+  line-height: 1.3;
+  color: var(--bb-hi);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bb-dock__news strong {
+  color: var(--bb-fg);
+  font-weight: normal;
 }
 
 .bb-map__raster {
@@ -643,7 +744,7 @@ body {
 
 .bb-wagon__icon {
   filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.45));
-  transform: scaleX(-1);
+  transform: rotate(90deg);
 }
 
 .bb-wagon-svg {
@@ -927,12 +1028,24 @@ html.bb-wall .bb-vignette {
   box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.25);
 }
 
-html.bb-wall .bb-map-stage {
-  inset: 0.5% 1.5%;
+html.bb-wall .bb-lb {
+  display: none;
+}
+
+html.bb-wall .bb-map-inner {
+  height: min(90cqh, calc(72cqw * 1024 / 409));
 }
 
 html.bb-wall .bb-map__raster {
   opacity: 0.9;
+}
+
+html.bb-wall .bb-dock {
+  min-height: clamp(5.5rem, 14vh, 8.5rem);
+}
+
+html.bb-wall .bb-dock__panel {
+  min-height: 0;
 }
 
 html.bb-wall .bb-feed {
@@ -970,7 +1083,7 @@ html.bb-wall .bb-map-labels .bb-map-label {
 html.bb-wall #bb-popup-host {
   align-items: flex-end;
   justify-content: flex-start;
-  padding: 0 0 clamp(4.5rem, 11vh, 8rem) clamp(0.5rem, 1.5vw, 1.25rem);
+  padding: 0 0 clamp(7rem, 16vh, 10rem) clamp(0.5rem, 1.5vw, 1.25rem);
 }
 
 html.bb-wall .bb-stat.bb-live .bb-live__dot {

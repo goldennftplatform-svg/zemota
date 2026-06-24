@@ -65,7 +65,7 @@ export function trailChartNormAt(miles: number): { x: number; y: number } {
 /** @deprecated Portrait → display mapping for minimap SVG. */
 export const TRAIL_CHART_NORM = PORTRAIT_TRAIL;
 
-/** Landscape display aspect (portrait chart rotated 90° CW for east→right, west→left). */
+/** Landscape display aspect (portrait chart rotated 90° CCW for east→right, west→left). */
 export const OREGON_TRAIL_LANDSCAPE_ASPECT =
   OREGON_TRAIL_CHART.height / OREGON_TRAIL_CHART.width;
 

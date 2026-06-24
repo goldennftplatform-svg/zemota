@@ -68,7 +68,7 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** Place wagons on the portrait chart (rotated 90° CW with the map). */
+/** Place wagons on the portrait chart (rotated 90° CCW with the map). */
 function layoutWagonsOnChart(): void {
   const inner = document.getElementById("bb-map-inner");
   if (!inner) return;
@@ -130,6 +130,79 @@ const popupHost = document.createElement("div");
 popupHost.id = "bb-popup-host";
 popupHost.hidden = true;
 document.body.appendChild(popupHost);
+
+function renderDock(wall: boolean): string {
+  if (!wall) return "";
+
+  const sorted = [...peers].sort((a, b) => b.miles - a.miles);
+  const avgMiles =
+    peers.length > 0
+      ? Math.round(peers.reduce((sum, p) => sum + p.miles, 0) / peers.length)
+      : 0;
+  const leader = sorted[0];
+
+  const wagonList =
+    sorted.length > 0
+      ? sorted
+          .slice(0, 6)
+          .map(
+            (p) => `<li class="bb-dock__row">
+          <span class="bb-dock__name">${escapeHtml(p.displayName)}</span>
+          <span class="bb-dock__val">${Math.round(p.miles)} mi</span>
+        </li>`,
+          )
+          .join("")
+      : `<li class="bb-dock__empty">Scan QR at /join to play</li>`;
+
+  const newsList =
+    feed.length > 0
+      ? feed
+          .slice(0, 4)
+          .map(
+            (ev) =>
+              `<li class="bb-dock__news"><strong>${escapeHtml(ev.displayName)}</strong> · ${escapeHtml(ev.text)}</li>`,
+          )
+          .join("")
+      : `<li class="bb-dock__empty">Trail news will appear here</li>`;
+
+  const lbList =
+    scoreRows.length > 0
+      ? scoreRows
+          .slice(0, 4)
+          .map(
+            (r, i) => `<li class="bb-dock__row">
+          <span class="bb-dock__name">${i + 1}. ${escapeHtml(r.name)}</span>
+          <span class="bb-dock__val">${escapeHtml(String(r.score))}</span>
+        </li>`,
+          )
+          .join("")
+      : `<li class="bb-dock__empty">No scores yet</li>`;
+
+  const leadLine = leader
+    ? `${escapeHtml(leader.displayName)} · ${Math.round(leader.miles)} mi`
+    : "—";
+
+  return `<section class="bb-dock" aria-label="Trail dashboard">
+    <div class="bb-dock__panel">
+      <h3 class="bb-dock__head">Wagons on trail</h3>
+      <ol class="bb-dock__list">${wagonList}</ol>
+    </div>
+    <div class="bb-dock__panel">
+      <h3 class="bb-dock__head">Trail pulse</h3>
+      <div class="bb-dock__stat">${peers.length}</div>
+      <div class="bb-dock__sub">active · avg ${avgMiles} mi</div>
+      <div class="bb-dock__sub">Lead: ${leadLine}</div>
+    </div>
+    <div class="bb-dock__panel">
+      <h3 class="bb-dock__head">Latest news</h3>
+      <ul class="bb-dock__list">${newsList}</ul>
+    </div>
+    <div class="bb-dock__panel">
+      <h3 class="bb-dock__head">Top scores</h3>
+      <ol class="bb-dock__list">${lbList}</ol>
+    </div>
+  </section>`;
+}
 
 function render(): void {
   const wall = isWallMode();
@@ -273,6 +346,7 @@ function render(): void {
               </div>
             </div>
           </div>
+          ${renderDock(wall)}
         </div>
         <aside class="bb-feed" aria-label="Trail news">
           <div class="bb-feed__head">Trail news</div>
