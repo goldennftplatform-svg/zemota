@@ -8,18 +8,18 @@ export const OREGON_TRAIL_CHART = { width: 1024, height: 768 } as const;
  * Tuned to the thick ink trail on the vintage map.
  */
 export const TRAIL_CHART_NORM: { miles: number; x: number; y: number }[] = [
-  { miles: 0, x: 0.781, y: 0.534 },
-  { miles: 200, x: 0.748, y: 0.524 },
-  { miles: 320, x: 0.708, y: 0.514 },
-  { miles: 500, x: 0.676, y: 0.506 },
-  { miles: 640, x: 0.64, y: 0.5 },
-  { miles: 800, x: 0.61, y: 0.494 },
-  { miles: 980, x: 0.574, y: 0.488 },
-  { miles: 1150, x: 0.52, y: 0.482 },
-  { miles: 1400, x: 0.396, y: 0.476 },
-  { miles: 1650, x: 0.284, y: 0.472 },
-  { miles: 1850, x: 0.214, y: 0.486 },
-  { miles: TOTAL_TRAIL_MILES, x: 0.168, y: 0.504 },
+  { miles: 0, x: 0.734, y: 0.518 },
+  { miles: 200, x: 0.702, y: 0.508 },
+  { miles: 320, x: 0.664, y: 0.498 },
+  { miles: 500, x: 0.632, y: 0.49 },
+  { miles: 640, x: 0.598, y: 0.484 },
+  { miles: 800, x: 0.568, y: 0.478 },
+  { miles: 980, x: 0.534, y: 0.472 },
+  { miles: 1150, x: 0.482, y: 0.466 },
+  { miles: 1400, x: 0.362, y: 0.46 },
+  { miles: 1650, x: 0.252, y: 0.456 },
+  { miles: 1850, x: 0.188, y: 0.468 },
+  { miles: TOTAL_TRAIL_MILES, x: 0.148, y: 0.486 },
 ];
 
 function interpolateChartNorm(miles: number): { x: number; y: number } {
@@ -34,6 +34,13 @@ function interpolateChartNorm(miles: number): { x: number; y: number } {
   }
   const last = TRAIL_CHART_NORM[TRAIL_CHART_NORM.length - 1]!;
   return { x: last.x, y: last.y };
+}
+
+/** 0–1 position on the chart image for a given mile. */
+export function trailChartNormAt(miles: number): { x: number; y: number } {
+  const { x, y } = interpolateChartNorm(miles);
+  const bob = Math.sin(miles * 0.02) * 0.003;
+  return { x, y: y + bob };
 }
 
 /** Map image norm coords → % on a box using `object-fit: contain`. */

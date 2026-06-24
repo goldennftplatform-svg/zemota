@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { trailChartStagePercent } from "../game/trailChartCoords";
+import { trailChartNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
@@ -67,13 +67,31 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** Wagon marker on the Old Oregon Trail chart (St. Joseph → Oregon City). */
-function wagonPosition(miles: number): { left: string; top: string } {
+/** Place wagons after the map image has laid out (uses real img bounds, not guesses). */
+function layoutWagonsOnChart(): void {
   const stage = document.getElementById("bb-map-stage");
-  const aspect =
-    stage && stage.clientHeight > 0 ? stage.clientWidth / stage.clientHeight : 16 / 9;
-  const { left, top } = trailChartStagePercent(miles, aspect);
-  return { left: `${left}%`, top: `${top}%` };
+  const img = document.getElementById("bb-map-img") as HTMLImageElement | null;
+  if (!stage || !img || !img.naturalWidth) return;
+
+  const s = stage.getBoundingClientRect();
+  const i = img.getBoundingClientRect();
+  if (s.width < 8 || i.width < 8) return;
+
+  for (const el of stage.querySelectorAll<HTMLElement>(".bb-wagon")) {
+    const miles = Number(el.dataset.miles ?? 0);
+    const { x, y } = trailChartNormAt(miles);
+    const cx = i.left - s.left + x * i.width;
+    const cy = i.top - s.top + y * i.height;
+    el.style.left = `${(cx / s.width) * 100}%`;
+    el.style.top = `${(cy / s.height) * 100}%`;
+  }
+}
+
+function scheduleWagonLayout(): void {
+  requestAnimationFrame(() => {
+    layoutWagonsOnChart();
+    requestAnimationFrame(layoutWagonsOnChart);
+  });
 }
 
 type ScoreRow = { name: string; score: number; at: string };
@@ -160,12 +178,11 @@ function render(): void {
 
   const markersHtml = peers
     .map((p) => {
-      const pos = wagonPosition(p.miles);
       const h = hueFor(p.displayName);
       const meta = wall
         ? `${Math.round(p.miles)} mi`
         : `${Math.round(p.miles)} mi · day ${p.day}${p.alive != null ? ` · ${p.alive} alive` : ""}`;
-      return `<div class="bb-wagon" style="left:${pos.left};top:${pos.top};--h:${h}">
+      return `<div class="bb-wagon" data-miles="${p.miles}" style="--h:${h}">
         <div class="bb-wagon__icon" style="filter:hue-rotate(${h % 80}deg) drop-shadow(0 0 10px rgba(57,255,120,0.55))">${wagonIconSvg()}</div>
         <div class="bb-wagon__name">${escapeHtml(p.displayName)}</div>
         <div class="bb-wagon__meta">${escapeHtml(meta)}</div>
@@ -266,6 +283,13 @@ function render(): void {
       </div>
     </div>
   `;
+
+  const mapImg = document.getElementById("bb-map-img") as HTMLImageElement | null;
+  if (mapImg) {
+    if (mapImg.complete) scheduleWagonLayout();
+    else mapImg.addEventListener("load", scheduleWagonLayout, { once: true });
+  }
+  scheduleWagonLayout();
 }
 
 function showBigPopup(ev: TrailFeedEvent): void {
