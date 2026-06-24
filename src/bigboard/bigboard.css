@@ -537,14 +537,11 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  /*
-   * Portrait chart rotated -90°: pre-rotate height becomes on-screen width.
-   * Fill the stage (contain): width = min(stageW, stageH × 1024/409).
-   */
-  height: min(100cqw, calc(100cqh * 1024 / 409));
-  width: auto;
-  aspect-ratio: 409 / 1024;
-  transform: translate(-50%, -50%) rotate(-90deg);
+  width: min(100cqw, calc(100cqh * 1024 / 523));
+  height: auto;
+  aspect-ratio: 1024 / 523;
+  max-height: 100cqh;
+  transform: translate(-50%, -50%);
   transform-origin: center center;
 }
 
@@ -810,7 +807,7 @@ html.bb-wall .bb-dock {
 
 .bb-wagon__icon {
   filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.45));
-  transform: rotate(90deg);
+  transform: scaleX(-1);
 }
 
 .bb-wagon-svg {
@@ -864,22 +861,22 @@ html.bb-wall .bb-dock {
 }
 
 .bb-map-label--w {
-  top: 4%;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 3%;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .bb-map-label--e {
-  bottom: 4%;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 3%;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .bb-map-label--title {
-  left: 6%;
-  bottom: 12%;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  writing-mode: horizontal-tb;
   letter-spacing: 0.08em;
   opacity: 0.45;
 }
@@ -1103,7 +1100,7 @@ html.bb-wall .bb-map-stage {
 }
 
 html.bb-wall .bb-map-inner {
-  height: min(100cqw, calc(100cqh * 1024 / 409));
+  width: min(100cqw, calc(100cqh * 1024 / 523));
 }
 
 html.bb-wall .bb-map__raster {

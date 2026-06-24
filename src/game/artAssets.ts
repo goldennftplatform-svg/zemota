@@ -5,6 +5,7 @@ export const GAME_ART = {
   /** Legacy pixel map — kept for reference; game UI uses oregonTrailMap. */
   usaMap: "/art/usa-map.png",
   /** Vintage “Old Oregon Trail” chart — bigboard + minimap. */
+  /** Ezra Meeker horizontal Oregon Trail postcard (bigboard + minimap + game BG). */
   oregonTrailMap: "/art/oregon-trail-map.png",
 } as const;
 

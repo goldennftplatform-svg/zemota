@@ -77,7 +77,7 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** Place wagons on the portrait chart (rotated 90° CCW with the map). */
+/** Place wagons on the horizontal Ezra Meeker chart (east right → west left). */
 function layoutWagonsOnChart(): void {
   const inner = document.getElementById("bb-map-inner");
   if (!inner) return;
@@ -363,9 +363,9 @@ function render(): void {
               <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
               <div class="bb-markers" id="markers">${markersHtml}</div>
               <div class="bb-map-labels">
-                <span class="bb-map-label bb-map-label--w">Oregon</span>
+                <span class="bb-map-label bb-map-label--w">Oregon City</span>
                 <span class="bb-map-label bb-map-label--title">The Old Oregon Trail</span>
-                <span class="bb-map-label bb-map-label--e">Independence, MO</span>
+                <span class="bb-map-label bb-map-label--e">Independence</span>
               </div>
             </div>
           </div>

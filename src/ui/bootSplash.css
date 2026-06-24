@@ -25,10 +25,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: url(/art/usa-map.png) center / min(120%, 900px) no-repeat;
-  opacity: 0.12;
+  background: url(/art/oregon-trail-map.png) center / min(120%, 900px) no-repeat;
+  opacity: 0.14;
   pointer-events: none;
-  filter: saturate(0.7);
+  filter: sepia(0.3) saturate(0.75);
 }
 
 .emota-boot__scan {
