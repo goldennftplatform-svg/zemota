@@ -189,6 +189,10 @@ io.on("connection", (socket) => {
   socket.emit("trail:feed:sync", feed.slice(-120));
   socket.emit("trail:room", roomSnapshotList());
 
+  socket.on("trail:room:request", () => {
+    socket.emit("trail:room", roomSnapshotList());
+  });
+
   socket.on("trail:hello", (payload: { displayName?: string; clientId?: string }) => {
     const displayName = String(payload?.displayName ?? "Traveler").slice(0, 24);
     const clientId = String(payload?.clientId ?? socket.id).slice(0, 36) || socket.id;

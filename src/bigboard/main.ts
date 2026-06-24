@@ -3,14 +3,14 @@
  * Run from built app: `npm run server` → http://host:3333/bigboard
  */
 
-import { io } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
-import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
+import { clearStoredTrailOrigin, persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
 import {
   BIGBOARD_MUSEUM_STATS,
   bigboardHistoryContent,
@@ -111,6 +111,8 @@ let joinToast: string | null = null;
 let joinToastTimer: ReturnType<typeof setTimeout> | null = null;
 /** Set after `resolveTrailOrigin()` so the status line can show tunnel URL from `/trail.json`. */
 let lastResolvedOrigin: string | undefined;
+let serverReportedPeers = -1;
+let bbSocket: Socket | null = null;
 
 /** Simple covered-wagon icon (reads on projector / wall). */
 function wagonIconSvg(): string {
@@ -121,6 +123,15 @@ function wagonIconSvg(): string {
     <path fill="#39ff7a" fill-opacity="0.25" d="M10 14 L32 6 L44 14 Z"/>
     <rect x="22" y="8" width="6" height="6" fill="#39ff7a" fill-opacity="0.5" rx="1"/>
   </svg>`;
+}
+
+function trailHostLabel(): string {
+  if (!lastResolvedOrigin) return "trail server";
+  try {
+    return new URL(lastResolvedOrigin).host;
+  } catch {
+    return lastResolvedOrigin;
+  }
 }
 
 function socketTargetDisplay(): string {
@@ -290,6 +301,11 @@ function render(): void {
     conn === "ok" && peers.length === 0
       ? `<div class="bb-lobby" role="status">
           <strong>Waiting for wagons.</strong>
+          <p class="bb-lobby__server">Trail room: <strong>${escapeHtml(trailHostLabel())}</strong>${
+            serverReportedPeers > 0
+              ? ` · server sees <strong>${serverReportedPeers}</strong> wagon${serverReportedPeers === 1 ? "" : "s"} — syncing…`
+              : ""
+          }</p>
           <ol class="bb-lobby__steps">
             <li>Scan the QR on the sign — or open <strong>${escapeHtml(playLink)}</strong></li>
             <li>Tap <strong>Play now</strong></li>
@@ -452,15 +468,15 @@ const socketOpts = {
   ...EMOTA_SOCKET_BASE,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 800,
+  autoConnect: false as const,
 };
 
-void resolveTrailOrigin().then((bbOrigin) => {
-  lastResolvedOrigin = bbOrigin;
-  render();
-  const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
+function wireBigboardSocket(socket: Socket): void {
+  bbSocket = socket;
 
   socket.on("connect", () => {
     setConn("ok");
+    socket.emit("trail:room:request");
   });
   socket.on("disconnect", () => setConn("bad"));
   socket.on("connect_error", () => {
@@ -518,4 +534,53 @@ void resolveTrailOrigin().then((bbOrigin) => {
       .filter((x): x is ScoreRow => x != null);
     render();
   });
-});
+}
+
+async function openBigboardSocket(retriedAfterClear: boolean): Promise<void> {
+  if (bbSocket) {
+    bbSocket.removeAllListeners();
+    bbSocket.disconnect();
+    bbSocket = null;
+  }
+
+  const bbOrigin = await resolveTrailOrigin();
+  lastResolvedOrigin = bbOrigin;
+  render();
+
+  const socket = bbOrigin ? io(bbOrigin, socketOpts) : io(socketOpts);
+  wireBigboardSocket(socket);
+
+  socket.on("connect_error", () => {
+    if (!retriedAfterClear) {
+      clearStoredTrailOrigin();
+      void openBigboardSocket(true);
+    }
+  });
+
+  socket.connect();
+}
+
+void openBigboardSocket(false);
+
+/** If connected room is empty but /health reports peers, reconnect to canonical trail server. */
+setInterval(() => {
+  if (connState !== "ok" || !lastResolvedOrigin) return;
+  void fetch(`${lastResolvedOrigin}/health`, { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j: { peers?: number } | null) => {
+      if (!j || typeof j.peers !== "number") return;
+      serverReportedPeers = j.peers;
+      if (j.peers > 0 && peers.length === 0) {
+        clearStoredTrailOrigin();
+        void openBigboardSocket(true);
+        return;
+      }
+      if (j.peers > peers.length) {
+        bbSocket?.emit("trail:room:request");
+      }
+      render();
+    })
+    .catch(() => {
+      /* ignore */
+    });
+}, 15_000);

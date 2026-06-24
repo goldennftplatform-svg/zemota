@@ -2,7 +2,7 @@ import { io, type Socket } from "socket.io-client";
 import { getTravelerNumber } from "../game/playerNumber";
 import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
-import { resolveTrailOrigin } from "./socketUrl";
+import { clearStoredTrailOrigin, resolveTrailOrigin } from "./socketUrl";
 
 export type { TrailPeer, TrailFeedEvent, TrailPeerPartyRow };
 
@@ -84,11 +84,16 @@ export class TrailMultiplayer {
 
   async connect(): Promise<void> {
     if (this.socket?.connected) return;
+    await this.openSocket(false);
+  }
+
+  private async openSocket(retriedAfterClear: boolean): Promise<void> {
     this.onConnection("connecting", "Connecting to the live trail…");
     const origin = await resolveTrailOrigin();
     const opts = {
       ...EMOTA_SOCKET_BASE,
       reconnectionAttempts: 8,
+      autoConnect: false as const,
     };
     const s = origin ? io(origin, opts) : io(opts);
     this.socket = s;
@@ -102,6 +107,14 @@ export class TrailMultiplayer {
     s.on("trail:room", (peers: TrailPeer[]) => this.onPeers(peers ?? []));
     s.on("scores:list", (rows) => this.onScores(rows ?? []));
     s.on("connect_error", () => {
+      if (!retriedAfterClear) {
+        clearStoredTrailOrigin();
+        s.removeAllListeners();
+        s.disconnect();
+        this.socket = null;
+        void this.openSocket(true);
+        return;
+      }
       this.live = false;
       this.onConnection(
         "solo",
@@ -113,6 +126,8 @@ export class TrailMultiplayer {
       this.live = false;
       this.onConnection("dropped", "Live trail paused — trying to reconnect…");
     });
+
+    s.connect();
   }
 
   updateProgress(miles: number, day: number, extras?: TrailUpdateExtras): void {

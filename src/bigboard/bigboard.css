@@ -845,6 +845,13 @@ html.bb-wall .bb-dock {
   opacity: 0.8;
 }
 
+.bb-lobby__server {
+  margin: 0.4rem 0 0.5rem;
+  font-size: clamp(0.78rem, 1.15vw, 0.98rem);
+  color: var(--bb-hi);
+  line-height: 1.35;
+}
+
 .bb-lobby__host strong {
   color: var(--bb-warn);
 }
