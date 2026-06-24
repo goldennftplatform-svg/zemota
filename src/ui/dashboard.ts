@@ -33,6 +33,7 @@ export function trailPhaseLabel(phase: string): string {
 
 /** Compact crew + pace/rations readout for mobile camp menu (above “What next?”). */
 export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
+  const pct = Math.round((s.miles / s.totalMiles) * 100);
   const crew = s.party
     .map((p) => {
       const pct = p.alive ? Math.max(4, p.health) : 0;
@@ -48,6 +49,8 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
   return `
     <div class="tmh-inner" role="region" aria-label="Camp status">
       <p class="tmh-title">Wagon status</p>
+      <p class="tmh-loc">${escapeHtml(s.landmark)}</p>
+      <p class="tmh-sub">Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% trail</p>
       <div class="tmh-grid">
         <div class="tmh-stat"><span class="tmh-k">Pace</span><span class="tmh-v">${escapeHtml(s.pace)}</span></div>
         <div class="tmh-stat"><span class="tmh-k">Rations</span><span class="tmh-v">${escapeHtml(s.rations)}</span></div>
@@ -145,7 +148,7 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
   const minimap = renderTrailMinimap(s.miles, s.landmark, "ribbon");
   const stats =
     phase === "travel_menu"
-      ? `D${s.day} · ${Math.round(s.miles)} mi · ${s.food} lb · ${s.ammo} ammo · ${s.pace}`
+      ? `D${s.day} · ${Math.round(s.miles)} mi · Pace ${s.pace} · ${s.rations} · ${s.food} lb`
       : `Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}`;
 
   return `

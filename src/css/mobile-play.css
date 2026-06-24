@@ -65,7 +65,6 @@ html.emota-mobile .app-layout:not(.is-title) .choices--store {
 }
 
 html.emota-mobile .app-layout.is-trail-play .supply-strip-host,
-html.emota-mobile .app-layout.is-trail-play .travel-menu-mobile-hud,
 html.emota-mobile .app-layout.is-trail-play .onboard-rail-host {
   display: none !important;
   height: 0 !important;
@@ -172,6 +171,15 @@ html.emota-mobile .app-layout.is-camp .screen.screen--camp .choices--cards {
 html.emota-mobile .app-layout.is-camp .screen.screen--camp .pick-card {
   min-height: 2.65rem;
   padding: 0.48rem 0.55rem;
+}
+
+html.emota-mobile .app-layout.is-camp .travel-menu-mobile-hud {
+  display: block !important;
+  visibility: visible !important;
+  height: auto !important;
+  margin: 0 0 0.35rem !important;
+  padding: 0 !important;
+  overflow: visible !important;
 }
 
 html.emota-mobile .app-layout.is-trail-play .screen-prompt {

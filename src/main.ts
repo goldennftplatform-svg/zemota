@@ -15,6 +15,7 @@ import { landViewCaption, paintLandView, type LandViewState } from "./ui/landVie
 import {
   buildDashboardSidebar,
   buildMobileTrailRibbon,
+  buildTravelMenuMobileHud,
   choiceLeadingIcon,
   trailPhaseLabel,
 } from "./ui/dashboard";
@@ -733,8 +734,14 @@ function render(): void {
     travelMenuHudEl.innerHTML = "";
   } else {
     landSlot.hidden = mobile;
-    travelMenuHudEl.hidden = true;
-    travelMenuHudEl.innerHTML = "";
+    const showCampHud = mobile && sc.phase === "travel_menu";
+    if (showCampHud) {
+      travelMenuHudEl.hidden = false;
+      travelMenuHudEl.innerHTML = buildTravelMenuMobileHud(dashSnap);
+    } else {
+      travelMenuHudEl.hidden = true;
+      travelMenuHudEl.innerHTML = "";
+    }
     if (!mobile) {
       const landState: LandViewState = {
         miles: engine.miles,

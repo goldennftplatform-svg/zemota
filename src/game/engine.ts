@@ -202,6 +202,8 @@ export class GameEngine {
   activeEncounter: EncounterMeta | null = null;
   pendingTravelBuffer: string[] = [];
   private lastMilestoneAnnounced = 0;
+  /** One-line ack after pace/ration change on the camp menu. */
+  private campFlash: string | null = null;
 
   /** After trivia, did we already advance river gate? */
   private riverHandledForMiles = -1;
@@ -484,6 +486,13 @@ export class GameEngine {
 
       case "travel_menu": {
         const giftLeftCamp = MEEKER_GIFT_SHOP_USES_PER_RUN - this.giftShopBoostsUsed;
+        const snap = this.getDashboardSnapshot();
+        const pct = Math.round((this.miles / TOTAL_TRAIL_MILES) * 100);
+        const contextLines = [
+          `${snap.landmark} · Day ${snap.day} · ${Math.round(snap.miles)} mi (${pct}%)`,
+          `Pace: ${snap.pace} · Rations: ${snap.rations} · Food ${snap.food} lb · Party ${snap.alive}/${snap.partyCap}`,
+        ];
+        if (this.campFlash) contextLines.unshift(this.campFlash);
         const campGift =
           giftLeftCamp > 0 && this.miles < TOTAL_TRAIL_MILES
             ? [
@@ -493,11 +502,12 @@ export class GameEngine {
                 },
               ]
             : [];
+        const rationsLabel = this.rations.replace("_", " ");
         return {
           phase: "travel_menu",
           badge: "Camp",
           prompt: "What next?",
-          lines: [],
+          lines: contextLines,
           coach:
             "Travel spends a day. Rest helps the party. Hunt and games are below.",
           choices: [
@@ -511,8 +521,8 @@ export class GameEngine {
                   : "Hunt (aim · shoot · meat cap)",
             },
             { n: 4, text: "Chance games" },
-            { n: 5, text: "Change pace" },
-            { n: 6, text: "Change rations" },
+            { n: 5, text: `Change pace (now ${this.pace})` },
+            { n: 6, text: `Change rations (now ${rationsLabel})` },
             { n: 7, text: "Meeker Mansion history note" },
             ...campGift,
           ],
@@ -1001,42 +1011,53 @@ export class GameEngine {
 
   private handleTravelMenu(n: number): void {
     if (n === 8 && this.giftShopBoostsUsed < MEEKER_GIFT_SHOP_USES_PER_RUN) {
+      this.campFlash = null;
       this._giftShopReturnPhase = "travel_menu";
       this.phase = "gift_shop_prompt";
       return;
     }
     if (this.miles >= TOTAL_TRAIL_MILES) {
+      this.campFlash = null;
       this.phase = "land_pick";
       return;
     }
     if (n === 1) {
+      this.campFlash = null;
       this.advanceTrailDay();
       return;
     }
     if (n === 2) {
+      this.campFlash = null;
       this.restDay();
       return;
     }
     if (n === 3) {
+      this.campFlash = null;
       if (this.inv.ammo < HUNT_MIN_AMMO_TO_HUNT) return;
       this.phase = "overhead_hunt";
       return;
     }
     if (n === 4) {
+      this.campFlash = null;
       if (this.day - this.lastChanceDay < 4) return;
       this.phase = "chance_pick";
       return;
     }
     if (n === 5) {
+      const prev = this.pace;
       this.pace = this.pace === "steady" ? "strenuous" : this.pace === "strenuous" ? "grueling" : "steady";
+      this.campFlash = `Pace: ${prev} → ${this.pace}`;
       return;
     }
     if (n === 6) {
+      const prev = this.rations.replace("_", " ");
       this.rations =
         this.rations === "filling" ? "meager" : this.rations === "meager" ? "bare_bones" : "filling";
+      this.campFlash = `Rations: ${prev} → ${this.rations.replace("_", " ")}`;
       return;
     }
     if (n === 7) {
+      this.campFlash = null;
       const note = pickMansionTimelineNote();
       this.pendingLog = [note.title, ...note.lines, "", `More: ${MEEKER_MANSION_HISTORY_URL}`];
       this.travelLogPhase = "prompt_trivia";

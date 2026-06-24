@@ -1233,13 +1233,28 @@ body {
 }
 
 .tmh-title {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.2rem;
   font-family: var(--font-head);
   font-size: clamp(0.42rem, 0.34rem + 0.4vw, 0.52rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--hi);
   -webkit-font-smoothing: none;
+}
+
+.tmh-loc {
+  margin: 0 0 0.12rem;
+  font-family: var(--font);
+  font-size: clamp(0.95rem, 3.2vw, 1.1rem);
+  line-height: 1.2;
+  color: var(--hi);
+}
+
+.tmh-sub {
+  margin: 0 0 0.35rem;
+  font-size: clamp(0.82rem, 2.6vw, 0.95rem);
+  color: var(--text-dim);
+  line-height: 1.25;
 }
 
 .tmh-grid {
