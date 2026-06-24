@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 40" shape-rendering="crispEdges">
+  <rect width="48" height="40" fill="none"/>
+  <ellipse cx="24" cy="36" rx="12" ry="3" fill="#1a1208" opacity="0.28"/>
+  <!-- ears -->
+  <rect x="14" y="2" width="5" height="14" fill="#8a8078"/>
+  <rect x="15" y="3" width="3" height="10" fill="#c8a8a0"/>
+  <rect x="28" y="2" width="5" height="14" fill="#8a8078"/>
+  <rect x="29" y="3" width="3" height="10" fill="#c8a8a0"/>
+  <!-- body -->
+  <ellipse cx="24" cy="26" rx="16" ry="12" fill="#9a948c"/>
+  <ellipse cx="24" cy="24" rx="12" ry="8" fill="#b0a8a0"/>
+  <!-- head -->
+  <rect x="16" y="14" width="16" height="12" fill="#a8a098"/>
+  <!-- eye -->
+  <rect x="20" y="18" width="3" height="3" fill="#1a1008"/>
+  <rect x="28" y="18" width="3" height="3" fill="#1a1008"/>
+  <!-- nose -->
+  <rect x="23" y="22" width="4" height="3" fill="#c89090"/>
+  <!-- tail puff -->
+  <circle cx="38" cy="26" r="5" fill="#e8e4dc"/>
+  <!-- feet -->
+  <rect x="14" y="32" width="6" height="4" fill="#6a6460"/>
+  <rect x="28" y="32" width="6" height="4" fill="#6a6460"/>
+</svg>

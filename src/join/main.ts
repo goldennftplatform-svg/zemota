@@ -55,7 +55,17 @@ async function boot(): Promise<void> {
     <header class="join-header">
       <p class="join-kicker">Ezra Meeker · Oregon Trail</p>
       <h1 class="join-title">Scan to play</h1>
-      <p class="join-lead">No app to install. Same link works at the event and at home later.</p>
+      <p class="join-lead">Phones play here. The TV shows the live board — two links, one event.</p>
+      <dl class="join-links">
+        <div class="join-links__row">
+          <dt>Players (phones)</dt>
+          <dd><strong>${escapeHtml(displayUrl(playUrl))}</strong></dd>
+        </div>
+        <div class="join-links__row">
+          <dt>Live board (TV)</dt>
+          <dd><strong>${escapeHtml(displayUrl(boardUrl))}</strong></dd>
+        </div>
+      </dl>
     </header>
 
     <section class="join-card join-card--play" aria-labelledby="join-play-heading">

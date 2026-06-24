@@ -5,6 +5,7 @@ import { persistTrailOriginFromQuery } from "./net/socketUrl";
 import { GameEngine, type EnginePhase } from "./game/engine";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
+import { preloadHuntSprites } from "./ui/huntAnimalSprites";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
 import { TrailMultiplayer, getDisplayName, setDisplayName, type TrailConnectionState } from "./net/multiplayer";
@@ -40,6 +41,7 @@ import { showJourneyRecap } from "./ui/journeyRecap";
 
 initMobileShellClass();
 persistTrailOriginFromQuery();
+void preloadHuntSprites();
 
 declare global {
   interface Window {
@@ -64,7 +66,7 @@ declare global {
 const HS_KEY = "emota_high_scores";
 
 const HINT_PLAY =
-  "1–9 or click · Pop-ups: Space/OK · Hunt: drag/tap aim, pad + FIRE (touch) or keys";
+  "1–9 or click · Pop-ups: Space/OK · Hunt: drag to aim, tap FIRE";
 const HINT_TITLE = "1–9 · start a run";
 
 const HINT_PLAY_EASY = "Tap a choice below · tap OK on pop-ups";

@@ -387,7 +387,8 @@ export class GameEngine {
             "Ezra Meeker rode west in 1852, became Hop King, built Meeker Mansion (1890), then saved the trail from oblivion.",
             "Name your wagon. Stock supplies. Survive to hop country.",
           ],
-          coach: "Play now jumps straight in. Learn first walks museum history from thehopking.com/mansion-history.",
+          coach:
+            "Play now on your phone — same link works at home later. Hosts: open Live board on the TV (footer link).",
           choices: [
             { n: 1, text: "Play now" },
             { n: 2, text: "Learn the trail first" },
@@ -570,7 +571,7 @@ export class GameEngine {
           phase: "overhead_hunt",
           coach: "Play on the green field below — aim, then shoot. Cancel hunt brings you back to camp, no pressure.",
           lines: [
-            "Hunting (top-down range) — aim with drag/tap or arrows; SPACE or FIRE to shoot. Touch: pad + FIRE.",
+            "Hunting — drag to aim at buffalo, deer, and rabbits. Tap FIRE or press Space to shoot.",
             `${z.label}. Wagon limit ${HUNT_MAX_MEAT_LB} lb per trip. Shots use your ammo.${scarce}`,
           ],
           overhead: "hunt",

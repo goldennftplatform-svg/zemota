@@ -5,7 +5,7 @@
 
 import type { AnimalKind, HuntSessionOptions, HuntZoneId } from "../game/huntZones";
 import { meatLbForKind, pickAnimalKind } from "../game/huntZones";
-import { drawTopDownBlockAnimal } from "./huntAnimalBlocks";
+import { drawHuntAnimalSprite, preloadHuntSprites } from "./huntAnimalSprites";
 
 export type OverheadMode = "hunt" | "build" | null;
 
@@ -25,57 +25,23 @@ const AIM_X_MAX = W - 18;
 const AIM_Y_MIN = FIELD_TOP + 6;
 const AIM_Y_MAX = FIELD_BOTTOM - 10;
 
-/** On-canvas touch targets (canvas pixel coords, 320×240). Nudge sits left of field; FIRE bottom-right — no overlap. */
-const FIRE_BTN = { x: W - 92, y: H - 40, w: 86, h: 36 };
-const NUDGE = { size: 32, cx: 96, cy: H - 82 };
+/** Bottom-right FIRE — aim by dragging anywhere on the field. */
+const FIRE_BTN = { x: W - 98, y: H - 38, w: 92, h: 34 };
 
 function hitFireBtn(mx: number, my: number): boolean {
   return mx >= FIRE_BTN.x && mx <= FIRE_BTN.x + FIRE_BTN.w && my >= FIRE_BTN.y && my <= FIRE_BTN.y + FIRE_BTN.h;
 }
 
-/** Cross layout: up / left · down / right — bottom-left for thumbs. */
-function hitNudgePad(mx: number, my: number): "up" | "down" | "left" | "right" | null {
-  const s = NUDGE.size;
-  const half = s / 2;
-  const { cx, cy } = NUDGE;
-  if (mx >= cx - half && mx <= cx + half && my >= cy - s - 8 && my <= cy - s - 8 + s) return "up";
-  if (mx >= cx - s - 10 && mx <= cx - 10 && my >= cy - half && my <= cy + half) return "left";
-  if (mx >= cx + 10 && mx <= cx + s + 10 && my >= cy - half && my <= cy + half) return "right";
-  if (mx >= cx - half && mx <= cx + half && my >= cy + 8 && my <= cy + 8 + s) return "down";
-  return null;
-}
-
 function drawTouchControls(ctx: CanvasRenderingContext2D): void {
-  const s = NUDGE.size;
-  const half = s / 2;
-  const { cx, cy } = NUDGE;
   ctx.save();
-  ctx.strokeStyle = "#00aa44";
-  ctx.fillStyle = "rgba(0,40,20,0.85)";
-  const drawPad = (px: number, py: number, label: string) => {
-    roundRect(ctx, px, py, s, s, 4);
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.fillStyle = "#aaffcc";
-    ctx.font = "bold 14px monospace";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(label, px + s / 2, py + s / 2);
-  };
-  drawPad(cx - half, cy - s - 8, "↑");
-  drawPad(cx - s - 10, cy - half, "←");
-  drawPad(cx + 10, cy - half, "→");
-  drawPad(cx - half, cy + 8, "↓");
-
-  roundRect(ctx, FIRE_BTN.x, FIRE_BTN.y, FIRE_BTN.w, FIRE_BTN.h, 6);
+  roundRect(ctx, FIRE_BTN.x, FIRE_BTN.y, FIRE_BTN.w, FIRE_BTN.h, 8);
   ctx.fillStyle = "rgba(0,90,40,0.92)";
   ctx.fill();
   ctx.strokeStyle = "#00ff88";
   ctx.lineWidth = 2;
   ctx.stroke();
   ctx.fillStyle = "#eeffee";
-  ctx.font = "bold 13px monospace";
+  ctx.font = "bold 15px monospace";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("FIRE", FIRE_BTN.x + FIRE_BTN.w / 2, FIRE_BTN.y + FIRE_BTN.h / 2);
@@ -172,14 +138,13 @@ function prairieGroundColors(zone: HuntZoneId): { near: string; far: string; dee
 function sizeForKind(k: AnimalKind): { w: number; h: number } {
   switch (k) {
     case "bison":
-      return { w: 50, h: 32 };
+      return { w: 58, h: 34 };
     case "bear":
-      return { w: 44, h: 30 };
+      return { w: 50, h: 34 };
     case "deer":
-      return { w: 36, h: 24 };
+      return { w: 46, h: 32 };
     default:
-      /* Wide pattern (15 cols) needs enough pixels per block or art vanishes when scaled. */
-      return { w: 36, h: 22 };
+      return { w: 34, h: 28 };
   }
 }
 
@@ -482,7 +447,7 @@ function drawTdAnimal(ctx: CanvasRenderingContext2D, a: HuntAnimal): void {
   const bob = a.alive ? Math.sin(a.walkPhase) * 1.2 : 0;
   const y = y0 + bob;
   ctx.save();
-  drawTopDownBlockAnimal(ctx, a.kind, a.alive, x, y, w, h, a.facing, col);
+  drawHuntAnimalSprite(ctx, a.kind, a.alive, x, y, w, h, a.facing, col);
   ctx.restore();
 }
 
@@ -658,7 +623,7 @@ function drawHuntTopDown(ctx: CanvasRenderingContext2D, hunt: HuntState, t: numb
   drawHud(ctx, [
     `HUNT  ${hunt.zoneLabel}${scarce}  ·  TOP-DOWN`,
     `MEAT ${hunt.meatLb}/${hunt.maxCarryLb} lb   SHOTS ${hunt.shotsFired}/${hunt.maxShots}`,
-    `Aim · arrows · drag · pad + FIRE`,
+    `Drag to aim · tap FIRE (or Space)`,
   ], 4);
   drawTouchControls(ctx);
 }
@@ -732,6 +697,7 @@ export class OverheadMini {
   startHunt(opts: HuntSessionOptions, onDone: (food: number, ammoSpent: number) => void): void {
     this.mode = "hunt";
     this.t0 = performance.now();
+    void preloadHuntSprites();
     this.hunt = buildHuntState(opts);
     this.build = null;
     this.aimDragPointerId = null;
@@ -805,17 +771,6 @@ export class OverheadMini {
       return;
     }
 
-    const dir = hitNudgePad(mx, my);
-    if (dir) {
-      e.preventDefault();
-      const n = 14;
-      if (dir === "up") this.setAim(this.hunt.aimX, this.hunt.aimY - n);
-      if (dir === "down") this.setAim(this.hunt.aimX, this.hunt.aimY + n);
-      if (dir === "left") this.setAim(this.hunt.aimX - n, this.hunt.aimY);
-      if (dir === "right") this.setAim(this.hunt.aimX + n, this.hunt.aimY);
-      return;
-    }
-
     e.preventDefault();
     this.aimDragPointerId = e.pointerId;
     this.setAim(mx, my);
@@ -831,7 +786,7 @@ export class OverheadMini {
     const { mx, my } = this.canvasCoords(e);
 
     if (e.pointerType === "mouse") {
-      if (hitFireBtn(mx, my) || hitNudgePad(mx, my)) return;
+      if (hitFireBtn(mx, my)) return;
       this.setAim(mx, my);
       return;
     }
