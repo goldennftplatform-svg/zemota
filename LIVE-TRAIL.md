@@ -39,7 +39,7 @@ If the board says **Live** (green) and your wagon still does not appear, wait 10
 3. Set the value to your Render URL **with no trailing slash**, e.g. `https://emota-trail.onrender.com`  
 4. **Deployments** → latest → **⋯** → **Redeploy** (required — `trail.json` is baked at build time).
 
-Check: open **https://zemota.vercel.app/trail.json** — `origin` must match Render, not `trycloudflare.com`.
+Check: open **https://zemota.vercel.app/trail.json** — `origin` must be `https://emota-trail.onrender.com` (not `trycloudflare.com`). If it still shows the old URL, **Redeploy** on Vercel after editing the variable.
 
 ### Step 3 — Test
 
