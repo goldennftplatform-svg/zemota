@@ -192,9 +192,11 @@ async function main() {
       u.hostname === "127.0.0.1" || u.hostname === "localhost" || u.hostname === "::1";
     if (local) {
       const base = `${u.protocol}//${u.host}`;
-      console.log(`Bigboard: ${base}/bigboard  ·  Ctrl+C stops bots` + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));
+      console.log(`Bigboard: ${base}/bigboard?wall=1  ·  Ctrl+C stops bots` + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));
+    } else if (site) {
+      console.log(`Bigboard: ${site.replace(/\/$/, "")}/bigboard?wall=1  ·  Ctrl+C stops bots` + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));
     } else {
-      console.log("Bigboard: same trail origin as above (use ?trail= if the page is on another host) · Ctrl+C stops bots" + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));
+      console.log("Bigboard: https://zemota.vercel.app/bigboard?wall=1 (if using production) · Ctrl+C stops bots" + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));
     }
   } catch {
     console.log("Ctrl+C stops bots" + (minutes > 0 ? ` · auto-stop in ${minutes}m` : ""));

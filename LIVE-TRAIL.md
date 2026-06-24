@@ -88,3 +88,17 @@ The `?trail=` link is remembered on that phone after the first visit.
 | Render sleeps (free tier) | First visitor waits ~30s while server wakes; open bigboard first at an event |
 | Name shows as **Party 1** | Tap to name your wagon in Step 1 of the game — that name appears on the board |
 | Need a printed QR sign | Open **/join** on a laptop → **Print this sign** |
+
+## Demo wagons on the bigboard (no phones needed)
+
+Watch fake wagons move on the live wall — good for testing map + multiplayer:
+
+```bash
+npm run bigboard:demo
+```
+
+Open **https://zemota.vercel.app/bigboard?wall=1** on your TV. **Ctrl+C** stops the bots.
+
+Faster / more wagons: `npm run bigboard:demo:fast`  
+Auto-stop after 5 min: `npm run trail:bots -- --site=https://zemota.vercel.app --count=15 --minutes=5`  
+Remove bot scores from server: `npm run trail:admin:purge-sim` (needs trail server env token if set)
