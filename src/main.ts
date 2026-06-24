@@ -163,38 +163,69 @@ let trailConnDetail = "";
 let trailPeerCount = 0;
 
 function updateTrailLiveBanner(): void {
-  if (engine.phase === "title" && trailConnState === "connecting") {
+  const isTitle = engine.phase === "title";
+
+  if (isTitle && trailConnState === "connecting") {
     trailLiveBannerEl.hidden = true;
+    updatePlayLiveChip(isTitle);
     return;
   }
+
+  /* During play: no banner when connected — tiny chip only (see play-live-chip). */
+  if (!isTitle) {
+    if (trailConnState === "live" || trailConnState === "connecting") {
+      trailLiveBannerEl.hidden = true;
+      updatePlayLiveChip(isTitle);
+      return;
+    }
+    trailLiveBannerEl.hidden = false;
+    trailLiveBannerEl.className = `trail-live-banner trail-live-banner--compact trail-live-banner--${trailConnState}`;
+    const line =
+      trailConnState === "solo"
+        ? "Solo — TV board cannot see you yet"
+        : "Reconnecting to live trail…";
+    trailLiveBannerEl.innerHTML = `<p class="trail-live-banner__line">${escapeHtml(line)}</p>`;
+    updatePlayLiveChip(isTitle);
+    return;
+  }
+
   trailLiveBannerEl.hidden = false;
   trailLiveBannerEl.className = `trail-live-banner trail-live-banner--${trailConnState}`;
 
-  const name = getDisplayName();
   let line = trailConnDetail;
   let sub = "";
 
   if (trailConnState === "live") {
-    line = `LIVE — “${name}” is on the big screen`;
-    const n = trailPeerCount;
-    sub =
-      n > 1
-        ? `${n} wagons traveling right now`
-        : "Your wagon is on the map — keep playing!";
+    line = `Live trail · ${trailPeerCount} wagon${trailPeerCount === 1 ? "" : "s"}`;
+    sub = "";
   } else if (trailConnState === "solo") {
     line = "Playing on this phone only";
-    sub = "The TV board cannot see you yet. The host must turn on the live trail (one-time setup).";
+    sub = "Host can enable the live trail for the big screen.";
   } else if (trailConnState === "connecting") {
-    line = "Connecting to the live trail…";
-    sub = "A moment — your wagon will appear on the big screen when ready.";
+    line = "Connecting to live trail…";
+    sub = "";
   } else if (trailConnState === "dropped") {
-    line = "Reconnecting to the live trail…";
-    sub = "Your wagon may disappear from the board briefly.";
+    line = "Reconnecting…";
+    sub = "";
   }
 
   trailLiveBannerEl.innerHTML = `<p class="trail-live-banner__line">${escapeHtml(line)}</p>${
     sub ? `<p class="trail-live-banner__sub">${escapeHtml(sub)}</p>` : ""
   }`;
+  updatePlayLiveChip(isTitle);
+}
+
+function updatePlayLiveChip(isTitle: boolean): void {
+  const chip = document.getElementById("play-live-chip");
+  if (!chip) return;
+  if (isTitle || trailConnState !== "live") {
+    chip.hidden = true;
+    chip.innerHTML = "";
+    return;
+  }
+  chip.hidden = false;
+  chip.setAttribute("aria-label", `Live on bigboard · ${trailPeerCount} wagons`);
+  chip.innerHTML = `<span class="play-live-chip__dot" aria-hidden="true"></span><span class="play-live-chip__n">${trailPeerCount}</span>`;
 }
 
 function footerHint(phase: EnginePhase, isTitle: boolean): string {
@@ -661,6 +692,7 @@ function render(): void {
   const showMobileTrailRibbon =
     mobile && !isTitle && MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
+  appLayout.classList.toggle("is-playing", !isTitle);
   appLayout.classList.toggle("is-trail-play", showMobileTrailRibbon);
   appLayout.classList.toggle("is-camp", showMobileTrailRibbon && sc.phase === "travel_menu");
 

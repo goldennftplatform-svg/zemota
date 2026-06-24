@@ -56,6 +56,53 @@
   border-color: rgba(200, 80, 60, 0.45);
 }
 
+.trail-live-banner--compact {
+  margin-bottom: 0.2rem;
+  padding: 0.28rem 0.45rem;
+  text-align: left;
+}
+
+.trail-live-banner--compact .trail-live-banner__line {
+  font-size: clamp(0.82rem, 2.8vw, 0.95rem);
+  color: var(--text-dim);
+}
+
+.play-live-chip {
+  position: fixed;
+  top: max(0.35rem, env(safe-area-inset-top, 0px));
+  right: max(0.4rem, env(safe-area-inset-right, 0px));
+  z-index: 48;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.16rem 0.38rem 0.16rem 0.28rem;
+  border: 1px solid rgba(0, 168, 77, 0.55);
+  border-radius: 3px;
+  background: rgba(0, 14, 8, 0.92);
+  box-shadow: 0 0 10px rgba(0, 255, 119, 0.12);
+  pointer-events: none;
+}
+
+.play-live-chip[hidden] {
+  display: none !important;
+}
+
+.play-live-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-hi);
+  box-shadow: 0 0 8px var(--border-hi);
+}
+
+.play-live-chip__n {
+  font-family: var(--font-head);
+  font-size: 0.48rem;
+  color: var(--hi);
+  min-width: 0.9em;
+  text-align: center;
+}
+
 html.emota-mobile .trail-live-banner {
   margin-bottom: 0.35rem;
   padding: 0.6rem 0.7rem;

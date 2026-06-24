@@ -81,6 +81,37 @@ html.emota-mobile .app-layout.is-trail-play .app-brand__sub {
   display: none !important;
 }
 
+/* Active play: drop branding chrome — ribbon + game screen only */
+html.emota-mobile .app-layout.is-playing .app-header__row,
+html.emota-mobile .app-layout.is-playing .app-header__glow,
+html.emota-mobile .app-layout.is-playing .today-high-score {
+  display: none !important;
+}
+
+html.emota-mobile .app-layout.is-playing .app-header {
+  margin-bottom: 0;
+}
+
+html.emota-mobile .app-layout.is-playing .app-header__inner {
+  padding: 0.12rem 0 0.15rem;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+html.emota-mobile .app-layout.is-playing .trail-live-banner {
+  display: none !important;
+}
+
+html.emota-mobile .app-layout.is-playing .app-footer {
+  display: none !important;
+}
+
+html.emota-mobile .app-layout.is-playing .mp-strip {
+  max-height: 1.75rem;
+  padding: 0.12rem 0.3rem;
+  margin-bottom: 0.1rem;
+}
+
 html.emota-mobile .app-layout.is-trail-play .app-header {
   margin-bottom: 0.1rem;
 }

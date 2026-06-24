@@ -454,6 +454,35 @@ body {
   }
 }
 
+.app-layout.is-playing .app-brand__tagline,
+.app-layout.is-playing .app-brand__sub,
+.app-layout.is-playing .app-brand__chip {
+  display: none !important;
+}
+
+.app-layout.is-playing .app-header {
+  margin-bottom: 0.25rem;
+}
+
+.app-layout.is-playing .app-header__inner {
+  padding: 0.3rem 0 0.35rem;
+  border-bottom-width: 1px;
+}
+
+.app-layout.is-playing .app-brand__portrait {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.app-layout.is-playing .app-brand__title {
+  font-size: clamp(0.55rem, 1vw, 0.68rem);
+}
+
+.app-layout.is-playing .trail-live-banner--live,
+.app-layout.is-playing .trail-live-banner--connecting {
+  display: none !important;
+}
+
 .app-layout.is-title .app-brand__tagline {
   display: none;
 }
