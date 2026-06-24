@@ -614,9 +614,9 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: min(100cqw, calc(100cqh * 1024 / 523));
+  width: min(100cqw, calc(100cqh * 1024 / 529));
   height: auto;
-  aspect-ratio: 1024 / 523;
+  aspect-ratio: 1024 / 529;
   max-height: 100cqh;
   transform: translate(-50%, -50%);
   transform-origin: center center;
@@ -1390,7 +1390,7 @@ html.bb-wall .bb-map-stage {
 }
 
 html.bb-wall .bb-map-inner {
-  width: min(100cqw, calc(100cqh * 1024 / 523));
+  width: min(100cqw, calc(100cqh * 1024 / 529));
 }
 
 html.bb-wall .bb-map__raster {

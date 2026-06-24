@@ -1,7 +1,7 @@
 import { TOTAL_TRAIL_MILES } from "./config";
 
 /** Pixel size of `public/art/oregon-trail-map.png` (Ezra Meeker horizontal postcard). */
-export const OREGON_TRAIL_CHART = { width: 1024, height: 523 } as const;
+export const OREGON_TRAIL_CHART = { width: 1024, height: 529 } as const;
 
 /**
  * Trail knots on the chart (0–1 on image pixels).
