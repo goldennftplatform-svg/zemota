@@ -1556,56 +1556,44 @@ body {
 
 .app-footer {
   margin-top: auto;
-  padding-top: 0.5rem;
+  padding-top: 0.25rem;
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.25rem;
 }
 
 .footer-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
-/* Subtle sharp “chip” — museum merch lane; swap href in config when the 8-bit filter lands */
+/* Subtle museum credit chips — stay tiny; gameplay owns the footer */
 .footer-gift-shop {
   display: inline-block;
   font-family: var(--font-head);
-  font-size: clamp(0.38rem, 0.32rem + 0.32vw, 0.48rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(0.34rem, 0.28rem + 0.22vw, 0.42rem);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   text-decoration: none;
-  color: color-mix(in srgb, var(--hi) 82%, var(--text) 18%);
-  padding: 0.38rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--border) 55%, rgba(0, 255, 119, 0.35) 45%);
-  background: linear-gradient(
-    165deg,
-    rgba(0, 32, 16, 0.92) 0%,
-    rgba(0, 18, 10, 0.96) 100%
-  );
-  box-shadow:
-    2px 2px 0 var(--shadow),
-    inset 0 1px 0 rgba(0, 255, 119, 0.12);
-  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  color: color-mix(in srgb, var(--text-dim) 78%, var(--hi) 22%);
+  padding: 0.12rem 0.38rem;
+  border: 1px solid color-mix(in srgb, var(--border) 70%, rgba(0, 255, 119, 0.18) 30%);
+  background: rgba(0, 14, 8, 0.72);
+  box-shadow: 1px 1px 0 var(--shadow);
   transition:
     color 0.12s ease,
-    border-color 0.12s ease,
-    box-shadow 0.12s ease;
+    border-color 0.12s ease;
   -webkit-font-smoothing: none;
 }
 
 .footer-gift-shop:hover {
-  color: var(--hi);
-  border-color: color-mix(in srgb, var(--hi) 35%, var(--border) 65%);
-  box-shadow:
-    2px 2px 0 var(--shadow),
-    inset 0 0 0 1px rgba(0, 255, 119, 0.14),
-    0 0 14px rgba(57, 255, 122, 0.12);
+  color: color-mix(in srgb, var(--hi) 55%, var(--text-dim) 45%);
+  border-color: color-mix(in srgb, var(--hi) 22%, var(--border) 78%);
 }
 
 .footer-gift-shop:focus-visible {

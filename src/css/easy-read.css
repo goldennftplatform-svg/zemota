@@ -152,12 +152,24 @@ html.emota-mobile .footer-hint {
 }
 
 html.emota-mobile .footer-gift-shop {
-  font-size: 1.05rem;
-  padding: 0.65rem 0.85rem;
-  min-height: var(--easy-touch);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  font-size: clamp(0.34rem, 1.25vw, 0.4rem) !important;
+  padding: 0.1rem 0.32rem !important;
+  min-height: 0 !important;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  border-width: 1px;
+  box-shadow: 1px 1px 0 var(--shadow);
+  clip-path: none;
+}
+
+html.emota-mobile .footer-actions {
+  gap: 0.28rem;
+  margin-top: 0.05rem;
+}
+
+html.emota-mobile .app-footer {
+  gap: 0.25rem;
+  padding-top: 0.15rem;
 }
 
 html.emota-mobile .emota-popup {
