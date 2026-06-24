@@ -6,7 +6,7 @@ const VB = { x: -52, y: -42, w: 404, h: 256 };
 
 /** Stylized coords; trail runs east→west across a simplified U.S. silhouette. */
 const TRAIL_KNOTS: { miles: number; x: number; y: number }[] = [
-  { miles: 0, x: 248, y: 96 },
+  { miles: 0, x: 252, y: 90 },
   { miles: 320, x: 222, y: 88 },
   { miles: 640, x: 196, y: 82 },
   { miles: 980, x: 168, y: 78 },
@@ -67,6 +67,20 @@ function trailPosition(miles: number): { x: number; y: number } {
   }
   const last = TRAIL_KNOTS[TRAIL_KNOTS.length - 1]!;
   return { x: last.x, y: last.y };
+}
+
+/** Same usa-map framing as the minimap SVG — for bigboard wagon overlay. */
+const USA_MAP_RASTER = { x: VB.x - 24, y: VB.y - 18, w: VB.w + 48, h: VB.h + 36 };
+
+/** Trail x/y → % position on the bigboard map (Ohio jump-off east, Oregon west). */
+export function trailMapOverlayPercent(miles: number): { left: number; top: number } {
+  const { x, y } = trailPosition(miles);
+  const fracX = (x - USA_MAP_RASTER.x) / USA_MAP_RASTER.w;
+  const fracY = (y - USA_MAP_RASTER.y) / USA_MAP_RASTER.h;
+  const bob = Math.sin(miles * 0.02) * 0.012;
+  const left = Math.max(10, Math.min(90, fracX * 100));
+  const top = Math.max(14, Math.min(86, fracY * 100 + bob * 100));
+  return { left, top };
 }
 
 function trailPolylinePoints(): string {

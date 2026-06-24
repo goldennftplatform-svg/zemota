@@ -7,6 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
+import { trailMapOverlayPercent } from "../ui/trailMinimap";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
@@ -65,12 +66,9 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** West (Oregon) left · East (Missouri) right — matches how the trail reads on a wall. */
+/** Wagon marker on the usa-map raster (same trail knots as the in-game minimap). */
 function wagonPosition(miles: number): { left: string; top: string } {
-  const t = Math.max(0, Math.min(1, miles / TOTAL_TRAIL_MILES));
-  const left = 6 + (1 - t) * 86;
-  const wave = Math.sin(miles * 0.02) * 4;
-  const top = 48 + wave + ((1 - t) - 0.5) * 6;
+  const { left, top } = trailMapOverlayPercent(miles);
   return { left: `${left}%`, top: `${top}%` };
 }
 
@@ -252,7 +250,7 @@ function render(): void {
           <div class="bb-map-labels">
             <span>Oregon</span>
             <span>The Oregon Trail</span>
-            <span>Missouri</span>
+            <span>Ohio</span>
           </div>
         </div>
         <aside class="bb-feed" aria-label="Trail news">

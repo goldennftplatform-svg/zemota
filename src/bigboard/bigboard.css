@@ -521,11 +521,13 @@ body {
 
 .bb-map__raster {
   position: absolute;
-  inset: 3% 5%;
-  width: 90%;
-  height: 94%;
-  object-fit: contain;
-  object-position: center;
+  left: 50%;
+  top: 46%;
+  width: 118%;
+  height: 118%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  object-position: 50% 42%;
   opacity: 0.32;
   pointer-events: none;
   z-index: 0;
@@ -624,17 +626,17 @@ body {
 }
 
 .bb-wagon-svg {
-  width: clamp(2.25rem, 3.8vw, 3.5rem);
+  width: clamp(1.5rem, 2.35vw, 2.1rem);
   height: auto;
   display: block;
   margin: 0 auto;
 }
 
 .bb-wagon__name {
-  margin-top: 0.12rem;
+  margin-top: 0.08rem;
   font-family: var(--font-pixel);
-  font-size: clamp(0.32rem, 0.58vw, 0.42rem);
-  max-width: 9em;
+  font-size: clamp(0.28rem, 0.48vw, 0.36rem);
+  max-width: 7.5em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -643,7 +645,7 @@ body {
 }
 
 .bb-wagon__meta {
-  font-size: clamp(0.72rem, 1vw, 0.88rem);
+  font-size: clamp(0.62rem, 0.85vw, 0.78rem);
   opacity: 0.8;
   color: var(--bb-fg);
 }
@@ -832,6 +834,9 @@ html.bb-wall .bb-vignette {
 
 html.bb-wall .bb-map__raster {
   opacity: 0.48;
+  width: 124%;
+  height: 124%;
+  object-position: 50% 40%;
 }
 
 html.bb-wall .bb-feed {
@@ -859,7 +864,7 @@ html.bb-wall .bb-lb__name {
 }
 
 html.bb-wall .bb-wagon-svg {
-  width: clamp(2.5rem, 3.2vw, 3.75rem);
+  width: clamp(1.55rem, 2.1vw, 2.25rem);
 }
 
 html.bb-wall .bb-map-labels {
