@@ -105,7 +105,9 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
           <span class="dash-chip">${escapeHtml(chip)}</span>
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
         </div>
-        <div class="dash-minimap-host" aria-hidden="true">${minimap}</div>
+        <button type="button" class="trail-map-trigger dash-minimap-host" data-trail-map-open aria-label="View your wagon on the trail map">
+          ${minimap}
+        </button>
       </header>
 
       <section class="dash-section" aria-label="Trail snapshot">
@@ -153,7 +155,9 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
 
   return `
     <div class="trail-ribbon" role="region" aria-label="Trail progress">
-      <div class="trail-ribbon__map">${minimap}</div>
+      <button type="button" class="trail-map-trigger trail-ribbon__map" data-trail-map-open aria-label="View your wagon on the trail map">
+        ${minimap}
+      </button>
       <div class="trail-ribbon__meta">
         <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>
         <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>

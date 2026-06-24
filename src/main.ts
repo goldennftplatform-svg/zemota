@@ -9,6 +9,11 @@ import { preloadHuntSprites } from "./ui/huntAnimalSprites";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
 import { TrailMultiplayer, getDisplayName, setDisplayName, type TrailConnectionState } from "./net/multiplayer";
+import {
+  closeTrailMapPopup,
+  isTrailMapPopupOpen,
+  openTrailMapPopup,
+} from "./ui/trailMapPopup";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
 import { landViewCaption, paintLandView, type LandViewState } from "./ui/landView";
@@ -565,6 +570,22 @@ peerSheetEl.addEventListener("click", (e) => {
   if ((e.target as HTMLElement).closest("[data-close-sheet]")) closePeerSheet();
 });
 
+function tryOpenTrailMapFromClick(e: Event): void {
+  if (!(e.target as HTMLElement).closest("[data-trail-map-open]")) return;
+  if (engine.phase === "title") return;
+  e.preventDefault();
+  openTrailMapPopup(engine.getDashboardSnapshot(), getDisplayName());
+}
+
+trailRibbonEl.addEventListener("click", tryOpenTrailMapFromClick);
+sidebarEl.addEventListener("click", tryOpenTrailMapFromClick);
+
+document.addEventListener("click", (e) => {
+  if ((e.target as HTMLElement).closest("[data-close-trail-map]")) {
+    closeTrailMapPopup();
+  }
+});
+
 function renderChoiceLead(phase: string, n: number): string {
   if (["travel_menu", "river", "store", "land_pick", "gift_shop_prompt"].includes(phase)) {
     return choiceLeadingIcon(phase, n);
@@ -1095,6 +1116,11 @@ document.addEventListener("keydown", (e) => {
   if (!peerSheetEl.hidden && e.key === "Escape") {
     e.preventDefault();
     closePeerSheet();
+    return;
+  }
+  if (isTrailMapPopupOpen() && e.key === "Escape") {
+    e.preventDefault();
+    closeTrailMapPopup();
     return;
   }
   if (e.target instanceof HTMLInputElement) return;

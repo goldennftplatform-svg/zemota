@@ -1,0 +1,221 @@
+.trail-map-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.trail-map-popup[hidden] {
+  display: none !important;
+}
+
+.trail-map-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 6, 4, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+.trail-map-popup__panel {
+  position: relative;
+  z-index: 1;
+  width: min(96vw, 52rem);
+  max-height: min(92vh, 40rem);
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--border);
+  background: linear-gradient(180deg, rgba(0, 24, 14, 0.98) 0%, rgba(0, 10, 6, 0.99) 100%);
+  box-shadow: 0 0 32px rgba(0, 255, 119, 0.18), 8px 8px 0 #003318;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.trail-map-popup__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem 0.4rem 0.65rem;
+  border-bottom: 1px solid rgba(0, 255, 119, 0.22);
+}
+
+.trail-map-popup__title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: clamp(0.42rem, 1.1vw, 0.52rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hi);
+}
+
+.trail-map-popup__close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  background: rgba(0, 20, 12, 0.9);
+  color: var(--hi);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.trail-map-popup__close:hover {
+  background: rgba(0, 40, 22, 0.95);
+}
+
+.trail-map-popup__stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0.45rem 0.55rem 0.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trail-map-popup__inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1024 / 523;
+  max-height: min(58vh, 22rem);
+  background: radial-gradient(ellipse 90% 70% at 50% 40%, #042818 0%, #010806 72%);
+}
+
+.trail-map-popup__raster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  opacity: 0.88;
+  pointer-events: none;
+}
+
+.trail-map-popup__markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.trail-map-popup__wagon {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  animation: trail-map-wagon-float 3.2s ease-in-out infinite;
+}
+
+.trail-map-popup__wagon-icon {
+  filter: drop-shadow(0 0 8px rgba(57, 255, 120, 0.55));
+  transform: scaleX(-1);
+}
+
+.trail-map-popup__wagon-svg {
+  width: clamp(2rem, 8vw, 2.75rem);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.trail-map-popup__wagon-name {
+  margin-top: 0.15rem;
+  font-family: var(--font-head);
+  font-size: clamp(0.32rem, 1vw, 0.42rem);
+  color: var(--hi);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+  max-width: 9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trail-map-popup__wagon-meta {
+  font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+  color: var(--text-dim);
+}
+
+.trail-map-popup__labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.trail-map-popup__label {
+  position: absolute;
+  font-family: var(--font-head);
+  font-size: clamp(0.28rem, 0.75vw, 0.38rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(143, 255, 170, 0.75);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.trail-map-popup__label--e {
+  right: 4%;
+  bottom: 8%;
+}
+
+.trail-map-popup__label--w {
+  left: 4%;
+  bottom: 8%;
+}
+
+.trail-map-popup__label--title {
+  left: 50%;
+  top: 4%;
+  transform: translateX(-50%);
+  color: var(--warn);
+}
+
+.trail-map-popup__foot {
+  margin: 0;
+  padding: 0.4rem 0.65rem 0.55rem;
+  font-size: clamp(0.88rem, 2.5vw, 1rem);
+  line-height: 1.35;
+  color: var(--text-dim);
+  border-top: 1px solid rgba(0, 255, 119, 0.15);
+}
+
+.trail-map-popup__foot strong {
+  color: var(--hi);
+  font-weight: normal;
+}
+
+.trail-map-trigger {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: inherit;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trail-map-trigger:focus-visible {
+  outline: 2px solid var(--border-hi);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+html.emota-mobile .trail-ribbon__map.trail-map-trigger {
+  width: 4.25rem;
+  max-height: 2.15rem;
+}
+
+@keyframes trail-map-wagon-float {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-3px);
+  }
+}
