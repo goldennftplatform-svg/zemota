@@ -21,6 +21,8 @@ import {
   buildSupplyStrip,
   isOnboardPhase,
   renderStoreChoicesHtml,
+  tryPatchStoreScreen,
+  tryPatchSupplyStrip,
 } from "./ui/playHud";
 import { isPickCardPhase, isQuizPhase, renderChoicesHtml } from "./ui/playChoices";
 import {
@@ -570,7 +572,11 @@ function render(): void {
     };
   }
   const phaseBefore = prevPhase;
+  const samePhase = sc.phase === phaseBefore;
+  const storeRepurchase = samePhase && sc.phase === "store";
   const enteringPartyNames = sc.phase === "party_names" && phaseBefore !== "party_names";
+  const savedScreenScroll =
+    storeRepurchase && isMobileShell() ? screenEl.scrollTop : null;
 
   const isTitle = sc.phase === "title";
   const mobile = isMobileShell();
@@ -581,8 +587,12 @@ function render(): void {
   onboardRailEl.hidden = !railHtml;
   onboardRailEl.innerHTML = railHtml;
   const stripHtml = buildSupplyStrip(dashSnap, sc.phase);
-  supplyStripEl.hidden = !stripHtml;
-  supplyStripEl.innerHTML = stripHtml;
+  if (storeRepurchase && tryPatchSupplyStrip(supplyStripEl, dashSnap)) {
+    supplyStripEl.hidden = false;
+  } else {
+    supplyStripEl.hidden = !stripHtml;
+    supplyStripEl.innerHTML = stripHtml;
+  }
 
   const showSidebarMobile = !mobile || MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
@@ -758,7 +768,12 @@ function render(): void {
   if (quizScreen) screenEl.classList.add("screen--quiz");
   if (sc.phase === "party_names") screenEl.classList.add("screen--party-setup");
 
-  screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${choicesHtml}`;
+  const storePatched =
+    storeRepurchase && tryPatchStoreScreen(screenEl, engine, engine.storeFeedback);
+
+  if (!storePatched) {
+    screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${choicesHtml}`;
+  }
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
   appFooterEl?.classList.toggle(
@@ -835,6 +850,7 @@ function render(): void {
   }
 
   screenEl.querySelectorAll<HTMLLIElement>(".choices li").forEach((li) => {
+    if (storePatched) return;
     const n = Number(li.dataset.n);
     const go = () => choice(n);
     li.addEventListener("click", go);
@@ -858,7 +874,14 @@ function render(): void {
 
   prevPhase = sc.phase;
 
-  if (isEasyReadUI()) {
+  if (savedScreenScroll !== null) {
+    requestAnimationFrame(() => {
+      screenEl.scrollTop = savedScreenScroll;
+      requestAnimationFrame(() => {
+        screenEl.scrollTop = savedScreenScroll;
+      });
+    });
+  } else if (isEasyReadUI() && !samePhase && sc.phase !== "store") {
     requestAnimationFrame(() => {
       const focusEl =
         screenEl.querySelector<HTMLButtonElement>(".party-continue-btn") ??

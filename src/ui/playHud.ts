@@ -152,7 +152,7 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
 
   const tip = `<p class="store-tip">Suggested full outfit ≈ ${formatCents(ideal)} · Tip: 2+ oxen, 200+ lb food, ammo for hunting.</p>`;
   const fb = feedback
-    ? `<p class="store-feedback" role="status">${escapeHtml(feedback)}</p>`
+    ? `<p class="store-feedback">${escapeHtml(feedback)}</p>`
     : "";
 
   return `${tip}${fb}<ul class="choices choices--store">${items}</ul>`;
@@ -164,4 +164,91 @@ function formatCents(cents: number): string {
   const d = Math.floor(c / 100);
   const cc = c % 100;
   return `${neg ? "-" : ""}$${d}.${cc.toString().padStart(2, "0")}`;
+}
+
+/** Update wagon sheet numbers in place — avoids scroll jump on store purchases. */
+export function tryPatchSupplyStrip(host: HTMLElement, s: DashboardSnapshot): boolean {
+  const grid = host.querySelector(".supply-strip__grid");
+  if (!grid) return false;
+
+  const values: Record<string, string> = {
+    Cash: s.money,
+    Oxen: String(s.oxen),
+    Food: `${s.food} lb`,
+    Ammo: String(s.ammo),
+    Clothes: String(s.clothes),
+    "Spare parts": s.spareParts,
+  };
+
+  for (const cell of grid.querySelectorAll(".supply-cell")) {
+    const key = cell.querySelector(".supply-cell__k")?.textContent?.trim();
+    const valEl = cell.querySelector(".supply-cell__v");
+    if (!key || !valEl || !(key in values)) return false;
+    valEl.textContent = values[key]!;
+  }
+  return true;
+}
+
+/** Patch store rows after a purchase — keep scroll position and tap target. */
+export function tryPatchStoreScreen(
+  screenEl: HTMLElement,
+  engine: GameEngine,
+  feedback: string,
+): boolean {
+  const ul = screenEl.querySelector("ul.choices--store");
+  if (!ul) return false;
+
+  const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - engine.giftShopBoostsUsed;
+  const expectedRows = giftLeft > 0 ? 8 : 7;
+  if (ul.querySelectorAll(".store-choice").length !== expectedRows) return false;
+
+  let fbEl = screenEl.querySelector<HTMLElement>(".store-feedback");
+  if (feedback) {
+    if (!fbEl) {
+      fbEl = document.createElement("p");
+      fbEl.className = "store-feedback";
+      ul.before(fbEl);
+    }
+    fbEl.textContent = feedback;
+  } else {
+    fbEl?.remove();
+  }
+
+  const inv = engine.inv;
+  const p = engine.profile;
+  const rows: { name: string; have: string; costCents: number; leave?: boolean }[] = [
+    { name: "Oxen", have: String(inv.oxen), costCents: priceOxen(p, 1) },
+    { name: "Food", have: `${inv.foodLbs} lb`, costCents: priceFood(p, 100) },
+    { name: "Ammo", have: `${inv.ammo} rounds`, costCents: priceAmmo(p, 1) },
+    { name: "Clothes", have: `${inv.clothes} sets`, costCents: priceClothes(p, 1) },
+    { name: "Spare wheel", have: `${inv.spareWheels}`, costCents: priceParts(p, 1, 0) },
+    { name: "Spare axle", have: `${inv.spareAxles}`, costCents: priceParts(p, 0, 1) },
+  ];
+  if (giftLeft > 0) {
+    rows.push({
+      name: "Hop King gift perk",
+      have: `${giftLeft} left`,
+      costCents: 0,
+    });
+  }
+  rows.push({ name: "Leave for the trail", have: "—", costCents: 0, leave: true });
+
+  for (const row of rows) {
+    let matched = false;
+    for (const li of ul.querySelectorAll<HTMLLIElement>(".store-choice")) {
+      if (li.querySelector(".store-choice__name")?.textContent !== row.name) continue;
+      matched = true;
+      const strong = li.querySelector(".store-choice__have strong");
+      if (strong) strong.textContent = row.have;
+      li.classList.remove("store-choice--ok", "store-choice--broke", "store-choice--leave");
+      const afford = row.leave || inv.moneyCents >= row.costCents;
+      if (row.leave) li.classList.add("store-choice--leave");
+      else if (afford) li.classList.add("store-choice--ok");
+      else li.classList.add("store-choice--broke");
+      break;
+    }
+    if (!matched) return false;
+  }
+
+  return true;
 }
