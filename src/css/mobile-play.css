@@ -182,6 +182,15 @@ html.emota-mobile .app-layout.is-camp .travel-menu-mobile-hud {
   overflow: visible !important;
 }
 
+html.emota-mobile .app-layout.is-camp .tmh-inner {
+  padding: 0.4rem 0.45rem 0.42rem;
+}
+
+html.emota-mobile .app-layout.is-camp .tmh-grid {
+  gap: 0.3rem 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
 html.emota-mobile .app-layout.is-trail-play .screen-prompt {
   font-size: clamp(1.02rem, 3.8vw, 1.18rem);
   margin-bottom: 0.35rem;

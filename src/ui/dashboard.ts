@@ -37,7 +37,7 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
   const pct = Math.round((s.miles / s.totalMiles) * 100);
   const crew = renderPartyRoster(
     s.party.map((p) => ({ name: p.name, alive: p.alive })),
-    { compact: true },
+    { compact: true, bare: true },
   );
 
   return `

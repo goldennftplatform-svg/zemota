@@ -29,11 +29,12 @@ function partyStickSvg(alive: boolean): string {
 /** Up to five stick figures — greyed when a party member has died. */
 export function renderPartyRoster(
   party: PartyFigureRow[],
-  opts?: { compact?: boolean; showNames?: boolean },
+  opts?: { compact?: boolean; showNames?: boolean; bare?: boolean },
 ): string {
   const compact = opts?.compact ?? false;
   const showNames = opts?.showNames ?? true;
-  const mod = compact ? " party-roster--compact" : "";
+  const bare = opts?.bare ?? false;
+  const mod = `${compact ? " party-roster--compact" : ""}${bare ? " party-roster--bare" : ""}`;
   const figs = party
     .slice(0, 5)
     .map((p) => {

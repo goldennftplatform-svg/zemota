@@ -5,6 +5,8 @@ import { trailChartStagePercent } from "../game/trailChartCoords";
 /** Minimap SVG viewport. */
 const VB = { x: -52, y: -42, w: 404, h: 256 };
 const MINIMAP_ASPECT = VB.w / VB.h;
+/** Matches legacy land-vista canvas (640×180). */
+const LAND_VB = { x: VB.x, y: 28, w: VB.w, h: Math.round((VB.w * 180) / 640) };
 
 function pctToSvg(left: number, top: number): { x: number; y: number } {
   return {
@@ -51,8 +53,14 @@ export function renderTrailMinimap(
     trailChartStagePercent(TOTAL_TRAIL_MILES, MINIMAP_ASPECT).top,
   );
 
+  const viewBox = variant === "land" ? LAND_VB : VB;
+  const pctLine =
+    variant === "land"
+      ? ""
+      : `<text class="minimap-pct" x="${midX.toFixed(1)}" y="${VB.y + 220}" text-anchor="middle">${pct}% trail</text>`;
+
   return `
-<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}${variant === "land" ? " minimap-svg--land" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
+<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}${variant === "land" ? " minimap-svg--land" : ""}" viewBox="${viewBox.x} ${viewBox.y} ${viewBox.w} ${viewBox.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
   <title>${title}</title>
   <rect class="minimap-frame" x="${VB.x + 0.5}" y="${VB.y + 0.5}" width="${VB.w - 1}" height="${VB.h - 1}" rx="10" ry="10" />
   <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="${VB.x}" y="${VB.y}" width="${VB.w}" height="${VB.h}" preserveAspectRatio="xMidYMid meet" />
@@ -60,7 +68,7 @@ export function renderTrailMinimap(
   <circle class="minimap-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" />
   <text class="minimap-tag minimap-tag--e" x="${start.x.toFixed(1)}" y="${(start.y + 14).toFixed(1)}">MO</text>
   <text class="minimap-tag minimap-tag--w" x="${(end.x - 4).toFixed(1)}" y="${(end.y + 12).toFixed(1)}">OR</text>
-  <text class="minimap-pct" x="${midX.toFixed(1)}" y="${VB.y + 220}" text-anchor="middle">${pct}% trail</text>
+  ${pctLine}
 </svg>
 `.trim();
 }
