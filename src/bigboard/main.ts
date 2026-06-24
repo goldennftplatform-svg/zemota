@@ -313,8 +313,10 @@ function renderDock(wall: boolean): string {
     </div>
     <div class="bb-dock__panel bb-dock__panel--history">
       <h3 class="bb-dock__head">Meeker Mansion · history</h3>
-      <p class="bb-dock__history-title${historyRollClass}">${escapeHtml(rotatingFact.title)}</p>
-      <p class="bb-dock__history-body${historyRollClass}">${escapeHtml(rotatingFact.body)}</p>
+      <div class="bb-dock__history-slot" aria-live="polite" aria-atomic="true">
+        <p class="bb-dock__history-title${historyRollClass}">${escapeHtml(rotatingFact.title)}</p>
+        <p class="bb-dock__history-body${historyRollClass}">${escapeHtml(rotatingFact.body)}</p>
+      </div>
       <div class="bb-dock__chips">${museumStats}</div>
       <a class="bb-dock__link" href="${MEEKER_MANSION_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Full museum story →</a>
     </div>
