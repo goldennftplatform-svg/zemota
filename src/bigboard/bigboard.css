@@ -522,6 +522,22 @@ body {
 .bb-map-stage {
   position: absolute;
   inset: 1% 2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+.bb-map-inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* Pre-rotate height becomes visual width after 90° CW — fill the stage */
+  height: min(100cqw, calc(100cqh * 1024 / 409));
+  width: auto;
+  aspect-ratio: 409 / 1024;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center center;
 }
 
 .bb-map__raster {
@@ -529,8 +545,7 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
+  object-fit: fill;
   opacity: 0.72;
   pointer-events: none;
   z-index: 0;
@@ -628,6 +643,7 @@ body {
 
 .bb-wagon__icon {
   filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.45));
+  transform: scaleX(-1);
 }
 
 .bb-wagon-svg {
@@ -667,15 +683,38 @@ body {
 
 .bb-map-labels {
   position: absolute;
-  bottom: 4%;
-  left: 4%;
-  right: 4%;
-  display: flex;
-  justify-content: space-between;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.bb-map-label {
+  position: absolute;
   font-family: var(--font-pixel);
   font-size: clamp(0.35rem, 0.75vw, 0.5rem);
   color: rgba(57, 255, 122, 0.55);
-  pointer-events: none;
+  white-space: nowrap;
+}
+
+.bb-map-label--w {
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bb-map-label--e {
+  bottom: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.bb-map-label--title {
+  left: 6%;
+  bottom: 12%;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.08em;
+  opacity: 0.45;
 }
 
 #bb-popup-host {
@@ -686,6 +725,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#bb-popup-host.bb-popup-host--toast {
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0 0 clamp(5rem, 12vh, 9rem) clamp(0.75rem, 2vw, 1.5rem);
 }
 
 #bb-popup-host[hidden] {
@@ -725,6 +770,51 @@ body {
 .bb-popup__card--wipeout {
   border-color: #aa5533;
   box-shadow: 0 0 40px rgba(180, 80, 40, 0.35), 8px 8px 0 #331808;
+}
+
+.bb-popup--toast {
+  width: auto;
+  height: auto;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+.bb-popup__card--toast {
+  max-width: min(380px, 36vw);
+  padding: 0.65rem 0.85rem;
+  background: rgba(0, 20, 12, 0.88);
+  box-shadow: 0 0 24px rgba(0, 255, 120, 0.15), 4px 4px 0 #003318;
+  animation: bb-toast-in 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.bb-popup__card--toast.bb-popup__card--death {
+  box-shadow: 0 0 28px rgba(255, 60, 100, 0.28), 4px 4px 0 #441018;
+}
+
+.bb-popup__card--toast .bb-popup__title {
+  font-size: clamp(0.42rem, 0.95vw, 0.62rem);
+  margin: 0 0 0.35rem;
+}
+
+.bb-popup__card--toast .bb-popup__body {
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+}
+
+.bb-popup__card--toast .bb-popup__ico {
+  width: 1rem;
+  height: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+@keyframes bb-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bb-popup__ico {
@@ -842,7 +932,7 @@ html.bb-wall .bb-map-stage {
 }
 
 html.bb-wall .bb-map__raster {
-  opacity: 0.88;
+  opacity: 0.9;
 }
 
 html.bb-wall .bb-feed {
@@ -873,8 +963,14 @@ html.bb-wall .bb-wagon-svg {
   width: clamp(1.55rem, 2.1vw, 2.25rem);
 }
 
-html.bb-wall .bb-map-labels {
+html.bb-wall .bb-map-labels .bb-map-label {
   font-size: clamp(0.32rem, 0.62vw, 0.45rem);
+}
+
+html.bb-wall #bb-popup-host {
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0 0 clamp(4.5rem, 11vh, 8rem) clamp(0.5rem, 1.5vw, 1.25rem);
 }
 
 html.bb-wall .bb-stat.bb-live .bb-live__dot {

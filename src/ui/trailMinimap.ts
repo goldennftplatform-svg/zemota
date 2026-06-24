@@ -1,6 +1,6 @@
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { TRAIL_CHART_NORM, trailChartStagePercent } from "../game/trailChartCoords";
+import { trailChartStagePercent } from "../game/trailChartCoords";
 
 /** Minimap SVG viewport. */
 const VB = { x: -52, y: -42, w: 404, h: 256 };
@@ -14,11 +14,13 @@ function pctToSvg(left: number, top: number): { x: number; y: number } {
 }
 
 function trailChartPolyline(): string {
-  return TRAIL_CHART_NORM.map((p) => {
-    const stage = trailChartStagePercent(p.miles, MINIMAP_ASPECT);
+  const pts: string[] = [];
+  for (let m = 0; m <= TOTAL_TRAIL_MILES; m += 80) {
+    const stage = trailChartStagePercent(m, MINIMAP_ASPECT);
     const s = pctToSvg(stage.left, stage.top);
-    return `${s.x.toFixed(1)},${s.y.toFixed(1)}`;
-  }).join(" ");
+    pts.push(`${s.x.toFixed(1)},${s.y.toFixed(1)}`);
+  }
+  return pts.join(" ");
 }
 
 function escapeXml(s: string): string {
@@ -43,10 +45,7 @@ export function renderTrailMinimap(
   const title = escapeXml(`Trail about ${pct}% complete, near ${landmarkName}`);
 
   const midX = VB.x + VB.w / 2;
-  const start = pctToSvg(
-    trailChartStagePercent(0, MINIMAP_ASPECT).left,
-    trailChartStagePercent(0, MINIMAP_ASPECT).top,
-  );
+  const start = pctToSvg(trailChartStagePercent(0, MINIMAP_ASPECT).left, trailChartStagePercent(0, MINIMAP_ASPECT).top);
   const end = pctToSvg(
     trailChartStagePercent(TOTAL_TRAIL_MILES, MINIMAP_ASPECT).left,
     trailChartStagePercent(TOTAL_TRAIL_MILES, MINIMAP_ASPECT).top,
@@ -59,7 +58,7 @@ export function renderTrailMinimap(
   <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="${VB.x}" y="${VB.y}" width="${VB.w}" height="${VB.h}" preserveAspectRatio="xMidYMid meet" />
   <polyline class="minimap-route minimap-route--chart" points="${poly}" fill="none" />
   <circle class="minimap-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" />
-  <text class="minimap-tag minimap-tag--e" x="${start.x.toFixed(1)}" y="${(start.y + 14).toFixed(1)}">St. Joseph</text>
+  <text class="minimap-tag minimap-tag--e" x="${start.x.toFixed(1)}" y="${(start.y + 14).toFixed(1)}">MO</text>
   <text class="minimap-tag minimap-tag--w" x="${(end.x - 4).toFixed(1)}" y="${(end.y + 12).toFixed(1)}">OR</text>
   <text class="minimap-pct" x="${midX.toFixed(1)}" y="${VB.y + 220}" text-anchor="middle">${pct}% trail</text>
 </svg>

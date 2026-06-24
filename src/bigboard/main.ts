@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { trailChartNormAt } from "../game/trailChartCoords";
+import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
@@ -37,7 +37,8 @@ window.addEventListener("resize", () => render());
 
 const FEED_MAX_DOM = 48;
 const FEED_MAX_WALL = 8;
-const POPUP_MS = 8200;
+const POPUP_MS_WALL = 4200;
+const POPUP_MS_DEFAULT = 5500;
 const LB_WALL = 6;
 const LB_DEFAULT = 12;
 
@@ -67,23 +68,17 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** Place wagons after the map image has laid out (uses real img bounds, not guesses). */
+/** Place wagons on the portrait chart (rotated 90° CW with the map). */
 function layoutWagonsOnChart(): void {
-  const stage = document.getElementById("bb-map-stage");
-  const img = document.getElementById("bb-map-img") as HTMLImageElement | null;
-  if (!stage || !img || !img.naturalWidth) return;
+  const inner = document.getElementById("bb-map-inner");
+  if (!inner) return;
 
-  const s = stage.getBoundingClientRect();
-  const i = img.getBoundingClientRect();
-  if (s.width < 8 || i.width < 8) return;
-
-  for (const el of stage.querySelectorAll<HTMLElement>(".bb-wagon")) {
+  for (const el of inner.querySelectorAll<HTMLElement>(".bb-wagon")) {
     const miles = Number(el.dataset.miles ?? 0);
-    const { x, y } = trailChartNormAt(miles);
-    const cx = i.left - s.left + x * i.width;
-    const cy = i.top - s.top + y * i.height;
-    el.style.left = `${(cx / s.width) * 100}%`;
-    el.style.top = `${(cy / s.height) * 100}%`;
+    const { x, y } = trailPortraitNormAt(miles);
+    const bob = Math.sin(miles * 0.02) * 0.004;
+    el.style.left = `${x * 100}%`;
+    el.style.top = `${(y + bob) * 100}%`;
   }
 }
 
@@ -267,12 +262,15 @@ function render(): void {
       <div class="bb-main">
         <div class="bb-map-wrap">
           <div class="bb-map-stage" id="bb-map-stage">
-            <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
-            <div class="bb-markers" id="markers">${lobbyHint}${markersHtml}</div>
-            <div class="bb-map-labels">
-              <span>Oregon City</span>
-              <span>The Old Oregon Trail</span>
-              <span>St. Joseph</span>
+            ${lobbyHint}
+            <div class="bb-map-inner" id="bb-map-inner">
+              <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
+              <div class="bb-markers" id="markers">${markersHtml}</div>
+              <div class="bb-map-labels">
+                <span class="bb-map-label bb-map-label--w">Oregon</span>
+                <span class="bb-map-label bb-map-label--title">The Old Oregon Trail</span>
+                <span class="bb-map-label bb-map-label--e">Independence, MO</span>
+              </div>
             </div>
           </div>
         </div>
@@ -296,17 +294,25 @@ function showBigPopup(ev: TrailFeedEvent): void {
   if (!["death", "victory", "wipeout"].includes(ev.kind)) return;
   const el = popupHost;
   if (!el) return;
+  const wall = isWallMode();
+  el.classList.toggle("bb-popup-host--toast", wall);
   el.hidden = false;
   const art = ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
   const artHtml =
-    ev.kind === "death"
+    ev.kind === "death" && !wall
       ? `<img class="bb-popup__img" src="${GAME_ART.drunkcowboyGameOver}" alt="" decoding="async" />`
-      : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
+      : ev.kind === "death"
+        ? ""
+        : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
   const cardMod =
-    ev.kind === "death" ? "bb-popup__card--death" : ev.kind === "victory" ? "bb-popup__card--victory" : "bb-popup__card--wipeout";
+    ev.kind === "death"
+      ? `bb-popup__card--death${wall ? " bb-popup__card--toast" : ""}`
+      : ev.kind === "victory"
+        ? `bb-popup__card--victory${wall ? " bb-popup__card--toast" : ""}`
+        : `bb-popup__card--wipeout${wall ? " bb-popup__card--toast" : ""}`;
   const title =
     ev.kind === "death" ? "LOSS ON THE TRAIL" : ev.kind === "victory" ? "OREGON REACHED" : "WAGON LOST";
-  el.innerHTML = `<div class="bb-popup">
+  el.innerHTML = `<div class="bb-popup${wall ? " bb-popup--toast" : ""}">
     <div class="bb-popup__card ${cardMod}">
       <span class="bb-popup__ico">${bbFeedIcon(ev.kind)}</span>
       ${artHtml}
@@ -318,7 +324,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
   popupTimer = setTimeout(() => {
     el.hidden = true;
     el.innerHTML = "";
-  }, POPUP_MS);
+  }, wall ? POPUP_MS_WALL : POPUP_MS_DEFAULT);
 }
 
 function prependFeed(ev: TrailFeedEvent): void {
