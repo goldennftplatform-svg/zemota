@@ -13,8 +13,8 @@ import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { clearStoredTrailOrigin, persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
 import {
   BIGBOARD_MUSEUM_STATS,
-  bigboardHistoryContent,
   MEEKER_MANSION_HISTORY_URL,
+  pickBigboardRotatingFact,
 } from "../data/mansionHistory";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
@@ -36,14 +36,37 @@ function applyWallClass(): void {
   document.documentElement.classList.toggle("bb-wall", isWallMode());
 }
 
+/** Meeker history / trail facts on the wall dock — new pick every 40s. */
+export const BIGBOARD_FACT_ROTATE_MS = 40_000;
+
+let rotatingFact: { title: string; body: string } = {
+  title: "Meeker Mansion · history",
+  body: "Facts from Ezra Meeker, the Oregon Trail, and the Hop King museum roll here while wagons travel.",
+};
+let lastFactKey = "";
+let factRotateTick = 0;
+
+function refreshRotatingFact(): void {
+  const sorted = [...peers].sort((a, b) => b.miles - a.miles);
+  const leader = sorted[0];
+  const leadMiles = leader?.miles ?? 0;
+  const next = pickBigboardRotatingFact(leadMiles, leader?.landmark, lastFactKey || undefined);
+  const key = `${next.title}\0${next.body}`;
+  if (key === lastFactKey && lastFactKey) return;
+  lastFactKey = key;
+  rotatingFact = next;
+  factRotateTick += 1;
+}
+
 applyWallClass();
 window.addEventListener("resize", applyWallClass);
 window.addEventListener("resize", () => render());
 
-/** Rotate Meeker history panel on the wall without waiting for trail events. */
 setInterval(() => {
-  if (isWallMode()) render();
-}, 45_000);
+  if (!isWallMode()) return;
+  refreshRotatingFact();
+  render();
+}, BIGBOARD_FACT_ROTATE_MS);
 
 const FEED_MAX_DOM = 48;
 const FEED_MAX_WALL = 8;
@@ -245,12 +268,11 @@ function renderDock(wall: boolean): string {
     ? `${escapeHtml(leader.displayName)} · ${Math.round(leader.miles)} mi`
     : "—";
 
-  const historyTick = Math.floor(Date.now() / 45_000);
-  const leadMiles = leader?.miles ?? 0;
-  const history = bigboardHistoryContent(leadMiles, historyTick, leader?.landmark);
   const museumStats = BIGBOARD_MUSEUM_STATS.map(
     (s) => `<span class="bb-dock__chip"><span class="bb-dock__chip-k">${escapeHtml(s.k)}</span> ${escapeHtml(s.v)}</span>`,
   ).join("");
+
+  const historyRollClass = factRotateTick > 0 ? " bb-dock__history--roll" : "";
 
   return `<section class="bb-dock" aria-label="Trail dashboard">
     <div class="bb-dock__panel">
@@ -273,8 +295,8 @@ function renderDock(wall: boolean): string {
     </div>
     <div class="bb-dock__panel bb-dock__panel--history">
       <h3 class="bb-dock__head">Meeker Mansion · history</h3>
-      <p class="bb-dock__history-title">${escapeHtml(history.title)}</p>
-      <p class="bb-dock__history-body">${escapeHtml(history.body)}</p>
+      <p class="bb-dock__history-title${historyRollClass}">${escapeHtml(rotatingFact.title)}</p>
+      <p class="bb-dock__history-body${historyRollClass}">${escapeHtml(rotatingFact.body)}</p>
       <div class="bb-dock__chips">${museumStats}</div>
       <a class="bb-dock__link" href="${MEEKER_MANSION_HISTORY_URL}" target="_blank" rel="noopener noreferrer">Full museum story →</a>
     </div>
@@ -517,6 +539,7 @@ function setConn(s: "ok" | "warn" | "bad"): void {
   render();
 }
 
+refreshRotatingFact();
 render();
 
 const socketOpts = {

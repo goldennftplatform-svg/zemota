@@ -747,6 +747,21 @@ html.bb-wall .bb-dock {
   overflow: hidden;
 }
 
+.bb-dock__history--roll {
+  animation: bb-fact-roll 0.55s ease-out;
+}
+
+@keyframes bb-fact-roll {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .bb-dock__chips {
   display: flex;
   flex-wrap: wrap;

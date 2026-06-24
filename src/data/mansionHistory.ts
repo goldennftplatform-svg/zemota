@@ -238,6 +238,110 @@ const BIGBOARD_MANSION_EXTRAS: { title: string; body: string }[] = [
   },
 ];
 
+/** Extra rotating wall facts — trail, hops, Ezra, Pacific Northwest. */
+const BIGBOARD_MORE_FACTS: { title: string; body: string }[] = [
+  {
+    title: "5′1″ mile maker",
+    body: "Ezra Meeker stood barely five feet one — small in stature, enormous in mileage and memory.",
+  },
+  {
+    title: "Peak trail year",
+    body: "1852 is often called the flood year on the Oregon Trail — the same year the Meekers left Iowa with a six-week-old baby.",
+  },
+  {
+    title: "Prairie schooners",
+    body: "Canvas-topped wagons earned the nickname prairie schooners — sails of white crossing a sea of grass.",
+  },
+  {
+    title: "Yakima hops today",
+    body: "Washington still grows the majority of U.S. hops — aroma fields Ezra’s boom helped put on the map.",
+  },
+  {
+    title: "Cascade hop",
+    body: "The Cascade hop, released in the 1970s from Pacific Northwest breeding, still defines American pale ale.",
+  },
+  {
+    title: "Cholera on the trail",
+    body: "Cholera haunted river towns and wagon trains — Meeker’s diaries and neighbors’ letters repeat the same dread.",
+  },
+  {
+    title: "April–May jump-off",
+    body: "Most companies left Missouri in the April–May grass window — too early meant mud, too late meant snow in the mountains.",
+  },
+  {
+    title: "Oxen thirst",
+    body: "On hot days a single ox might drink eight to ten gallons — water was logistics, not scenery.",
+  },
+  {
+    title: "Snake River crossing",
+    body: "Three Island Crossing on the Snake terrified emigrants — rafts, ropes, and drowned stock in every reminiscence.",
+  },
+  {
+    title: "Meeker's middle name",
+    body: "Genealogists recovered Ezra’s true middle name: Morgan — not Manning, as decades of print had it wrong.",
+  },
+  {
+    title: "Airplane at 90+",
+    body: "In his nineties Ezra flew part of the trail route by airplane — headlines loved the stunt, Ezra loved the attention for history.",
+  },
+  {
+    title: "Play the trail",
+    body: "Scan the QR at zemota.vercel.app/play — your wagon shows on this board while you travel.",
+  },
+];
+
+function factKey(f: { title: string; body: string }): string {
+  return `${f.title}\0${f.body}`;
+}
+
+function buildBigboardFactPool(): { title: string; body: string; key: string }[] {
+  const pool: { title: string; body: string; key: string }[] = [];
+  const push = (title: string, body: string) => {
+    const item = { title, body, key: factKey({ title, body }) };
+    pool.push(item);
+  };
+  for (const h of BIGBOARD_TRAIL_HISTORY) push(h.title, h.body);
+  for (const h of BIGBOARD_MANSION_EXTRAS) push(h.title, h.body);
+  for (const h of BIGBOARD_MORE_FACTS) push(h.title, h.body);
+  for (const n of MANSION_TIMELINE_NOTES) push(n.title, n.lines.join(" "));
+  for (const [loc, blurb] of Object.entries(MANSION_LANDMARK_ADDENDUM)) push(loc, blurb);
+  for (const line of MANSION_TRAIL_FLAVOR) push("On the trail", line);
+  return pool;
+}
+
+let bigboardFactPoolCache: ReturnType<typeof buildBigboardFactPool> | null = null;
+
+function getBigboardFactPool() {
+  if (!bigboardFactPoolCache) bigboardFactPoolCache = buildBigboardFactPool();
+  return bigboardFactPoolCache;
+}
+
+/** Random fact for the bigboard dock — avoids repeating the previous entry when possible. */
+export function pickBigboardRotatingFact(
+  leadMiles: number,
+  landmark?: string,
+  exceptKey?: string,
+): { title: string; body: string } {
+  const landmarkBlurb = landmarkHistoryBlurb(landmark);
+  if (landmarkBlurb && landmark && Math.random() < 0.22) {
+    const pick = { title: landmark, body: landmarkBlurb };
+    if (factKey(pick) !== exceptKey) return pick;
+  }
+  if (Math.random() < 0.18) {
+    const trail =
+      BIGBOARD_TRAIL_HISTORY.find((h) => leadMiles <= h.maxMiles) ??
+      BIGBOARD_TRAIL_HISTORY[BIGBOARD_TRAIL_HISTORY.length - 1]!;
+    if (factKey(trail) !== exceptKey) return trail;
+  }
+  const pool = getBigboardFactPool();
+  for (let i = 0; i < 14; i++) {
+    const f = pool[Math.floor(Math.random() * pool.length)]!;
+    if (f.key !== exceptKey) return { title: f.title, body: f.body };
+  }
+  const fallback = pool[Math.floor(Math.random() * pool.length)]!;
+  return { title: fallback.title, body: fallback.body };
+}
+
 function landmarkHistoryBlurb(landmark?: string): string | undefined {
   if (!landmark) return undefined;
   const hit = Object.entries(MANSION_LANDMARK_ADDENDUM).find(
@@ -246,21 +350,13 @@ function landmarkHistoryBlurb(landmark?: string): string | undefined {
   return hit?.[1];
 }
 
-/** History panel for the live bigboard — alternates trail-era facts with mansion museum notes. */
+/** History panel for the live bigboard — use {@link pickBigboardRotatingFact} for wall rotation. */
 export function bigboardHistoryContent(
   leadMiles: number,
-  tick = 0,
+  _tick = 0,
   landmark?: string,
 ): { title: string; body: string } {
-  const landmarkBlurb = landmarkHistoryBlurb(landmark);
-  if (landmarkBlurb && landmark && tick % 3 === 0) {
-    return { title: landmark, body: landmarkBlurb };
-  }
-  const trail =
-    BIGBOARD_TRAIL_HISTORY.find((h) => leadMiles <= h.maxMiles) ??
-    BIGBOARD_TRAIL_HISTORY[BIGBOARD_TRAIL_HISTORY.length - 1]!;
-  if (tick % 2 === 0) return trail;
-  return BIGBOARD_MANSION_EXTRAS[tick % BIGBOARD_MANSION_EXTRAS.length]!;
+  return pickBigboardRotatingFact(leadMiles, landmark);
 }
 
 /** Raw trivia — merged in trivia.ts */
