@@ -525,7 +525,8 @@ body {
   flex: 1 1 auto;
   position: relative;
   min-height: 0;
-  margin: 0.5% 1.5% 0;
+  margin: 0;
+  padding: 0.25rem 0.5rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -536,8 +537,11 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  /* -90° CCW: east (bottom) → right, west (top) → left; text stays upright */
-  height: min(92cqh, calc(78cqw * 1024 / 409));
+  /*
+   * Portrait chart rotated -90°: pre-rotate height becomes on-screen width.
+   * Fill the stage (contain): width = min(stageW, stageH × 1024/409).
+   */
+  height: min(100cqw, calc(100cqh * 1024 / 409));
   width: auto;
   aspect-ratio: 409 / 1024;
   transform: translate(-50%, -50%) rotate(-90deg);
@@ -1032,8 +1036,12 @@ html.bb-wall .bb-lb {
   display: none;
 }
 
+html.bb-wall .bb-map-stage {
+  padding: 0.15rem 0.35rem 0;
+}
+
 html.bb-wall .bb-map-inner {
-  height: min(90cqh, calc(72cqw * 1024 / 409));
+  height: min(100cqw, calc(100cqh * 1024 / 409));
 }
 
 html.bb-wall .bb-map__raster {
