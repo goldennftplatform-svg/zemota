@@ -80,7 +80,7 @@
 .trail-map-popup__inner {
   position: relative;
   width: 100%;
-  aspect-ratio: 1024 / 529;
+  aspect-ratio: 996 / 440;
   max-height: min(58vh, 22rem);
   background: radial-gradient(ellipse 90% 70% at 50% 40%, #042818 0%, #010806 72%);
 }

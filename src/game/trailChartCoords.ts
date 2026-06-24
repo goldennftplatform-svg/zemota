@@ -1,27 +1,30 @@
 import { TOTAL_TRAIL_MILES } from "./config";
 
-/** Pixel size of `public/art/oregon-trail-map.png` (Ezra Meeker horizontal postcard). */
-export const OREGON_TRAIL_CHART = { width: 1024, height: 529 } as const;
+/** Pixel size of `public/art/oregon-trail-map.png` — cropped to framed map art only. */
+export const OREGON_TRAIL_CHART = { width: 996, height: 440 } as const;
+
+/** Crop applied to the source Meeker postcard (full bleed → map frame). */
+export const OREGON_TRAIL_CHART_CROP = { left: 14, top: 34, width: 996, height: 440 } as const;
 
 /**
  * Trail knots on the chart (0–1 on image pixels).
  * Mile 0 = Independence (east/right) · finish = Oregon City (west/left).
  */
 const CHART_TRAIL: { miles: number; x: number; y: number }[] = [
-  { miles: 0, x: 0.88, y: 0.52 },
-  { miles: 102, x: 0.84, y: 0.5 },
-  { miles: 185, x: 0.81, y: 0.48 },
-  { miles: 304, x: 0.76, y: 0.47 },
-  { miles: 554, x: 0.69, y: 0.44 },
-  { miles: 640, x: 0.63, y: 0.42 },
-  { miles: 830, x: 0.57, y: 0.4 },
-  { miles: 932, x: 0.52, y: 0.39 },
-  { miles: 989, x: 0.47, y: 0.41 },
-  { miles: 1375, x: 0.38, y: 0.44 },
-  { miles: 1548, x: 0.33, y: 0.46 },
-  { miles: 1632, x: 0.24, y: 0.38 },
-  { miles: 1800, x: 0.16, y: 0.36 },
-  { miles: 1990, x: 0.1, y: 0.4 },
+  { miles: 0, x: 0.891, y: 0.548 },
+  { miles: 102, x: 0.85, y: 0.524 },
+  { miles: 185, x: 0.819, y: 0.5 },
+  { miles: 304, x: 0.767, y: 0.488 },
+  { miles: 554, x: 0.695, y: 0.452 },
+  { miles: 640, x: 0.634, y: 0.428 },
+  { miles: 830, x: 0.572, y: 0.404 },
+  { miles: 932, x: 0.521, y: 0.392 },
+  { miles: 989, x: 0.469, y: 0.416 },
+  { miles: 1375, x: 0.377, y: 0.452 },
+  { miles: 1548, x: 0.325, y: 0.476 },
+  { miles: 1632, x: 0.233, y: 0.38 },
+  { miles: 1800, x: 0.15, y: 0.356 },
+  { miles: 1990, x: 0.089, y: 0.404 },
 ];
 
 function interpolateChart(miles: number): { x: number; y: number } {
