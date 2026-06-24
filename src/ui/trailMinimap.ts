@@ -6,7 +6,7 @@ const VB = { x: -52, y: -42, w: 404, h: 256 };
 
 /** Stylized coords; trail runs east→west across a simplified U.S. silhouette. */
 const TRAIL_KNOTS: { miles: number; x: number; y: number }[] = [
-  { miles: 0, x: 252, y: 90 },
+  { miles: 0, x: 248, y: 96 },
   { miles: 320, x: 222, y: 88 },
   { miles: 640, x: 196, y: 82 },
   { miles: 980, x: 168, y: 78 },
@@ -69,10 +69,48 @@ function trailPosition(miles: number): { x: number; y: number } {
   return { x: last.x, y: last.y };
 }
 
-/** Same usa-map framing as the minimap SVG — for bigboard wagon overlay. */
+/** Same usa-map framing as the minimap SVG — for generic overlay math. */
 const USA_MAP_RASTER = { x: VB.x - 24, y: VB.y - 18, w: VB.w + 48, h: VB.h + 36 };
 
-/** Trail x/y → % position on the bigboard map (Ohio jump-off east, Oregon west). */
+/**
+ * Bigboard wagon positions (% of map wrap) — calibrated to `usa-map.png` with
+ * `object-fit: contain` (full lower-48 visible, Oregon west · Ohio east).
+ */
+const BIGBOARD_TRAIL_PCT: { miles: number; left: number; top: number }[] = [
+  { miles: 0, left: 71.5, top: 37.5 },
+  { miles: 320, left: 65.5, top: 38.5 },
+  { miles: 640, left: 58, top: 39.5 },
+  { miles: 980, left: 49, top: 39 },
+  { miles: 1400, left: 38.5, top: 38.5 },
+  { miles: 1700, left: 30, top: 39 },
+  { miles: TOTAL_TRAIL_MILES, left: 21.5, top: 40 },
+];
+
+function interpolateBigboardPct(miles: number): { left: number; top: number } {
+  const m = Math.max(0, Math.min(TOTAL_TRAIL_MILES, miles));
+  for (let i = 0; i < BIGBOARD_TRAIL_PCT.length - 1; i++) {
+    const a = BIGBOARD_TRAIL_PCT[i]!;
+    const b = BIGBOARD_TRAIL_PCT[i + 1]!;
+    if (m <= b.miles) {
+      const t = (m - a.miles) / Math.max(1, b.miles - a.miles);
+      return {
+        left: a.left + (b.left - a.left) * t,
+        top: a.top + (b.top - a.top) * t,
+      };
+    }
+  }
+  const last = BIGBOARD_TRAIL_PCT[BIGBOARD_TRAIL_PCT.length - 1]!;
+  return { left: last.left, top: last.top };
+}
+
+/** Trail miles → % on the bigboard map image (Ohio start · Oregon finish). */
+export function trailBigboardOverlayPercent(miles: number): { left: number; top: number } {
+  const { left, top } = interpolateBigboardPct(miles);
+  const bob = Math.sin(miles * 0.02) * 0.35;
+  return { left, top: top + bob };
+}
+
+/** @deprecated Use trailBigboardOverlayPercent on the projector map. */
 export function trailMapOverlayPercent(miles: number): { left: number; top: number } {
   const { x, y } = trailPosition(miles);
   const fracX = (x - USA_MAP_RASTER.x) / USA_MAP_RASTER.w;

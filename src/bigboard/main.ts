@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { trailMapOverlayPercent } from "../ui/trailMinimap";
+import { trailBigboardOverlayPercent } from "../ui/trailMinimap";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { resolveTrailOrigin, persistTrailOriginFromQuery } from "../net/socketUrl";
@@ -68,7 +68,7 @@ function feedKindLabel(kind: string): string {
 
 /** Wagon marker on the usa-map raster (same trail knots as the in-game minimap). */
 function wagonPosition(miles: number): { left: string; top: string } {
-  const { left, top } = trailMapOverlayPercent(miles);
+  const { left, top } = trailBigboardOverlayPercent(miles);
   return { left: `${left}%`, top: `${top}%` };
 }
 
