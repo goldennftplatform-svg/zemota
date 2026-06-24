@@ -109,7 +109,11 @@ function isEasyReadUI(): boolean {
 }
 
 function isMobileShell(): boolean {
-  return document.documentElement.classList.contains("emota-mobile");
+  if (document.documentElement.classList.contains("emota-mobile")) return true;
+  return (
+    typeof window !== "undefined" &&
+    window.matchMedia("(max-width: 899.98px), (pointer: coarse)").matches
+  );
 }
 
 /** Trail phases: desktop sidebar · mobile top ribbon (see trail-ribbon.css). */
@@ -591,9 +595,11 @@ function render(): void {
     mobile && !isTitle && MOBILE_SIDEBAR_PHASES.has(sc.phase);
   appLayout.classList.toggle("is-title", isTitle);
   appLayout.classList.toggle("is-trail-play", showMobileTrailRibbon);
+  appLayout.classList.toggle("is-camp", showMobileTrailRibbon && sc.phase === "travel_menu");
 
   const stripHtml = buildSupplyStrip(dashSnap, sc.phase);
-  const showSupplyStrip = !!stripHtml && !showMobileTrailRibbon;
+  /* Mobile: wagon grid only during setup (store/profile). Trail uses header ribbon. */
+  const showSupplyStrip = !!stripHtml && (!mobile || onboard);
   if (storeRepurchase && showSupplyStrip && tryPatchSupplyStrip(supplyStripEl, dashSnap)) {
     supplyStripEl.hidden = false;
   } else if (showSupplyStrip) {
@@ -760,7 +766,7 @@ function render(): void {
   }
 
   const coachHtml =
-    sc.coach && sc.phase !== "party_names"
+    sc.coach && sc.phase !== "party_names" && !(mobile && showMobileTrailRibbon)
       ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
       : "";
 
@@ -776,6 +782,8 @@ function render(): void {
   if (pickScreen) screenEl.classList.add("screen--pick");
   if (quizScreen) screenEl.classList.add("screen--quiz");
   if (sc.phase === "party_names") screenEl.classList.add("screen--party-setup");
+  if (showMobileTrailRibbon) screenEl.classList.add("screen--trail-play");
+  if (showMobileTrailRibbon && sc.phase === "travel_menu") screenEl.classList.add("screen--camp");
 
   const storePatched =
     storeRepurchase && tryPatchStoreScreen(screenEl, engine, engine.storeFeedback);

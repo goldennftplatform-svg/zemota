@@ -136,13 +136,17 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
   `.trim();
 }
 
-/** Slim top ribbon on mobile — map + trail stats beside the pioneer, not a giant sidebar. */
+/** Slim top ribbon on mobile — map + trail stats in the header (no duplicate panels). */
 export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): string {
   const chip = PHASE_LABEL[phase] ?? "Trail";
   const pct = Math.round((s.miles / s.totalMiles) * 100);
   const loc =
     s.landmark.length > 28 ? `${s.landmark.slice(0, 27)}…` : s.landmark;
   const minimap = renderTrailMinimap(s.miles, s.landmark, "ribbon");
+  const stats =
+    phase === "travel_menu"
+      ? `D${s.day} · ${Math.round(s.miles)} mi · ${s.food} lb · ${s.ammo} ammo · ${s.pace}`
+      : `Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}`;
 
   return `
     <div class="trail-ribbon" role="region" aria-label="Trail progress">
@@ -150,7 +154,7 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
       <div class="trail-ribbon__meta">
         <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>
         <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>
-        <p class="trail-ribbon__stats">Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}</p>
+        <p class="trail-ribbon__stats">${escapeHtml(stats)}</p>
       </div>
     </div>
   `.trim();

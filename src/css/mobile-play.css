@@ -65,32 +65,82 @@ html.emota-mobile .app-layout:not(.is-title) .choices--store {
 }
 
 html.emota-mobile .app-layout.is-trail-play .supply-strip-host,
-html.emota-mobile .app-layout.is-trail-play .travel-menu-mobile-hud {
+html.emota-mobile .app-layout.is-trail-play .travel-menu-mobile-hud,
+html.emota-mobile .app-layout.is-trail-play .onboard-rail-host {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+html.emota-mobile .app-layout.is-trail-play .app-brand__tagline,
+html.emota-mobile .app-layout.is-trail-play .app-brand__sub {
   display: none !important;
 }
 
 html.emota-mobile .app-layout.is-trail-play .app-header {
-  margin-bottom: 0.2rem;
-  flex-shrink: 0;
+  margin-bottom: 0.1rem;
 }
 
 html.emota-mobile .app-layout.is-trail-play .app-header__inner {
-  padding-bottom: 0.35rem;
+  padding: 0.2rem 0 0.28rem;
+}
+
+html.emota-mobile .app-layout.is-trail-play .app-brand__portrait {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+html.emota-mobile .app-layout.is-trail-play .app-brand__title {
+  font-size: 0.72rem;
 }
 
 html.emota-mobile .app-layout.is-trail-play .today-high-score {
-  display: none;
+  display: none !important;
 }
 
 html.emota-mobile .app-layout.is-trail-play .mp-strip {
-  max-height: 2.5rem;
-  padding: 0.22rem 0.4rem;
-  font-size: 0.75rem;
+  max-height: 2.25rem;
+  padding: 0.18rem 0.35rem;
+  font-size: 0.72rem;
   flex-shrink: 0;
 }
 
-html.emota-mobile .app-layout.is-trail-play .screen {
-  padding: 0.5rem 0.55rem;
+html.emota-mobile .app-layout.is-trail-play .app-footer {
+  padding-top: 0.1rem;
+}
+
+html.emota-mobile .app-layout.is-trail-play .screen,
+html.emota-mobile .screen.screen--trail-play {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  padding: 0.4rem 0.5rem 0.25rem;
+}
+
+html.emota-mobile .app-layout.is-camp .screen.screen--camp .screen-prompt {
+  font-size: clamp(1.08rem, 4vw, 1.22rem);
+  margin-bottom: 0.3rem;
+}
+
+html.emota-mobile .app-layout.is-camp .screen.screen--camp .screen-badge {
+  margin-bottom: 0.15rem;
+}
+
+html.emota-mobile .app-layout.is-camp .screen.screen--camp .block {
+  display: none;
+}
+
+html.emota-mobile .app-layout.is-camp .screen.screen--camp .choices--cards {
+  gap: 0.4rem;
+  padding-top: 0.35rem;
+}
+
+html.emota-mobile .app-layout.is-camp .screen.screen--camp .pick-card {
+  min-height: 2.65rem;
+  padding: 0.48rem 0.55rem;
 }
 
 html.emota-mobile .app-layout.is-trail-play .screen-prompt {

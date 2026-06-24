@@ -6,6 +6,7 @@ const CARD_PHASES = new Set([
   "river",
   "land_pick",
   "title",
+  "travel_menu",
 ]);
 
 const QUIZ_PHASES = new Set(["training_quiz", "trivia"]);

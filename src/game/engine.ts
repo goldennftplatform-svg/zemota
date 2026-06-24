@@ -447,9 +447,11 @@ export class GameEngine {
             : [];
         return {
           phase: "travel_menu",
+          badge: "Camp",
+          prompt: "What next?",
+          lines: [],
           coach:
-            "Camp menu: Travel spends a day on the trail; Rest helps recovery. Glance at the sidebar for food, ammo, and miles — it’s your wagon sheet.",
-          lines: ["What next?"],
+            "Travel spends a day. Rest helps the party. Hunt and games are below.",
           choices: [
             { n: 1, text: "Travel (uses 1 day)" },
             { n: 2, text: "Rest" },
