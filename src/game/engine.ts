@@ -22,6 +22,11 @@ import {
 import { huntRegionIndexFromMiles, huntZoneFromMiles, type HuntSessionOptions } from "./huntZones";
 import { pickEncounter, TRAIL_ENCOUNTERS, type EncounterMeta } from "./encounters";
 import { applyDeaths, rollDailyDeaths } from "./deaths";
+import {
+  DEBUG_PLAYTEST_DAY,
+  DEBUG_PLAYTEST_MILES,
+  rollDebugPlaytestHopKing,
+} from "./debugPlaytest";
 import { resolveLandChoice, type LandChoice, type LandOutcome } from "./landClaim";
 import { getTravelerNumber } from "./playerNumber";
 import type { JourneyRecapData } from "../ui/journeyRecap";
@@ -225,6 +230,11 @@ export class GameEngine {
 
   /** Where to return if the player backs out of `gift_shop_prompt` without claiming. */
   private _giftShopReturnPhase: "travel_menu" | "store" = "travel_menu";
+
+  /** EzraEzra wagon name — near-Oregon playtest lane (see debugPlaytest.ts). */
+  private debugPlaytestArmed = false;
+  private debugPlaytestApplied = false;
+  private debugPlaytestHopKingReady = false;
 
   private _pendingTravelInterstitial = false;
   private _pendingJourneyRecap = false;
@@ -447,7 +457,9 @@ export class GameEngine {
           badge: "Step 2 · leader's job",
           prompt: "Who leads the wagon?",
           lines: [`Traveling: ${roster}`],
-          coach: "Starting cash and store prices depend on this pick.",
+          coach: this.debugPlaytestArmed
+            ? "Playtest lane armed — pick a leader to jump near Oregon (skips the supply store)."
+            : "Starting cash and store prices depend on this pick.",
           choices: PROFILE_ORDER.map((id, i) => ({
             n: i + 1,
             text: `${PROFILES[id].title} — ${formatMoney(PROFILES[id].startCashCents)} to spend`,
@@ -503,13 +515,17 @@ export class GameEngine {
               ]
             : [];
         const rationsLabel = this.rations.replace("_", " ");
+        const playtestChoices = this.debugPlaytestApplied
+          ? [{ n: 9, text: "Playtest · jump to land claim now" }]
+          : [];
         return {
           phase: "travel_menu",
           badge: "Camp",
           prompt: "What next?",
           lines: contextLines,
-          coach:
-            "Travel spends a day. Rest helps the party. Hunt and games are below.",
+          coach: this.debugPlaytestApplied
+            ? "Playtest lane — travel a day or two to Oregon, or use jump below to test land claim."
+            : "Travel spends a day. Rest helps the party. Hunt and games are below.",
           choices: [
             { n: 1, text: "Travel (uses 1 day)" },
             { n: 2, text: "Rest" },
@@ -525,6 +541,7 @@ export class GameEngine {
             { n: 6, text: `Change rations (now ${rationsLabel})` },
             { n: 7, text: "Meeker Mansion history note" },
             ...campGift,
+            ...playtestChoices,
           ],
         };
       }
@@ -799,9 +816,14 @@ export class GameEngine {
       case "profile":
         if (n >= 1 && n <= PROFILE_ORDER.length) {
           this.profile = PROFILE_ORDER[n - 1]!;
-          this.inv.moneyCents = PROFILES[this.profile].startCashCents;
-          this.storeFeedback = "";
-          this.phase = "store";
+          if (this.debugPlaytestArmed) {
+            this.applyDebugPlaytest();
+            this.phase = "travel_menu";
+          } else {
+            this.inv.moneyCents = PROFILES[this.profile].startCashCents;
+            this.storeFeedback = "";
+            this.phase = "store";
+          }
         }
         break;
 
@@ -939,6 +961,37 @@ export class GameEngine {
     this.phase = "profile";
   }
 
+  /** Call when wagon / trail display name is {@link DEBUG_WAGON_NAME}. */
+  armDebugPlaytest(): void {
+    this.debugPlaytestHopKingReady = rollDebugPlaytestHopKing();
+    this.debugPlaytestArmed = true;
+    this.debugPlaytestApplied = false;
+  }
+
+  private applyDebugPlaytest(): void {
+    const startCash = PROFILES[this.profile].startCashCents;
+    this.inv = {
+      oxen: 4,
+      foodLbs: 500,
+      moneyCents: startCash + 150_00,
+      ammo: 80,
+      clothes: 3,
+      spareWheels: 2,
+      spareAxles: 2,
+    };
+    this.miles = DEBUG_PLAYTEST_MILES;
+    this.day = DEBUG_PLAYTEST_DAY;
+    this.triviaCorrect = this.debugPlaytestHopKingReady ? 5 : 4;
+    this.pace = "steady";
+    this.rations = "filling";
+    this.party = this.party.map((m) => ({ ...m, health: 100, alive: true }));
+    this.pendingRiver = null;
+    this.riverHandledForMiles = this.miles;
+    this.lastMilestoneAnnounced = Math.floor(this.miles / 100) * 100;
+    this.debugPlaytestApplied = true;
+    this.campFlash = `Playtest lane · ${Math.round((this.miles / TOTAL_TRAIL_MILES) * 100)}% trail · Quiz ✓ ${this.triviaCorrect} — Puyallup Hop King ${this.debugPlaytestHopKingReady ? "ON" : "OFF"} this run.`;
+  }
+
   /** Inputs for the overhead hunt canvas; safe to call when phase is overhead_hunt. */
   getHuntSessionOptions(): HuntSessionOptions {
     const ri = huntRegionIndexFromMiles(this.miles);
@@ -1010,6 +1063,12 @@ export class GameEngine {
   }
 
   private handleTravelMenu(n: number): void {
+    if (n === 9 && this.debugPlaytestApplied) {
+      this.campFlash = null;
+      this.miles = TOTAL_TRAIL_MILES;
+      this.phase = "land_pick";
+      return;
+    }
     if (n === 8 && this.giftShopBoostsUsed < MEEKER_GIFT_SHOP_USES_PER_RUN) {
       this.campFlash = null;
       this._giftShopReturnPhase = "travel_menu";

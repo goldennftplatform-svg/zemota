@@ -16,6 +16,7 @@ import {
 } from "./ui/trailMapPopup";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
+import { isDebugPlaytestWagonName } from "./game/debugPlaytest";
 import { renderTrailMinimap } from "./ui/trailMinimap";
 import {
   buildDashboardSidebar,
@@ -940,7 +941,11 @@ function render(): void {
     if (!partyField) return;
     const v = partyField.value.trim();
     if (engine.phase === "party_names" && v) {
-      if (trailDisplayInput) setDisplayName(trailDisplayInput.value.trim());
+      if (trailDisplayInput) {
+        const wagon = trailDisplayInput.value.trim();
+        setDisplayName(wagon);
+        if (isDebugPlaytestWagonName(wagon)) engine.armDebugPlaytest();
+      }
       engine.submitPartyNames(v);
       render();
     }
