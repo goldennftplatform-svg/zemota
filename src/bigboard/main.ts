@@ -66,7 +66,7 @@ function feedKindLabel(kind: string): string {
   return m[kind] ?? kind.replace(/_/g, " ");
 }
 
-/** Wagon marker on the usa-map raster (same trail knots as the in-game minimap). */
+/** Wagon marker on the Old Oregon Trail chart (St. Joseph → Oregon City). */
 function wagonPosition(miles: number): { left: string; top: string } {
   const { left, top } = trailBigboardOverlayPercent(miles);
   return { left: `${left}%`, top: `${top}%` };
@@ -245,12 +245,12 @@ function render(): void {
       </section>
       <div class="bb-main">
         <div class="bb-map-wrap">
-          <img class="bb-map__raster" src="${GAME_ART.usaMap}" alt="" aria-hidden="true" decoding="async" />
+          <img class="bb-map__raster" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
           <div class="bb-markers" id="markers">${lobbyHint}${markersHtml}</div>
           <div class="bb-map-labels">
-            <span>Oregon</span>
-            <span>The Oregon Trail</span>
-            <span>Ohio</span>
+            <span>Oregon City</span>
+            <span>The Old Oregon Trail</span>
+            <span>St. Joseph</span>
           </div>
         </div>
         <aside class="bb-feed" aria-label="Trail news">

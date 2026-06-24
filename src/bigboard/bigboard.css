@@ -526,10 +526,10 @@ body {
   height: 97%;
   object-fit: contain;
   object-position: center center;
-  opacity: 0.32;
+  opacity: 0.72;
   pointer-events: none;
   z-index: 0;
-  filter: saturate(0.85) contrast(1.08);
+  filter: contrast(1.04) saturate(0.92);
 }
 
 .bb-markers {
@@ -831,7 +831,7 @@ html.bb-wall .bb-vignette {
 }
 
 html.bb-wall .bb-map__raster {
-  opacity: 0.48;
+  opacity: 0.88;
   inset: 0.5% 2%;
   width: 96%;
   height: 98%;

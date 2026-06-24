@@ -1,89 +1,21 @@
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 
-/** Wider viewBox (same user coords as trail/art) so the map reads zoomed out with margin. */
+/** Minimap SVG viewport. */
 const VB = { x: -52, y: -42, w: 404, h: 256 };
 
-/** Stylized coords; trail runs east→west across a simplified U.S. silhouette. */
-const TRAIL_KNOTS: { miles: number; x: number; y: number }[] = [
-  { miles: 0, x: 248, y: 96 },
-  { miles: 320, x: 222, y: 88 },
-  { miles: 640, x: 196, y: 82 },
-  { miles: 980, x: 168, y: 78 },
-  { miles: 1400, x: 124, y: 72 },
-  { miles: 1700, x: 86, y: 70 },
-  { miles: TOTAL_TRAIL_MILES, x: 52, y: 76 },
-];
-
-/** Simplified lower-48 outline (decorative). */
-const US_SILHOUETTE =
-  "M 48 42 L 62 32 L 98 26 L 152 22 L 210 30 L 252 48 L 268 72 L 272 98 L 262 128 " +
-  "L 232 148 L 188 156 L 128 152 L 78 138 L 44 108 L 38 72 Z";
-
-/** Flat water shapes (Great Lakes + interior hints) — terraink-style dusty cyan. */
-const WATER_PATHS: string[] = [
-  "M 200 48 L 226 46 L 232 58 L 220 72 L 202 66 Z",
-  "M 214 58 L 234 56 L 238 72 L 224 82 L 208 76 Z",
-  "M 188 88 Q 206 84 214 98 L 198 108 L 174 100 Z",
-  "M 248 118 L 268 124 L 262 138 L 238 134 Z",
-];
-
-/** Pale “park / high country” patches — stronger in the west. */
-const PARK_PATHS: string[] = [
-  "M 40 44 L 102 40 L 118 72 L 92 98 L 44 88 Z",
-  "M 48 56 L 124 50 L 138 86 L 104 108 L 46 96 Z",
-  "M 56 68 L 112 64 L 122 94 L 84 112 L 52 102 Z",
-  "M 34 72 L 76 66 L 88 96 L 58 118 L 36 104 Z",
-];
-
-/** Thin schematic “highway” segments — hubs near jump-off and Oregon. */
-const HIGHWAY_POLYLINES: string[] = [
-  "236 90 252 96 266 102",
-  "236 90 222 82 208 88",
-  "236 90 228 104 218 112",
-  "248 96 238 108 226 118",
-  "196 82 210 76 222 70",
-  "196 82 182 88 168 94",
-  "168 78 154 82 142 88",
-  "124 72 110 76 98 82",
-  "86 70 72 74 60 80",
-  "52 76 64 68 78 62",
-  "52 76 44 86 38 96",
-  "52 76 66 84 82 92",
-  "248 96 232 88 218 84",
-  "210 30 198 38 186 46",
-  "152 22 160 34 168 44",
-];
-
-function trailPosition(miles: number): { x: number; y: number } {
-  const m = Math.max(0, Math.min(TOTAL_TRAIL_MILES, miles));
-  for (let i = 0; i < TRAIL_KNOTS.length - 1; i++) {
-    const a = TRAIL_KNOTS[i]!;
-    const b = TRAIL_KNOTS[i + 1]!;
-    if (m <= b.miles) {
-      const t = (m - a.miles) / Math.max(1, b.miles - a.miles);
-      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-    }
-  }
-  const last = TRAIL_KNOTS[TRAIL_KNOTS.length - 1]!;
-  return { x: last.x, y: last.y };
-}
-
-/** Same usa-map framing as the minimap SVG — for generic overlay math. */
-const USA_MAP_RASTER = { x: VB.x - 24, y: VB.y - 18, w: VB.w + 48, h: VB.h + 36 };
-
 /**
- * Bigboard wagon positions (% of map wrap) — calibrated to `usa-map.png` with
- * `object-fit: contain` (full lower-48 visible, Oregon west · Ohio east).
+ * Wagon positions on the vintage Oregon Trail map (% of image, object-fit contain).
+ * Mile 0 = St. Joseph (where the trail line begins on the chart).
  */
 const BIGBOARD_TRAIL_PCT: { miles: number; left: number; top: number }[] = [
-  { miles: 0, left: 71.5, top: 37.5 },
-  { miles: 320, left: 65.5, top: 38.5 },
-  { miles: 640, left: 58, top: 39.5 },
-  { miles: 980, left: 49, top: 39 },
-  { miles: 1400, left: 38.5, top: 38.5 },
-  { miles: 1700, left: 30, top: 39 },
-  { miles: TOTAL_TRAIL_MILES, left: 21.5, top: 40 },
+  { miles: 0, left: 85.2, top: 61.8 },
+  { miles: 320, left: 74.5, top: 58.2 },
+  { miles: 640, left: 67.8, top: 56.4 },
+  { miles: 980, left: 60.2, top: 54.6 },
+  { miles: 1400, left: 41.5, top: 51.8 },
+  { miles: 1700, left: 27.2, top: 49.6 },
+  { miles: TOTAL_TRAIL_MILES, left: 18.8, top: 52.4 },
 ];
 
 function interpolateBigboardPct(miles: number): { left: number; top: number } {
@@ -103,26 +35,25 @@ function interpolateBigboardPct(miles: number): { left: number; top: number } {
   return { left: last.left, top: last.top };
 }
 
-/** Trail miles → % on the bigboard map image (Ohio start · Oregon finish). */
+/** Trail miles → % on the Oregon Trail chart (St. Joseph → Oregon City). */
 export function trailBigboardOverlayPercent(miles: number): { left: number; top: number } {
   const { left, top } = interpolateBigboardPct(miles);
-  const bob = Math.sin(miles * 0.02) * 0.35;
+  const bob = Math.sin(miles * 0.02) * 0.28;
   return { left, top: top + bob };
 }
 
-/** @deprecated Use trailBigboardOverlayPercent on the projector map. */
-export function trailMapOverlayPercent(miles: number): { left: number; top: number } {
-  const { x, y } = trailPosition(miles);
-  const fracX = (x - USA_MAP_RASTER.x) / USA_MAP_RASTER.w;
-  const fracY = (y - USA_MAP_RASTER.y) / USA_MAP_RASTER.h;
-  const bob = Math.sin(miles * 0.02) * 0.012;
-  const left = Math.max(10, Math.min(90, fracX * 100));
-  const top = Math.max(14, Math.min(86, fracY * 100 + bob * 100));
-  return { left, top };
+function pctToSvg(left: number, top: number): { x: number; y: number } {
+  return {
+    x: VB.x + (left / 100) * VB.w,
+    y: VB.y + (top / 100) * VB.h,
+  };
 }
 
-function trailPolylinePoints(): string {
-  return TRAIL_KNOTS.map((p) => `${p.x},${p.y}`).join(" ");
+function trailChartPolyline(): string {
+  return BIGBOARD_TRAIL_PCT.map((p) => {
+    const s = pctToSvg(p.left, p.top);
+    return `${s.x.toFixed(1)},${s.y.toFixed(1)}`;
+  }).join(" ");
 }
 
 function escapeXml(s: string): string {
@@ -138,49 +69,29 @@ export function renderTrailMinimap(
   landmarkName: string,
   variant: "full" | "ribbon" = "full",
 ): string {
-  const { x, y } = trailPosition(miles);
+  const overlay = trailBigboardOverlayPercent(miles);
+  const { x, y } = pctToSvg(overlay.left, overlay.top);
   const pct = Math.round((miles / TOTAL_TRAIL_MILES) * 100);
-  const poly = trailPolylinePoints();
+  const poly = trailChartPolyline();
   const title = escapeXml(`Trail about ${pct}% complete, near ${landmarkName}`);
 
-  const waterLayers = WATER_PATHS.map(
-    (d) => `<path class="minimap-water" d="${d}" />`,
-  ).join("\n    ");
-  const parkLayers = PARK_PATHS.map((d) => `<path class="minimap-park" d="${d}" />`).join("\n    ");
-  const highwayLayers = HIGHWAY_POLYLINES.map(
-    (pts) => `<polyline class="minimap-highway" points="${pts}" fill="none" />`,
-  ).join("\n    ");
-
   const midX = VB.x + VB.w / 2;
-  const rightX = VB.x + VB.w - 10;
-  const bottomY = VB.y + VB.h - 8;
+  const start = pctToSvg(BIGBOARD_TRAIL_PCT[0]!.left, BIGBOARD_TRAIL_PCT[0]!.top);
+  const end = pctToSvg(
+    BIGBOARD_TRAIL_PCT[BIGBOARD_TRAIL_PCT.length - 1]!.left,
+    BIGBOARD_TRAIL_PCT[BIGBOARD_TRAIL_PCT.length - 1]!.top,
+  );
 
   return `
-<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress across the United States">
+<svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
   <title>${title}</title>
-  <defs>
-    <clipPath id="minimap-us-clip">
-      <path d="${US_SILHOUETTE}" />
-    </clipPath>
-  </defs>
   <rect class="minimap-frame" x="${VB.x + 0.5}" y="${VB.y + 0.5}" width="${VB.w - 1}" height="${VB.h - 1}" rx="10" ry="10" />
-  <g clip-path="url(#minimap-us-clip)">
-    <image class="minimap-map-raster" href="${GAME_ART.usaMap}" x="${VB.x - 24}" y="${VB.y - 18}" width="${VB.w + 48}" height="${VB.h + 36}" preserveAspectRatio="xMidYMid meet" />
-    <rect class="minimap-paper" x="${VB.x - 8}" y="${VB.y - 8}" width="${VB.w + 16}" height="${VB.h + 16}" />
-    ${waterLayers}
-    ${parkLayers}
-  </g>
-  <g class="minimap-highways" clip-path="url(#minimap-us-clip)">
-    ${highwayLayers}
-  </g>
-  <path class="minimap-coast" fill="none" d="${US_SILHOUETTE}" />
-  <polyline class="minimap-route" points="${poly}" fill="none" />
+  <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="${VB.x}" y="${VB.y}" width="${VB.w}" height="${VB.h}" preserveAspectRatio="xMidYMid meet" />
+  <polyline class="minimap-route minimap-route--chart" points="${poly}" fill="none" />
   <circle class="minimap-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" />
-  <line class="minimap-rule" x1="${VB.x + 28}" y1="${VB.y + 198}" x2="${VB.x + VB.w - 28}" y2="${VB.y + 198}" />
-  <text class="minimap-tag minimap-tag--e" x="258" y="112">MO</text>
-  <text class="minimap-tag minimap-tag--w" x="22" y="86">OR</text>
+  <text class="minimap-tag minimap-tag--e" x="${start.x.toFixed(1)}" y="${(start.y + 14).toFixed(1)}">St. Joseph</text>
+  <text class="minimap-tag minimap-tag--w" x="${(end.x - 4).toFixed(1)}" y="${(end.y + 12).toFixed(1)}">OR</text>
   <text class="minimap-pct" x="${midX.toFixed(1)}" y="${VB.y + 220}" text-anchor="middle">${pct}% trail</text>
-  ${variant === "full" ? `<text class="minimap-credit" x="${rightX.toFixed(1)}" y="${bottomY.toFixed(1)}" text-anchor="end">terraink.app</text>` : ""}
 </svg>
 `.trim();
 }

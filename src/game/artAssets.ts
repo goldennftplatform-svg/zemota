@@ -1,8 +1,11 @@
-/** Raster art served from `/public/art` (drunkcowboy game-over + pioneer, terraink-style US map). */
+/** Raster art served from `/public/art`. */
 export const GAME_ART = {
   drunkcowboyPioneer: "/art/drunkcowboy-pioneer.png",
   drunkcowboyGameOver: "/art/drunkcowboy-game-over.png",
+  /** Legacy pixel map — kept for reference; game UI uses oregonTrailMap. */
   usaMap: "/art/usa-map.png",
+  /** Vintage “Old Oregon Trail” chart — bigboard + minimap. */
+  oregonTrailMap: "/art/oregon-trail-map.png",
 } as const;
 
 /** Top-down hunt targets — retro SVG sprites. */

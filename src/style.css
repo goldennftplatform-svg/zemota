@@ -945,6 +945,14 @@ body {
   opacity: 0.2;
 }
 
+.minimap-map-raster--chart {
+  opacity: 0.95;
+}
+
+.minimap-route--chart {
+  display: none;
+}
+
 .minimap-paper {
   fill: #f0ece4;
   opacity: 0.42;
