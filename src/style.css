@@ -960,11 +960,10 @@ body {
 
 .dash-minimap-host {
   margin: 0;
-  filter: drop-shadow(0 0 12px rgba(0, 255, 119, 0.14));
   border-radius: 12px;
   overflow: hidden;
   max-height: min(42vw, 160px);
-  background: rgba(0, 8, 4, 0.35);
+  background: #000402;
 }
 
 .dash-minimap-host .minimap-svg {
@@ -1087,6 +1086,11 @@ body {
 
 .minimap-map-raster {
   opacity: 0.2;
+}
+
+.minimap-map-raster--chart {
+  opacity: 1;
+  filter: none;
 }
 
 .minimap-route--chart {

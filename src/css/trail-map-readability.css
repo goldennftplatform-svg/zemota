@@ -1,55 +1,48 @@
 /**
- * Trail chart readability — subtle label legibility for sidebar, land panel, and ribbon.
- * Natural map colors; no aggressive filters or neon glow.
+ * Trail chart minimap — crisp native PNG colors (green on black). Labels only; no raster filters.
  */
 
-/* —— Play client: minimap SVG —— */
 .minimap-svg {
   border: 3px solid var(--border);
   box-shadow:
     inset 0 0 0 1px rgba(26, 77, 46, 0.12),
     0 0 14px rgba(0, 255, 119, 0.07);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .minimap-frame--chart {
-  fill: #000806;
-  stroke: rgba(57, 255, 122, 0.45);
+  fill: #000402;
+  stroke: rgba(57, 255, 122, 0.35);
   stroke-width: 1;
 }
 
 .minimap-map-raster--chart {
-  opacity: 0.95;
-  filter: contrast(1.06);
-}
-
-.minimap-svg--ribbon .minimap-map-raster--chart {
-  filter: contrast(1.04);
-}
-
-.minimap-svg--land .minimap-map-raster--chart {
-  opacity: 0.95;
-  filter: contrast(1.05);
+  opacity: 1;
+  filter: none;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .minimap-tag {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.28em;
-  fill: #e8e6dc;
+  letter-spacing: 0.3em;
+  fill: #39ff7a;
   paint-order: stroke fill;
-  stroke: #1a2818;
-  stroke-width: 1.2px;
+  stroke: #000806;
+  stroke-width: 1px;
 }
 
 .minimap-pct {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  fill: #b8c8b4;
+  fill: #8fffb0;
   paint-order: stroke fill;
-  stroke: #1a2818;
-  stroke-width: 1px;
+  stroke: #000806;
+  stroke-width: 0.85px;
 }
 
 .minimap-dot {
@@ -65,12 +58,10 @@
   border-width: 2px;
 }
 
-/* —— Easy-read / mobile: modest bump only —— */
 html.emota-easy-read .minimap-tag {
-  font-size: 10.5px;
-  stroke-width: 1.4px;
+  font-size: 10px;
 }
 
 html.emota-easy-read .minimap-pct {
-  font-size: 10px;
+  font-size: 9.5px;
 }

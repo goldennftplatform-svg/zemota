@@ -69,7 +69,7 @@ export function renderTrailMinimap(
 <svg class="minimap-svg${variant === "ribbon" ? " minimap-svg--ribbon" : ""}${variant === "land" ? " minimap-svg--land" : ""}" viewBox="${VB.x} ${VB.y} ${VB.w} ${VB.h}" role="img" aria-label="Trail progress on the Old Oregon Trail map">
   <title>${title}</title>
   <rect class="minimap-frame minimap-frame--chart" x="0.5" y="0.5" width="${(MAP_W - 1).toFixed(1)}" height="${(MAP_H - 1).toFixed(1)}" rx="4" ry="4" />
-  <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="0" y="0" width="${MAP_W.toFixed(1)}" height="${MAP_H.toFixed(1)}" preserveAspectRatio="xMidYMid slice" />
+  <image class="minimap-map-raster minimap-map-raster--chart" href="${GAME_ART.oregonTrailMap}" x="0" y="0" width="${MAP_W.toFixed(1)}" height="${MAP_H.toFixed(1)}" preserveAspectRatio="xMidYMid meet" />
   <polyline class="minimap-route minimap-route--chart" points="${poly}" fill="none" />
   <circle class="minimap-dot" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" />
   <text class="minimap-tag minimap-tag--e" x="${start.x.toFixed(1)}" y="${(start.y + 12).toFixed(1)}">MO</text>
