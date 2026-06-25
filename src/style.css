@@ -779,10 +779,10 @@ body {
 
 .party-roster {
   display: grid;
-  grid-template-columns: repeat(5, var(--party-cell, 3.35rem));
+  grid-template-columns: repeat(5, var(--party-cell, 3.5rem));
   justify-content: space-between;
-  gap: 0.3rem;
-  padding: 0.45rem 0.5rem;
+  gap: 0.32rem;
+  padding: 0.5rem 0.5rem 0.55rem;
   background: var(--warm-wash), linear-gradient(165deg, var(--bg-tile-hi) 0%, var(--bg-tile) 100%);
   border: 2px solid color-mix(in srgb, var(--border) 78%, var(--warm-edge) 22%);
   border-radius: 10px;
@@ -790,7 +790,7 @@ body {
 }
 
 .party-roster--compact {
-  padding: 0.35rem 0.4rem;
+  padding: 0.35rem 0.4rem 0.5rem;
   gap: 0.25rem;
 }
 
@@ -809,9 +809,9 @@ body {
   align-items: center;
   justify-content: flex-start;
   gap: 0.18rem;
-  width: var(--party-cell, 3.35rem);
+  width: var(--party-cell, 3.5rem);
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
   color: var(--border-hi);
 }
 
@@ -840,7 +840,8 @@ body {
   letter-spacing: 0.02em;
   color: var(--text-dim);
   width: 100%;
-  max-width: var(--party-cell, 3.35rem);
+  max-width: var(--party-cell, 3.5rem);
+  padding-bottom: 0.05rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -962,6 +963,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  overflow: visible;
+}
+
+.dash-party-panel .party-roster {
+  padding-bottom: 0.6rem;
+  overflow: visible;
 }
 
 .dash-chip--roster {

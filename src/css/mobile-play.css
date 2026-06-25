@@ -181,7 +181,8 @@ html.emota-mobile .app-layout.is-camp .travel-menu-mobile-hud {
 }
 
 html.emota-mobile .app-layout.is-camp .tmh-inner {
-  padding: 0.4rem 0.45rem 0.42rem;
+  padding: 0.4rem 0.45rem 0.52rem;
+  overflow: visible;
 }
 
 html.emota-mobile .app-layout.is-camp .tmh-grid {
