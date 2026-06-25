@@ -13,6 +13,7 @@ import {
   startMeekerSpriteAnimations,
   syncBrandSealToTrail,
   hydrateBrandSeal,
+  startBrandSealWatch,
 } from "./ui/meekerSprites";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
@@ -56,6 +57,7 @@ import { showJourneyRecap } from "./ui/journeyRecap";
 
 initMobileShellClass();
 hydrateBrandSeal();
+startBrandSealWatch();
 persistTrailOriginFromQuery();
 void preloadHuntSprites();
 void preloadMeekerSprites();
@@ -1086,7 +1088,8 @@ function render(): void {
 
   startMeekerSpriteAnimations(document);
 
-  const trailPct = Math.round((engine.getDashboardSnapshot().miles / engine.getDashboardSnapshot().totalMiles) * 100);
+  const snap = engine.getDashboardSnapshot();
+  const trailPct = Math.round((snap.miles / Math.max(1, snap.totalMiles)) * 100);
   syncBrandSealToTrail(trailPct, sc.phase);
 }
 

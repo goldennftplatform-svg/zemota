@@ -18,6 +18,8 @@ interface KeyedSheet {
 }
 
 const timers = new WeakMap<HTMLElement, ReturnType<typeof setInterval>>();
+const mountGen = new WeakMap<HTMLElement, number>();
+const runningKey = new WeakMap<HTMLElement, string>();
 const keyedCache = new Map<MeekerSpriteId, KeyedSheet>();
 const keyedLoads = new Map<MeekerSpriteId, Promise<KeyedSheet | null>>();
 
@@ -137,20 +139,30 @@ export function renderMeekerSpriteHtml(
   return inner;
 }
 
-export function mountMeekerSprite(el: HTMLElement): void {
+function spriteRunKey(el: HTMLElement): string {
+  return `${el.dataset.meekerSprite ?? ""}:${el.dataset.meekerAnim ?? "idle-west"}`;
+}
+
+export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): void {
+  const id = el.dataset.meekerSprite as MeekerSpriteId | undefined;
+  if (!id || !MEEKER_SPRITE_SHEETS[id]) return;
+
+  const key = spriteRunKey(el);
+  if (!opts?.force && runningKey.get(el) === key && timers.has(el)) return;
+
   const prev = timers.get(el);
   if (prev) clearInterval(prev);
   timers.delete(el);
 
-  const id = el.dataset.meekerSprite as MeekerSpriteId | undefined;
-  if (!id || !MEEKER_SPRITE_SHEETS[id]) return;
+  const gen = (mountGen.get(el) ?? 0) + 1;
+  mountGen.set(el, gen);
 
   const anim = (el.dataset.meekerAnim as MeekerSpriteAnim | undefined) ?? "idle-west";
   const frames = framesForAnim(anim);
   let fi = 0;
 
   void loadKeyedSheet(id).then((keyed) => {
-    if (!keyed || !el.isConnected) return;
+    if (!keyed || !el.isConnected || mountGen.get(el) !== gen) return;
     const canvas = ensureCanvas(el);
 
     const tick = (): void => {
@@ -159,14 +171,18 @@ export function mountMeekerSprite(el: HTMLElement): void {
     };
 
     tick();
-    if (anim === "walk-west" && frames.length > 1) {
+    if (frames.length > 1) {
       timers.set(el, setInterval(tick, 220));
+      runningKey.set(el, key);
+    } else {
+      runningKey.set(el, key);
     }
   });
 }
 
 export function startMeekerSpriteAnimations(root: ParentNode = document): void {
   for (const el of root.querySelectorAll<HTMLElement>("[data-meeker-sprite]")) {
+    if (el.closest(".app-brand__seal")) continue;
     mountMeekerSprite(el);
   }
 }
@@ -210,7 +226,7 @@ export function hydrateBrandSeal(root: ParentNode = document): void {
   if (el) mountMeekerSprite(el);
 }
 
-/** Header Ezra ages as the wagon moves west. */
+/** Header Ezra ages as the wagon moves west — always walking. */
 export function syncBrandSealToTrail(trailPct: number, phase: string): void {
   const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
   if (!el) return;
@@ -223,12 +239,29 @@ export function syncBrandSealToTrail(trailPct: number, phase: string): void {
     phase === "profile" ||
     phase === "store";
 
-  const { id, anim } = onboard
-    ? { id: "hopKingYoung" as const, anim: "walk-west" as const }
-    : meekerSpriteForTrailPct(trailPct);
+  const id = onboard ? "hopKingYoung" : meekerSpriteForTrailPct(trailPct).id;
+  const anim: MeekerSpriteAnim = "walk-west";
 
-  if (el.dataset.meekerSprite === id && el.dataset.meekerAnim === anim) return;
-  el.dataset.meekerSprite = id;
+  if (el.dataset.meekerSprite !== id) {
+    el.dataset.meekerSprite = id;
+    el.dataset.meekerAnim = anim;
+    mountMeekerSprite(el, { force: true });
+    return;
+  }
+
   el.dataset.meekerAnim = anim;
-  mountMeekerSprite(el);
+  if (!timers.has(el)) mountMeekerSprite(el, { force: true });
+}
+
+let brandWatchStarted = false;
+
+/** Keep header Ezra walking even if something clears the interval. */
+export function startBrandSealWatch(): void {
+  if (brandWatchStarted) return;
+  brandWatchStarted = true;
+  window.setInterval(() => {
+    const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
+    if (!el) return;
+    if (!timers.has(el)) mountMeekerSprite(el, { force: true });
+  }, 2000);
 }
