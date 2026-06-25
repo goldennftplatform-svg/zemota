@@ -103,6 +103,7 @@ const PHASE_SOFT_FOOTER_EASY: Partial<Record<EnginePhase, string>> = {
   victory: "Tap Title when you’re done.",
   travel_log: "Tap Next to continue your journal.",
   trail_event: "Tap a choice to handle the event.",
+  trail_post: "Trading post — tap a deal or roll on.",
   river: "Tap how to cross the river.",
   trivia: "Tap an answer.",
   land_pick: "Tap a homestead choice.",

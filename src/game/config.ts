@@ -37,3 +37,6 @@ export const MEEKER_GIFT_SHOP_FOOD_LB = 100;
 
 /** Max gift-shop thank-you claims per trail run (camp + supply depot). */
 export const MEEKER_GIFT_SHOP_USES_PER_RUN = 2;
+
+/** Fraction of eligible trail landmarks that get a trading post each run (~½). */
+export const TRAIL_POST_STOP_FRACTION = 0.5;

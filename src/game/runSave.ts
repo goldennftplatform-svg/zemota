@@ -11,6 +11,7 @@ const RESUME_PHASE_LABEL: Record<string, string> = {
   travel_menu: "Camp",
   river: "River crossing",
   travel_log: "Journal",
+  trail_post: "Trading post",
   trail_event: "Trail event",
   overhead_hunt: "Hunting",
   chance_pick: "Games",

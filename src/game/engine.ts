@@ -34,6 +34,12 @@ import { resolveStage2Pick, type Stage2Outcome, type Stage2Pick } from "./stage2
 import { landmarkAtMiles, nextRiverAhead, LANDMARKS } from "./map";
 import { PROFILES, PROFILE_ORDER } from "./profiles";
 import { idealOutfitCostCents, priceAmmo, priceClothes, priceFood, priceOxen, priceParts } from "./store";
+import {
+  buildTrailPostOffers,
+  landmarksCrossed,
+  resolveTrailPostChoice,
+  rollTrailPostStops,
+} from "./trailPosts";
 import { pickTriviaForDay, TRIVIA_BANK, type TriviaItem } from "./trivia";
 import {
   pickMansionTimelineNote,
@@ -64,6 +70,7 @@ export type EnginePhase =
   | "travel_menu"
   | "river"
   | "travel_log"
+  | "trail_post"
   | "trail_event"
   | "overhead_hunt"
   | "chance_pick"
@@ -127,6 +134,7 @@ const VALID_RUN_PHASE = new Set<EnginePhase>([
   "travel_menu",
   "river",
   "travel_log",
+  "trail_post",
   "trail_event",
   "overhead_hunt",
   "chance_pick",
@@ -236,6 +244,14 @@ export class GameEngine {
   private debugPlaytestApplied = false;
   private debugPlaytestHopKingReady = false;
 
+  /** ~½ of eligible landmarks get a trading post this run (random per play). */
+  private trailPostPlanReady = false;
+  private runPostSeed = 0;
+  private trailPostStops = new Set<number>();
+  private crossedLandmarks = new Set<number>();
+  private pendingPostLandmarkIdx: number | null = null;
+  private pendingPostOffers: ReturnType<typeof buildTrailPostOffers> | null = null;
+
   private _pendingTravelInterstitial = false;
   private _pendingJourneyRecap = false;
 
@@ -261,6 +277,12 @@ export class GameEngine {
     this.pendingTravelBuffer = [];
     this.lastMilestoneAnnounced = 0;
     this.giftShopBoostsUsed = 0;
+    this.trailPostPlanReady = false;
+    this.runPostSeed = 0;
+    this.trailPostStops = new Set();
+    this.crossedLandmarks = new Set();
+    this.pendingPostLandmarkIdx = null;
+    this.pendingPostOffers = null;
   }
 
   peekPopup(): EmotaPopup | undefined {
@@ -577,6 +599,21 @@ export class GameEngine {
           ],
         };
 
+      case "trail_post": {
+        const idx = this.pendingPostLandmarkIdx ?? 0;
+        const L = LANDMARKS[idx]!;
+        const offers = this.pendingPostOffers ?? [];
+        return {
+          phase: "trail_post",
+          badge: "Trading post",
+          prompt: L.name,
+          coach:
+            "This landmark is a post on your run — quick deal, then back to the journal. Which posts open changes every play.",
+          lines: [L.blurb],
+          choices: offers.map((o) => ({ n: o.n, text: o.label })),
+        };
+      }
+
       case "trail_event": {
         const e = this.activeEncounter!;
         return {
@@ -851,6 +888,10 @@ export class GameEngine {
         this.handleRiver(n);
         break;
 
+      case "trail_post":
+        this.finishTrailPost(n);
+        break;
+
       case "travel_log":
         if (n === 1) {
           if (this.travelLogPhase === "show_teach") {
@@ -989,7 +1030,68 @@ export class GameEngine {
     this.riverHandledForMiles = this.miles;
     this.lastMilestoneAnnounced = Math.floor(this.miles / 100) * 100;
     this.debugPlaytestApplied = true;
+    this.initTrailPostPlan();
+    this.markLandmarksCrossedThrough(this.miles);
     this.campFlash = `Playtest lane · ${Math.round((this.miles / TOTAL_TRAIL_MILES) * 100)}% trail · Quiz ✓ ${this.triviaCorrect} — Puyallup Hop King ${this.debugPlaytestHopKingReady ? "ON" : "OFF"} this run.`;
+  }
+
+  /** Roll which ~½ of trail posts open this run (once per play). */
+  initTrailPostPlan(): void {
+    if (this.trailPostPlanReady) return;
+    this.runPostSeed = ((Date.now() ^ (Math.random() * 0x7fffffff)) >>> 0) || 1;
+    this.trailPostStops = new Set(rollTrailPostStops(this.runPostSeed));
+    this.trailPostPlanReady = true;
+  }
+
+  private markLandmarksCrossedThrough(miles: number): void {
+    for (const idx of landmarksCrossed(-1, miles)) this.crossedLandmarks.add(idx);
+  }
+
+  private openTrailPost(landmarkIdx: number, travelLogs: string[]): void {
+    this.pendingPostLandmarkIdx = landmarkIdx;
+    this.pendingPostOffers = buildTrailPostOffers(
+      landmarkIdx,
+      this.day,
+      this.runPostSeed,
+      this.profile,
+    );
+    this.pendingLog = travelLogs;
+    this.phase = "trail_post";
+  }
+
+  private finishTrailPost(choiceN: number): void {
+    const idx = this.pendingPostLandmarkIdx;
+    const offers = this.pendingPostOffers;
+    if (idx === null || !offers) {
+      this.phase = "travel_menu";
+      return;
+    }
+    const offer = offers.find((o) => o.n === choiceN) ?? offers.find((o) => o.kind === "pass")!;
+    const res = resolveTrailPostChoice({
+      kind: offer.kind,
+      landmarkIdx: idx,
+      day: this.day,
+      seed: this.runPostSeed,
+      profile: this.profile,
+      moneyCents: this.inv.moneyCents,
+      foodLbs: this.inv.foodLbs,
+      ammo: this.inv.ammo,
+      spareWheels: this.inv.spareWheels,
+    });
+    this.inv.moneyCents = res.moneyCents;
+    this.inv.foodLbs = res.foodLbs;
+    this.inv.ammo = res.ammo;
+    this.inv.spareWheels = res.spareWheels;
+    if (res.partyHealthBump > 0) {
+      for (const p of this.party) {
+        if (p.alive) p.health = Math.min(100, p.health + res.partyHealthBump);
+      }
+    }
+    const L = LANDMARKS[idx]!;
+    const logs = [`Trading post · ${L.name}`, "", ...res.lines, "", ...this.pendingLog];
+    this.pendingPostLandmarkIdx = null;
+    this.pendingPostOffers = null;
+    this.goToTravelLog(logs);
   }
 
   /** Inputs for the overhead hunt canvas; safe to call when phase is overhead_hunt. */
@@ -1040,6 +1142,7 @@ export class GameEngine {
         this.inv.oxen = 2;
         this.inv.foodLbs += 120;
       }
+      this.initTrailPostPlan();
       this.phase = "travel_menu";
       return;
     }
@@ -1179,6 +1282,7 @@ export class GameEngine {
     const hazard = this.pendingHazardMult;
     this.pendingHazardMult = 1;
 
+    const milesBefore = this.miles;
     const dist = this.milesPerDay();
     this.miles = Math.min(TOTAL_TRAIL_MILES, this.miles + dist);
     this.day++;
@@ -1225,6 +1329,14 @@ export class GameEngine {
       return;
     }
 
+    this.initTrailPostPlan();
+    let postLandmarkIdx: number | null = null;
+    for (const idx of landmarksCrossed(milesBefore, this.miles)) {
+      if (this.crossedLandmarks.has(idx)) continue;
+      this.crossedLandmarks.add(idx);
+      if (postLandmarkIdx === null && this.trailPostStops.has(idx)) postLandmarkIdx = idx;
+    }
+
     if (deathLines.length > 0) {
       const dysentery = deaths.some((d) => d.cause === "dysentery");
       this.pushPopup({
@@ -1239,6 +1351,10 @@ export class GameEngine {
     }
 
     this.pendingTravelBuffer = [...logs];
+    if (postLandmarkIdx !== null) {
+      this.openTrailPost(postLandmarkIdx, logs);
+      return;
+    }
     if (Math.random() < 0.3) {
       this.activeEncounter = pickEncounter();
       this.phase = "trail_event";
@@ -1633,6 +1749,11 @@ export class GameEngine {
       stage2Archetype: this.stage2Archetype,
       stage2Pending: this.stage2Pending,
       giftShopBoostsUsed: this.giftShopBoostsUsed,
+      trailPostPlanReady: this.trailPostPlanReady,
+      runPostSeed: this.runPostSeed,
+      trailPostStops: [...this.trailPostStops],
+      crossedLandmarks: [...this.crossedLandmarks],
+      pendingPostLandmarkIdx: this.pendingPostLandmarkIdx,
     });
   }
 
@@ -1779,6 +1900,43 @@ export class GameEngine {
       0,
       Math.min(MEEKER_GIFT_SHOP_USES_PER_RUN, int(o.giftShopBoostsUsed, 0)),
     );
+
+    this.trailPostPlanReady = bool(o.trailPostPlanReady, false);
+    this.runPostSeed = int(o.runPostSeed, 0);
+    const rawStops = o.trailPostStops;
+    this.trailPostStops = new Set(
+      Array.isArray(rawStops)
+        ? rawStops.map((x) => int(x, -1)).filter((i) => i >= 0 && i < LANDMARKS.length)
+        : [],
+    );
+    const rawCrossed = o.crossedLandmarks;
+    this.crossedLandmarks = new Set(
+      Array.isArray(rawCrossed)
+        ? rawCrossed.map((x) => int(x, -1)).filter((i) => i >= 0 && i < LANDMARKS.length)
+        : [],
+    );
+    const pendingPost = o.pendingPostLandmarkIdx;
+    this.pendingPostLandmarkIdx =
+      pendingPost === null || pendingPost === undefined
+        ? null
+        : (() => {
+            const i = int(pendingPost, -1);
+            return i >= 0 && i < LANDMARKS.length ? i : null;
+          })();
+    if (this.phase === "trail_post" && this.pendingPostLandmarkIdx !== null) {
+      this.pendingPostOffers = buildTrailPostOffers(
+        this.pendingPostLandmarkIdx,
+        this.day,
+        this.runPostSeed || 1,
+        this.profile,
+      );
+    } else {
+      this.pendingPostOffers = null;
+    }
+    if (!this.trailPostPlanReady && this.phase !== "title") {
+      this.initTrailPostPlan();
+      this.markLandmarksCrossedThrough(this.miles);
+    }
 
     this.chanceStakeCents = Math.max(0, int(o.chanceStakeCents, 2_00));
     this.lastChanceSummary = str(o.lastChanceSummary, "");

@@ -2,6 +2,7 @@ const CARD_PHASES = new Set([
   "training_quiz",
   "trivia",
   "trail_event",
+  "trail_post",
   "profile",
   "river",
   "land_pick",

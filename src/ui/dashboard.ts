@@ -12,6 +12,7 @@ const PHASE_LABEL: Record<string, string> = {
   travel_menu: "Camp",
   river: "River",
   travel_log: "Journal",
+  trail_post: "Trading post",
   trail_event: "Trail event",
   overhead_hunt: "Hunt",
   chance_pick: "Games",
