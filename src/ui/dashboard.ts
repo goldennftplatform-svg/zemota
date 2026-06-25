@@ -42,7 +42,7 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
     { compact: true, bare: true },
   );
   const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "walk-west",
+    anim: "idle-west",
     size: "share",
     className: "tmh-ezra",
     label: "Wagon leader — young Ezra Meeker",
@@ -163,7 +163,7 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
       ? `D${s.day} · ${Math.round(s.miles)} mi · Pace ${s.pace} · ${s.rations} · ${s.food} lb`
       : `Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}`;
   const ribbonEzra = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "walk-west",
+    anim: "idle-west",
     size: "ribbon",
     className: "trail-ribbon__ezra",
     label: "Young Ezra Meeker on the trail",

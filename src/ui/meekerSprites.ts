@@ -250,16 +250,17 @@ export function syncBrandSealToTrail(_trailPct: number, phase: string): void {
   if (!el) return;
 
   const { id, anim } = playerBoxMeekerSprite(phase);
+  const prevAnim = el.dataset.meekerAnim;
+  const prevId = el.dataset.meekerSprite;
 
-  if (el.dataset.meekerSprite !== id) {
-    el.dataset.meekerSprite = id;
-    el.dataset.meekerAnim = anim;
-    mountMeekerSprite(el, { force: true });
-    return;
-  }
-
+  el.dataset.meekerSprite = id;
   el.dataset.meekerAnim = anim;
-  if (!timers.has(el)) mountMeekerSprite(el, { force: true });
+
+  const walkTimerWhileIdle = anim === "idle-west" && timers.has(el);
+  const needsWalkRestart = anim === "walk-west" && !timers.has(el);
+  if (prevAnim !== anim || prevId !== id || walkTimerWhileIdle || needsWalkRestart) {
+    mountMeekerSprite(el, { force: true });
+  }
 }
 
 let brandWatchStarted = false;
