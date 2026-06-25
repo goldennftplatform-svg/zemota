@@ -1,4 +1,8 @@
-/* Compact top-left brand overlay — tight icon + title, no dead flex gap */
+/* Compact top-left brand overlay — text-only EMOTA on mobile; Ezra stays with party */
+
+html.emota-mobile .app-brand__seal {
+  display: none !important;
+}
 
 html.emota-mobile .app-header__row {
   justify-content: flex-start;
@@ -10,8 +14,14 @@ html.emota-mobile .app-header__row {
 html.emota-mobile .app-brand {
   flex: 0 0 auto;
   align-items: center;
-  gap: 0.35rem;
-  max-width: min(72%, calc(100% - 5.25rem));
+  gap: 0;
+  max-width: none;
+}
+
+html.emota-mobile .app-brand__title {
+  margin: 0;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 html.emota-mobile .app-brand__copy {
@@ -54,11 +64,11 @@ html.emota-mobile .app-layout.is-playing .app-header__inner {
 html.emota-mobile .app-layout.is-playing .app-header__row {
   display: flex !important;
   align-items: center;
-  gap: 0.28rem;
+  gap: 0;
   width: fit-content;
   max-width: calc(100% - 0.35rem);
   margin: 0;
-  padding: 0.18rem 0.42rem 0.16rem 0.28rem;
+  padding: 0.14rem 0.55rem 0.12rem 0.38rem;
   pointer-events: auto;
   background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(0, 12, 8, 0.98) 100%);
   border: 2px solid rgba(0, 255, 119, 0.28);
@@ -78,8 +88,17 @@ html.emota-mobile .app-layout.is-playing .app-brand {
 }
 
 html.emota-mobile .app-layout.is-playing .app-brand__title {
-  font-size: clamp(0.62rem, 2.6vw, 0.78rem);
-  letter-spacing: 0.08em;
+  font-size: clamp(0.68rem, 2.8vw, 0.82rem);
+  letter-spacing: 0.1em;
+}
+
+/* Desktop play: party panel has Ezra — drop duplicate header portrait */
+.app-layout.is-playing .app-brand__seal {
+  display: none !important;
+}
+
+.app-layout.is-playing .app-brand {
+  gap: 0;
 }
 
 html.emota-mobile .app-layout.is-playing .trail-ribbon-host {
