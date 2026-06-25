@@ -1,48 +1,68 @@
-/* Party roster — 72 random pioneer skins (replaces stick figures) */
+/* Party roster — 72 random pioneer skins */
+
+.party-roster {
+  --party-cell: 3.35rem;
+}
 
 .party-skin {
   position: relative;
-  display: block;
-  width: 100%;
-  max-width: 2.75rem;
-  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--party-cell);
+  height: calc(var(--party-cell) * 1.35);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .party-skin__canvas {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
-.party-roster--compact .party-skin {
-  max-width: 2.35rem;
-  height: 2.35rem;
+.party-roster--compact {
+  --party-cell: 2.85rem;
 }
 
-.party-roster--bare .party-skin {
-  max-width: 2.15rem;
-  height: 2.15rem;
+.party-roster--bare {
+  --party-cell: 2.55rem;
 }
 
 .party-roster__fig--gone .party-skin__canvas {
   filter: grayscale(1) brightness(0.7);
 }
 
-html.emota-mobile .party-skin {
-  max-width: 2.5rem;
-  height: 2.5rem;
+.party-roster .party-roster__fig {
+  border: 1px solid rgba(0, 255, 119, 0.2);
+  border-radius: 6px;
+  padding: 0.12rem 0.06rem 0.1rem;
+  background: rgba(0, 10, 6, 0.45);
+  box-sizing: border-box;
 }
 
-html.emota-mobile .party-roster--bare .party-skin {
-  max-width: 2.25rem;
-  height: 2.25rem;
+.party-roster--bare .party-roster__fig {
+  border-color: rgba(0, 255, 119, 0.14);
+  background: rgba(0, 8, 4, 0.25);
+}
+
+html.emota-mobile .party-roster {
+  --party-cell: 2.65rem;
+}
+
+html.emota-mobile .party-roster--bare {
+  --party-cell: 2.35rem;
+}
+
+.bb-dock__panel--party .party-roster {
+  --party-cell: 2.1rem;
 }
 
 .bb-dock__panel--party .party-skin {
-  max-width: 1.85rem;
-  height: 1.85rem;
+  height: calc(var(--party-cell) * 1.3);
 }

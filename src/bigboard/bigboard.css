@@ -818,7 +818,8 @@ html.bb-wall .bb-dock {
 
 .bb-dock__panel--party .party-roster {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, var(--party-cell, 2.1rem));
+  justify-content: space-between;
   gap: 0.2rem;
   padding: 0.25rem 0.15rem;
   margin: 0.15rem 0 0.25rem;

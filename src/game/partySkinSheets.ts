@@ -18,7 +18,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     src: "/art/sprites/party-skins/set-1.png",
     cols: 8,
     rows: 3,
-    cropTop: 96,
+    cropTop: 224,
     cellW: 128,
     cellH: 168,
   },
@@ -26,7 +26,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     src: "/art/sprites/party-skins/set-2.png",
     cols: 8,
     rows: 3,
-    cropTop: 96,
+    cropTop: 224,
     cellW: 128,
     cellH: 168,
   },
@@ -34,7 +34,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     src: "/art/sprites/party-skins/set-3.png",
     cols: 8,
     rows: 3,
-    cropTop: 96,
+    cropTop: 224,
     cellW: 128,
     cellH: 168,
   },
@@ -47,7 +47,9 @@ export function partySkinSheetIndex(skinId: number): number {
 export function partySkinCell(skinId: number): { col: number; row: number } {
   const cell = ((skinId % PARTY_SKIN_COUNT) + PARTY_SKIN_COUNT) % PARTY_SKIN_COUNT;
   const local = cell % PARTY_SKINS_PER_SHEET;
-  return { col: local % 8, row: Math.floor(local / 8) };
+  const sheet = PARTY_SKIN_SHEETS[partySkinSheetIndex(skinId)];
+  const cols = sheet?.cols ?? 8;
+  return { col: local % cols, row: Math.floor(local / cols) };
 }
 
 /** Stable skin pick from traveler name + roster slot. */
