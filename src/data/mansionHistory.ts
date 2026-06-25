@@ -11,9 +11,9 @@ export const MANSION_SHORT =
 /** Training slideshow — real history before the warm-up quiz. */
 export const TRAINING_MANSION_PAGES: string[][] = [
   [
-    "Ezra Morgan Meeker (1830–1928)",
-    "• 1852: Iowa to Oregon by ox wagon with wife Eliza Jane and baby Marion — arrived Portland nearly broke.",
-    "• 1862: homesteaded the Puyallup Valley; later cultivated 500+ acres of hops — the Pacific Northwest Hop King.",
+    "The trail is only half the story — hops are the punchline.",
+    "• 1852: Iowa to Oregon by ox wagon — Ezra Morgan Meeker (1830–1928) arrived Portland nearly broke.",
+    "• 1862+: homesteaded Puyallup; 500+ acres of hops — Pacific Northwest Hop King. Meeker Mansion (1890) is the real epilogue.",
   ],
   [
     "Save the Oregon Trail",
@@ -28,7 +28,7 @@ export const TRAINING_MANSION_PAGES: string[][] = [
 ];
 
 export const TRAINING_MANSION_COACH: string[] = [
-  "Real history from the Meeker Mansion museum — tap Next when ready.",
+  "Young Ezra at jump-off — the Oregon Trail gets you west; Puyallup hops and the mansion are why his name stuck.",
   "Daily quizzes pull from Ezra’s 1852 diary, hop boom, mansion, and trail-saving years.",
   "Three warm-up questions next, then you name your party and hit Independence.",
 ];

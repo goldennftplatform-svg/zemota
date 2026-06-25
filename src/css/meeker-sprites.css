@@ -92,6 +92,13 @@
 .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
   width: 2.35rem;
   height: 3.5rem;
+  animation: none;
+  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.35));
+}
+
+.app-layout.is-playing .meeker-sprite--juice,
+.app-layout.is-playing .dash-party-panel__ezra {
+  animation: none;
 }
 
 .app-layout.is-title .app-brand__seal .meeker-sprite--brand {
@@ -125,6 +132,14 @@
   flex-shrink: 0;
   animation: none;
   filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.4));
+}
+
+.meeker-sprite--ribbon {
+  width: 22px;
+  height: 33px;
+  flex-shrink: 0;
+  animation: none;
+  filter: drop-shadow(0 0 5px rgba(57, 255, 122, 0.35));
 }
 
 .screen-hero--title .meeker-stage {

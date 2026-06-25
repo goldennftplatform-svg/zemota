@@ -434,8 +434,20 @@ export class GameEngine {
       case "training_text": {
         const lines = TRAINING_INTRO_PAGES[this.trainingPage] ?? TRAINING_INTRO_PAGES[0]!;
         const coach = TRAINING_COACH[this.trainingPage] ?? TRAINING_COACH[0]!;
+        const isFirst = this.trainingPage === 0;
         return {
           phase: "training_text",
+          ...(isFirst
+            ? {
+                heroImage: {
+                  src: GAME_ART.hopKingYoungSheet,
+                  alt: "Young Ezra Meeker at jump-off — Hop King path",
+                  variant: "title",
+                  meekerSprite: "hopKingYoung",
+                  meekerAnim: "walk-west",
+                },
+              }
+            : {}),
           lines,
           coach,
           choices: [
@@ -704,9 +716,18 @@ export class GameEngine {
           phase: "land_pick",
           badge: "Homestead choice",
           prompt: "Where does your story land?",
-          coach: "Ezra filed donation claims near Puyallup — patents took twenty years. Pick your epilogue path.",
+          heroImage: {
+            src: GAME_ART.hopKingYoungSheet,
+            alt: "Young Ezra Meeker — hops are the real story",
+            variant: "title",
+            meekerSprite: "hopKingYoung",
+            meekerAnim: "walk-west",
+          },
+          coach:
+            "Gotcha: the trail is only half the story — Puyallup hops and Meeker Mansion are Ezra’s punchline.",
           lines: [
-            "Oregon donation · slow prove-up · Puget Sound fees · or Puyallup hops toward Meeker Mansion country.",
+            "You made Oregon. Now pick your epilogue — donation claim, slow prove-up, Puget Sound fees, or Puyallup hops toward Hop King country.",
+            "Ezra filed near Puyallup; patents took twenty years. The mansion on Spring Street was always the payoff.",
           ],
           choices: [
             { n: 1, text: "Oregon donation claim" },
@@ -727,28 +748,56 @@ export class GameEngine {
           choices: [{ n: 1, text: "Skip build" }],
         };
 
-      case "land_result":
+      case "land_result": {
+        const hop = this.lastLandResult?.hopKing ?? false;
         return {
           phase: "land_result",
-          coach:
-            "Claim filed. Next: Stage 2 — how you make a life out here. That bonus stacks on your contest score.",
+          ...(hop
+            ? {
+                heroImage: {
+                  src: GAME_ART.hopKingYoungSheet,
+                  alt: "Young Hop King — Puyallup hops",
+                  variant: "title",
+                  meekerSprite: "hopKingYoung",
+                  meekerAnim: "walk-west",
+                },
+              }
+            : {}),
+          coach: hop
+            ? "Hop King path locked — Stage 2 stacks on your contest score. The trail was the setup; hops are the story."
+            : "Claim filed. Next: Stage 2 — how you make a life out here. That bonus stacks on your contest score.",
           lines: [
             this.lastLandResult?.title ?? "Land",
             "",
             this.lastLandResult?.body ?? "",
             "",
-            this.lastLandResult?.hopKing ? "Hop King ending · Ezra’s Puyallup thread" : "",
+            hop ? "Hop King ending · Ezra’s Puyallup thread" : "",
             "",
             "— Stage 2 · after Oregon —",
             "Pick how you lean into the Sound country. Points add to today’s contest total.",
           ].filter(Boolean),
           choices: [{ n: 1, text: "Choose your next act" }],
         };
+      }
 
-      case "bonus_pick":
+      case "bonus_pick": {
+        const hop = this.lastLandResult?.hopKing ?? false;
         return {
           phase: "bonus_pick",
-          coach: "One pick — crisp paths, Meeker-era flavor. Highest scores help crown “today’s run” on a shared trail.",
+          ...(hop
+            ? {
+                heroImage: {
+                  src: GAME_ART.hopKingYoungSheet,
+                  alt: "Young Hop King — choose your next act",
+                  variant: "title",
+                  meekerSprite: "hopKingYoung",
+                  meekerAnim: "idle-west",
+                },
+              }
+            : {}),
+          coach: hop
+            ? "Hop King thread — pick how you lean into Puyallup. Highest scores crown today’s run on the live board."
+            : "One pick — crisp paths, Meeker-era flavor. Highest scores help crown “today’s run” on a shared trail.",
           lines: [
             "The trail ended; the ledger didn’t.",
             "What kind of name do you carve beside the hop yards and mud streets?",
@@ -761,11 +810,24 @@ export class GameEngine {
             { n: 5, text: "5 · Quiet acre — no headlines" },
           ],
         };
+      }
 
       case "bonus_result": {
         const p = this.stage2Pending;
+        const hop = this.lastLandResult?.hopKing ?? false;
         return {
           phase: "bonus_result",
+          ...(hop && p?.pick === "hop_push"
+            ? {
+                heroImage: {
+                  src: GAME_ART.hopKingYoungSheet,
+                  alt: "Young Hop King of the valley",
+                  variant: "title",
+                  meekerSprite: "hopKingYoung",
+                  meekerAnim: "walk-west",
+                },
+              }
+            : {}),
           coach: "Bonus locked in — final score includes land claim + this act.",
           lines: p
             ? [`${p.title} · +${p.scoreBonus} pts`, "", ...p.lines]

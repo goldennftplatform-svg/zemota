@@ -41,6 +41,12 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
     s.party.map((p) => ({ name: p.name, alive: p.alive })),
     { compact: true, bare: true },
   );
+  const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
+    anim: "walk-west",
+    size: "share",
+    className: "tmh-ezra",
+    label: "Wagon leader — young Ezra Meeker",
+  });
 
   return `
     <div class="tmh-inner" role="region" aria-label="Camp status">
@@ -55,8 +61,13 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
         <div class="tmh-stat"><span class="tmh-k">Day</span><span class="tmh-v">${s.day}/${s.maxDays}</span></div>
         <div class="tmh-stat"><span class="tmh-k">Party</span><span class="tmh-v">${s.alive}/${s.partyCap}</span></div>
       </div>
-      <p class="tmh-crew-label">Crew</p>
-      <div class="tmh-crew">${crew}</div>
+      <div class="tmh-crew-block">
+        <p class="tmh-crew-label">Crew</p>
+        <div class="tmh-crew-row">
+          ${leaderSprite}
+          <div class="tmh-crew">${crew}</div>
+        </div>
+      </div>
     </div>
   `.trim();
 }
@@ -88,7 +99,7 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
   );
 
   const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "walk-west",
+    anim: "idle-west",
     size: "share",
     className: "dash-party-panel__ezra",
     label: "Your wagon leader — young Ezra Meeker",
@@ -151,6 +162,13 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
     phase === "travel_menu"
       ? `D${s.day} · ${Math.round(s.miles)} mi · Pace ${s.pace} · ${s.rations} · ${s.food} lb`
       : `Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}`;
+  const ribbonEzra = renderMeekerSpriteHtml("hopKingYoung", {
+    anim: "walk-west",
+    size: "ribbon",
+    className: "trail-ribbon__ezra",
+    label: "Young Ezra Meeker on the trail",
+    juice: false,
+  });
 
   return `
     <div class="trail-ribbon" role="region" aria-label="Trail progress">
@@ -158,9 +176,12 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
         ${minimap}
       </button>
       <div class="trail-ribbon__meta">
-        <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>
-        <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>
-        <p class="trail-ribbon__stats">${escapeHtml(stats)}</p>
+        <div class="trail-ribbon__meta-text">
+          <span class="trail-ribbon__chip">${escapeHtml(chip)}</span>
+          <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>
+          <p class="trail-ribbon__stats">${escapeHtml(stats)}</p>
+        </div>
+        ${ribbonEzra}
       </div>
     </div>
   `.trim();

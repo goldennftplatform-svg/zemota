@@ -54,7 +54,7 @@ export interface EmotaPopup {
   art: string;
   body: string[];
   vibe: PopupVibe;
-  /** When set, shown instead of ASCII `art` (e.g. drunkcowboy pioneer / game-over). */
+  /** When set, shown instead of ASCII `art` (legacy static image fallback). */
   imageSrc?: string;
   imageAlt?: string;
   imageVariant?: "pioneer" | "game-over";

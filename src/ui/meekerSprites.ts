@@ -1,6 +1,8 @@
 import {
   MEEKER_IDLE_WEST_FRAME,
   MEEKER_SPRITE_SHEETS,
+  MEEKER_WALK_FRAME_MS,
+  MEEKER_WALK_FRAME_MS_PLAY,
   MEEKER_WALK_WEST_FRAMES,
   playerBoxMeekerSprite,
   type MeekerSpriteAnim,
@@ -77,6 +79,25 @@ function framesForAnim(anim: MeekerSpriteAnim): readonly number[] {
   return anim === "walk-west" ? MEEKER_WALK_WEST_FRAMES : [MEEKER_IDLE_WEST_FRAME];
 }
 
+function isEzraCharacter(id: MeekerSpriteId | undefined): boolean {
+  return id === "hopKingYoung" || id === "ezraElder";
+}
+
+/** Ezra characters stay static during play; walk only on title / boot / recap. */
+function effectiveAnim(el: HTMLElement, anim: MeekerSpriteAnim): MeekerSpriteAnim {
+  if (anim !== "walk-west" || !isEzraCharacter(el.dataset.meekerSprite as MeekerSpriteId | undefined)) {
+    return anim;
+  }
+  if (el.closest(".journey-recap, .emota-boot, .app-layout.is-title")) return anim;
+  if (el.closest(".app-layout.is-playing")) return "idle-west";
+  return anim;
+}
+
+function walkFrameMs(el: HTMLElement): number {
+  if (el.closest(".app-layout.is-playing")) return MEEKER_WALK_FRAME_MS_PLAY;
+  return MEEKER_WALK_FRAME_MS;
+}
+
 function ensureCanvas(el: HTMLElement): HTMLCanvasElement {
   let canvas = el.querySelector<HTMLCanvasElement>("canvas.meeker-sprite__canvas");
   if (!canvas) {
@@ -119,7 +140,7 @@ export function renderMeekerSpriteHtml(
   id: MeekerSpriteId,
   opts?: {
     anim?: MeekerSpriteAnim;
-    size?: "hero" | "brand" | "wagon" | "popup" | "recap" | "share";
+    size?: "hero" | "brand" | "wagon" | "popup" | "recap" | "share" | "ribbon";
     className?: string;
     label?: string;
     juice?: boolean;
@@ -139,16 +160,14 @@ export function renderMeekerSpriteHtml(
   return inner;
 }
 
-function spriteRunKey(el: HTMLElement): string {
-  return `${el.dataset.meekerSprite ?? ""}:${el.dataset.meekerAnim ?? "idle-west"}`;
-}
-
 export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): void {
   const id = el.dataset.meekerSprite as MeekerSpriteId | undefined;
   if (!id || !MEEKER_SPRITE_SHEETS[id]) return;
 
-  const key = spriteRunKey(el);
-  if (!opts?.force && runningKey.get(el) === key && timers.has(el)) return;
+  const requested = (el.dataset.meekerAnim as MeekerSpriteAnim | undefined) ?? "idle-west";
+  const anim = effectiveAnim(el, requested);
+  const key = `${id}:${anim}`;
+  if (!opts?.force && runningKey.get(el) === key && (anim === "idle-west" || timers.has(el))) return;
 
   const prev = timers.get(el);
   if (prev) clearInterval(prev);
@@ -157,7 +176,6 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
   const gen = (mountGen.get(el) ?? 0) + 1;
   mountGen.set(el, gen);
 
-  const anim = (el.dataset.meekerAnim as MeekerSpriteAnim | undefined) ?? "idle-west";
   const frames = framesForAnim(anim);
   let fi = 0;
 
@@ -172,7 +190,7 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
 
     tick();
     if (frames.length > 1) {
-      timers.set(el, setInterval(tick, 220));
+      timers.set(el, setInterval(tick, walkFrameMs(el)));
       runningKey.set(el, key);
     } else {
       runningKey.set(el, key);
@@ -226,12 +244,12 @@ export function hydrateBrandSeal(root: ParentNode = document): void {
   if (el) mountMeekerSprite(el);
 }
 
-/** Young Hop King in the header — walks forever; never ages mid-run. */
-export function syncBrandSealToTrail(_trailPct: number, _phase: string): void {
+/** Young Hop King in the header — walks on title only; static idle during play. */
+export function syncBrandSealToTrail(_trailPct: number, phase: string): void {
   const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
   if (!el) return;
 
-  const { id, anim } = playerBoxMeekerSprite();
+  const { id, anim } = playerBoxMeekerSprite(phase);
 
   if (el.dataset.meekerSprite !== id) {
     el.dataset.meekerSprite = id;
@@ -246,13 +264,25 @@ export function syncBrandSealToTrail(_trailPct: number, _phase: string): void {
 
 let brandWatchStarted = false;
 
-/** Keep header Ezra walking even if something clears the interval. */
+/** Keep header Ezra drawn; never restart walk loop during play. */
 export function startBrandSealWatch(): void {
   if (brandWatchStarted) return;
   brandWatchStarted = true;
   window.setInterval(() => {
     const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
     if (!el) return;
-    if (!timers.has(el)) mountMeekerSprite(el, { force: true });
+    const playing = !!document.querySelector(".app-layout.is-playing");
+    if (playing && el.dataset.meekerAnim === "walk-west") {
+      el.dataset.meekerAnim = "idle-west";
+      mountMeekerSprite(el, { force: true });
+      return;
+    }
+    if (!el.querySelector("canvas.meeker-sprite__canvas")) {
+      mountMeekerSprite(el, { force: true });
+      return;
+    }
+    if (!playing && el.dataset.meekerAnim === "walk-west" && !timers.has(el)) {
+      mountMeekerSprite(el, { force: true });
+    }
   }, 2000);
 }
