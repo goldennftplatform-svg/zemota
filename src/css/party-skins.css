@@ -1,0 +1,48 @@
+/* Party roster — 72 random pioneer skins (replaces stick figures) */
+
+.party-skin {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+}
+
+.party-skin__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+
+.party-roster--compact .party-skin {
+  max-width: 2.35rem;
+  height: 2.35rem;
+}
+
+.party-roster--bare .party-skin {
+  max-width: 2.15rem;
+  height: 2.15rem;
+}
+
+.party-roster__fig--gone .party-skin__canvas {
+  filter: grayscale(1) brightness(0.7);
+}
+
+html.emota-mobile .party-skin {
+  max-width: 2.5rem;
+  height: 2.5rem;
+}
+
+html.emota-mobile .party-roster--bare .party-skin {
+  max-width: 2.25rem;
+  height: 2.25rem;
+}
+
+.bb-dock__panel--party .party-skin {
+  max-width: 1.85rem;
+  height: 1.85rem;
+}

@@ -54,6 +54,7 @@ import { calendarDayKeyPST, todayCalendarKeyPST } from "./game/pstDate";
 import { getTravelerNumber } from "./game/playerNumber";
 import { showTrailInterstitial } from "./ui/trailInterstitial";
 import { showJourneyRecap } from "./ui/journeyRecap";
+import { hydratePartySkins, preloadPartySkinSheets } from "./ui/partyFigures";
 
 initMobileShellClass();
 hydrateBrandSeal();
@@ -61,6 +62,7 @@ startBrandSealWatch();
 persistTrailOriginFromQuery();
 void preloadHuntSprites();
 void preloadMeekerSprites();
+void preloadPartySkinSheets();
 
 declare global {
   interface Window {
@@ -645,6 +647,7 @@ function refreshPopupOverlay(): void {
   popupRoot.querySelector("[data-close]")?.addEventListener("click", close);
   (popupRoot.querySelector(".emota-popup__ok") as HTMLButtonElement | null)?.focus();
   startMeekerSpriteAnimations(popupRoot);
+  hydratePartySkins(popupRoot);
 }
 
 function render(): void {
@@ -1087,6 +1090,7 @@ function render(): void {
   });
 
   startMeekerSpriteAnimations(document);
+  hydratePartySkins(document);
 
   const snap = engine.getDashboardSnapshot();
   const trailPct = Math.round((snap.miles / Math.max(1, snap.totalMiles)) * 100);

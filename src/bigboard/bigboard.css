@@ -836,10 +836,10 @@ html.bb-wall .bb-dock {
   color: var(--bb-hi);
 }
 
-.bb-dock__panel--party .party-stick {
+.bb-dock__panel--party .party-skin {
   width: 100%;
-  max-width: 1.65rem;
-  height: auto;
+  max-width: 1.85rem;
+  height: 1.85rem;
   display: block;
 }
 

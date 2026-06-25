@@ -21,7 +21,7 @@ import {
   renderMeekerSpriteHtml,
   startMeekerSpriteAnimations,
 } from "../ui/meekerSprites";
-import { renderPartyRoster } from "../ui/partyFigures";
+import { renderPartyRoster, hydratePartySkins } from "../ui/partyFigures";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
 
@@ -506,6 +506,7 @@ function render(): void {
   }
   scheduleWagonLayout();
   startMeekerSpriteAnimations(app);
+  hydratePartySkins(app);
 }
 
 function showBigPopup(ev: TrailFeedEvent): void {
