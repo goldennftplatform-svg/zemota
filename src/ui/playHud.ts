@@ -61,10 +61,10 @@ export function buildSupplyStrip(s: DashboardSnapshot, phase: string): string {
   }
 
   const cells = [
-    `<div class="supply-cell supply-cell--cash"><span class="supply-cell__k">Cash</span><span class="supply-cell__v">${escapeHtml(s.money)}</span></div>`,
     `<div class="supply-cell"><span class="supply-cell__k">Oxen</span><span class="supply-cell__v">${s.oxen}</span></div>`,
     `<div class="supply-cell"><span class="supply-cell__k">Food</span><span class="supply-cell__v">${s.food} lb</span></div>`,
     `<div class="supply-cell"><span class="supply-cell__k">Ammo</span><span class="supply-cell__v">${s.ammo}</span></div>`,
+    `<div class="supply-cell supply-cell--cash"><span class="supply-cell__k">Cash</span><span class="supply-cell__v">${escapeHtml(s.money)}</span></div>`,
     `<div class="supply-cell"><span class="supply-cell__k">Clothes</span><span class="supply-cell__v">${s.clothes}</span></div>`,
     `<div class="supply-cell supply-cell--wide"><span class="supply-cell__k">Spare parts</span><span class="supply-cell__v">${escapeHtml(s.spareParts)}</span></div>`,
   ];

@@ -107,9 +107,8 @@
 }
 
 .supply-cell--cash {
-  grid-column: span 3;
-  border-color: rgba(57, 255, 122, 0.45);
-  background: rgba(0, 255, 119, 0.08);
+  border-color: rgba(0, 168, 77, 0.28);
+  background: rgba(0, 0, 0, 0.28);
 }
 
 .supply-cell--wide {
@@ -134,9 +133,10 @@
 }
 
 .supply-cell--cash .supply-cell__v {
-  font-size: 1.55rem;
-  font-family: var(--font-head);
-  letter-spacing: 0.04em;
+  font-size: 1.05rem;
+  font-family: var(--font);
+  letter-spacing: 0;
+  color: var(--text);
 }
 
 .store-tip {
@@ -240,7 +240,6 @@ html.emota-mobile .supply-strip__grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-html.emota-mobile .supply-cell--cash,
 html.emota-mobile .supply-cell--wide {
   grid-column: span 2;
 }
