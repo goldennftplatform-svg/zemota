@@ -1,7 +1,6 @@
 import type { DashboardSnapshot } from "../game/types";
 import { renderPartyRoster } from "./partyFigures";
 import { renderTrailMinimap } from "./trailMinimap";
-import { renderMeekerSpriteHtml } from "./meekerSprites";
 
 const PHASE_LABEL: Record<string, string> = {
   training_text: "Training",
@@ -41,12 +40,6 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
     s.party.map((p) => ({ name: p.name, alive: p.alive })),
     { compact: true, bare: true },
   );
-  const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "idle-west",
-    size: "share",
-    className: "tmh-ezra",
-    label: "Wagon leader — young Ezra Meeker",
-  });
 
   return `
     <div class="tmh-inner" role="region" aria-label="Camp status">
@@ -64,7 +57,6 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
       <div class="tmh-crew-block">
         <p class="tmh-crew-label">Crew</p>
         <div class="tmh-crew-row">
-          ${leaderSprite}
           <div class="tmh-crew">${crew}</div>
         </div>
       </div>
@@ -98,13 +90,6 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
     s.party.map((p) => ({ name: p.name, alive: p.alive })),
   );
 
-  const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "idle-west",
-    size: "share",
-    className: "dash-party-panel__ezra",
-    label: "Your wagon leader — young Ezra Meeker",
-  });
-
   return `
     <div class="dash-wrap">
       <header class="dash-head">
@@ -113,10 +98,7 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
         </div>
         <div class="dash-party-panel" aria-label="Party roster">
-          <div class="dash-party-panel__lead">
-            ${leaderSprite}
-            <span class="dash-chip dash-chip--roster">Party · ${s.alive}/${s.partyCap}</span>
-          </div>
+          <span class="dash-chip dash-chip--roster">Party · ${s.alive}/${s.partyCap}</span>
           ${partyHtml}
         </div>
         <button type="button" class="trail-map-trigger dash-minimap-host" data-trail-map-open aria-label="View your wagon on the trail map">

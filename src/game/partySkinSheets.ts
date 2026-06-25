@@ -1,4 +1,4 @@
-/** 72 pioneer portraits — 24 per sheet × 3 sets (8×3 grid below title band). */
+/** 72 pioneer portraits — 24 per sheet × 3 sets (8 cols × 3 rows below title; 168px row height). */
 
 export interface PartySkinSheet {
   src: string;
@@ -20,7 +20,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     rows: 3,
     cropTop: 96,
     cellW: 128,
-    cellH: 224,
+    cellH: 168,
   },
   {
     src: "/art/sprites/party-skins/set-2.png",
@@ -28,7 +28,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     rows: 3,
     cropTop: 96,
     cellW: 128,
-    cellH: 224,
+    cellH: 168,
   },
   {
     src: "/art/sprites/party-skins/set-3.png",
@@ -36,7 +36,7 @@ export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
     rows: 3,
     cropTop: 96,
     cellW: 128,
-    cellH: 224,
+    cellH: 168,
   },
 ];
 

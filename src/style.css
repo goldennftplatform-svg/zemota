@@ -954,22 +954,11 @@ body {
   margin-top: 0.35rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-}
-
-.dash-party-panel__lead {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.4rem;
-}
-
-.dash-party-panel__ezra {
-  flex-shrink: 0;
-  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.4));
+  gap: 0.3rem;
 }
 
 .dash-chip--roster {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 
 .dash-minimap-host {
