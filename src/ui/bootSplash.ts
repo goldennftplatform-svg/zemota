@@ -79,6 +79,7 @@ export async function runBootSplash(): Promise<void> {
     spriteHost.innerHTML = renderMeekerSpriteHtml("hopKingYoung", {
       anim: "walk-west",
       size: "hero",
+      stage: true,
     });
     startMeekerSpriteAnimations(spriteHost);
   }

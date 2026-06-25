@@ -2,52 +2,139 @@ import {
   MEEKER_IDLE_WEST_FRAME,
   MEEKER_SPRITE_SHEETS,
   MEEKER_WALK_WEST_FRAMES,
+  meekerSpriteForTrailPct,
   type MeekerSpriteAnim,
   type MeekerSpriteId,
   type MeekerSpriteSheet,
 } from "../game/meekerSpriteSheets";
 import "../css/meeker-sprites.css";
 
-const timers = new WeakMap<HTMLElement, ReturnType<typeof setInterval>>();
-
-function frameBgPosition(frameIndex: number, sheet: MeekerSpriteSheet): string {
-  const col = frameIndex % sheet.cols;
-  const row = Math.floor(frameIndex / sheet.cols);
-  const x = sheet.cols <= 1 ? 0 : (col / (sheet.cols - 1)) * 100;
-  const y = sheet.rows <= 1 ? 0 : (row / (sheet.rows - 1)) * 100;
-  return `${x}% ${y}%`;
+interface KeyedSheet {
+  canvas: HTMLCanvasElement;
+  cols: number;
+  rows: number;
+  frameW: number;
+  frameH: number;
 }
 
-export function applyMeekerSpriteFrame(
-  el: HTMLElement,
-  sheet: MeekerSpriteSheet,
-  frameIndex: number,
-): void {
-  el.style.backgroundImage = `url(${sheet.src})`;
-  el.style.backgroundSize = `${sheet.cols * 100}% ${sheet.rows * 100}%`;
-  el.style.backgroundPosition = frameBgPosition(frameIndex, sheet);
-  el.style.backgroundRepeat = "no-repeat";
+const timers = new WeakMap<HTMLElement, ReturnType<typeof setInterval>>();
+const keyedCache = new Map<MeekerSpriteId, KeyedSheet>();
+const keyedLoads = new Map<MeekerSpriteId, Promise<KeyedSheet | null>>();
+
+function keyWhiteSheet(img: HTMLImageElement, sheet: MeekerSpriteSheet): KeyedSheet {
+  const frameW = Math.floor(img.naturalWidth / sheet.cols);
+  const frameH = Math.floor(img.naturalHeight / sheet.rows);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) {
+    return { canvas, cols: sheet.cols, rows: sheet.rows, frameW, frameH };
+  }
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const r = px[i]!;
+    const g = px[i + 1]!;
+    const b = px[i + 2]!;
+    if (r > 238 && g > 238 && b > 238) {
+      px[i + 3] = 0;
+    } else if (r > 215 && g > 215 && b > 215) {
+      px[i + 3] = Math.round(px[i + 3]! * 0.25);
+    }
+  }
+  ctx.putImageData(data, 0, 0);
+  return { canvas, cols: sheet.cols, rows: sheet.rows, frameW, frameH };
+}
+
+function loadKeyedSheet(id: MeekerSpriteId): Promise<KeyedSheet | null> {
+  const cached = keyedCache.get(id);
+  if (cached) return Promise.resolve(cached);
+
+  const pending = keyedLoads.get(id);
+  if (pending) return pending;
+
+  const promise = new Promise<KeyedSheet | null>((resolve) => {
+    const def = MEEKER_SPRITE_SHEETS[id];
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => {
+      const keyed = keyWhiteSheet(img, def);
+      keyedCache.set(id, keyed);
+      resolve(keyed);
+    };
+    img.onerror = () => resolve(null);
+    img.src = def.src;
+  });
+  keyedLoads.set(id, promise);
+  return promise;
 }
 
 function framesForAnim(anim: MeekerSpriteAnim): readonly number[] {
   return anim === "walk-west" ? MEEKER_WALK_WEST_FRAMES : [MEEKER_IDLE_WEST_FRAME];
 }
 
+function ensureCanvas(el: HTMLElement): HTMLCanvasElement {
+  let canvas = el.querySelector<HTMLCanvasElement>("canvas.meeker-sprite__canvas");
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    canvas.className = "meeker-sprite__canvas";
+    el.appendChild(canvas);
+  }
+  return canvas;
+}
+
+function drawSpriteFrame(
+  target: HTMLCanvasElement,
+  keyed: KeyedSheet,
+  frameIndex: number,
+): void {
+  const col = frameIndex % keyed.cols;
+  const row = Math.floor(frameIndex / keyed.cols);
+  if (target.width !== keyed.frameW || target.height !== keyed.frameH) {
+    target.width = keyed.frameW;
+    target.height = keyed.frameH;
+  }
+  const ctx = target.getContext("2d");
+  if (!ctx) return;
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, target.width, target.height);
+  ctx.drawImage(
+    keyed.canvas,
+    col * keyed.frameW,
+    row * keyed.frameH,
+    keyed.frameW,
+    keyed.frameH,
+    0,
+    0,
+    keyed.frameW,
+    keyed.frameH,
+  );
+}
+
 export function renderMeekerSpriteHtml(
   id: MeekerSpriteId,
   opts?: {
     anim?: MeekerSpriteAnim;
-    size?: "hero" | "brand" | "wagon" | "popup" | "recap";
+    size?: "hero" | "brand" | "wagon" | "popup" | "recap" | "share";
     className?: string;
     label?: string;
+    juice?: boolean;
+    stage?: boolean;
   },
 ): string {
   const anim = opts?.anim ?? "idle-west";
   const size = opts?.size ?? "hero";
-  const extra = opts?.className ? ` ${opts.className}` : "";
+  const juice = opts?.juice !== false && (size === "hero" || size === "recap" || size === "brand");
+  const extra = `${opts?.className ? ` ${opts.className}` : ""}${juice ? " meeker-sprite--juice" : ""}`;
   const label = opts?.label ?? "";
   const aria = label ? ` aria-label="${label.replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
-  return `<span class="meeker-sprite meeker-sprite--${size}${extra}" data-meeker-sprite="${id}" data-meeker-anim="${anim}"${aria}></span>`;
+  const inner = `<span class="meeker-sprite meeker-sprite--${size}${extra}" data-meeker-sprite="${id}" data-meeker-anim="${anim}"${aria}></span>`;
+  if (opts?.stage) {
+    return `<span class="meeker-stage">${inner}</span>`;
+  }
+  return inner;
 }
 
 export function mountMeekerSprite(el: HTMLElement): void {
@@ -58,20 +145,24 @@ export function mountMeekerSprite(el: HTMLElement): void {
   const id = el.dataset.meekerSprite as MeekerSpriteId | undefined;
   if (!id || !MEEKER_SPRITE_SHEETS[id]) return;
 
-  const sheet = MEEKER_SPRITE_SHEETS[id];
   const anim = (el.dataset.meekerAnim as MeekerSpriteAnim | undefined) ?? "idle-west";
   const frames = framesForAnim(anim);
   let fi = 0;
 
-  const tick = (): void => {
-    applyMeekerSpriteFrame(el, sheet, frames[fi]!);
-    fi = (fi + 1) % frames.length;
-  };
+  void loadKeyedSheet(id).then((keyed) => {
+    if (!keyed || !el.isConnected) return;
+    const canvas = ensureCanvas(el);
 
-  tick();
-  if (anim === "walk-west" && frames.length > 1) {
-    timers.set(el, setInterval(tick, 240));
-  }
+    const tick = (): void => {
+      drawSpriteFrame(canvas, keyed, frames[fi]!);
+      fi = (fi + 1) % frames.length;
+    };
+
+    tick();
+    if (anim === "walk-west" && frames.length > 1) {
+      timers.set(el, setInterval(tick, 220));
+    }
+  });
 }
 
 export function startMeekerSpriteAnimations(root: ParentNode = document): void {
@@ -82,15 +173,8 @@ export function startMeekerSpriteAnimations(root: ParentNode = document): void {
 
 export function preloadMeekerSprites(): Promise<void> {
   return Promise.all(
-    Object.values(MEEKER_SPRITE_SHEETS).map(
-      (sheet) =>
-        new Promise<void>((resolve) => {
-          const img = new Image();
-          img.decoding = "async";
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = sheet.src;
-        }),
+    (Object.keys(MEEKER_SPRITE_SHEETS) as MeekerSpriteId[]).map((id) =>
+      loadKeyedSheet(id).then(() => undefined),
     ),
   ).then(() => undefined);
 }
@@ -98,7 +182,6 @@ export function preloadMeekerSprites(): Promise<void> {
 const HOP_KING_SHARE_TEXT =
   "I'm riding the Old Oregon Trail with young Ezra Meeker — Hop King edition. Name your wagon and survive to hop country!";
 
-/** Share link + Hop King hook (Web Share API or clipboard). */
 export async function shareHopKingStart(): Promise<string> {
   const url = `${window.location.origin}${window.location.pathname}`;
   const payload = `${HOP_KING_SHARE_TEXT}\n${url}`;
@@ -122,8 +205,30 @@ export async function shareHopKingStart(): Promise<string> {
   }
 }
 
-/** Header seal + any static sprite markup in HTML. */
 export function hydrateBrandSeal(root: ParentNode = document): void {
   const el = root.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
   if (el) mountMeekerSprite(el);
+}
+
+/** Header Ezra ages as the wagon moves west. */
+export function syncBrandSealToTrail(trailPct: number, phase: string): void {
+  const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
+  if (!el) return;
+
+  const onboard =
+    phase === "title" ||
+    phase === "training_text" ||
+    phase === "training_quiz" ||
+    phase === "party_names" ||
+    phase === "profile" ||
+    phase === "store";
+
+  const { id, anim } = onboard
+    ? { id: "hopKingYoung" as const, anim: "walk-west" as const }
+    : meekerSpriteForTrailPct(trailPct);
+
+  if (el.dataset.meekerSprite === id && el.dataset.meekerAnim === anim) return;
+  el.dataset.meekerSprite = id;
+  el.dataset.meekerAnim = anim;
+  mountMeekerSprite(el);
 }

@@ -56,16 +56,19 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
             anim: "walk-west",
             size: "recap",
             label: "Young Hop King celebrates the trail",
+            stage: true,
           })
         : renderMeekerSpriteHtml("ezraElder", {
             anim: "idle-west",
             size: "recap",
             label: "Ezra Meeker on the Oregon Trail",
+            stage: true,
           })
       : renderMeekerSpriteHtml("ezraElder", {
             anim: "idle-west",
             size: "recap",
             label: "Wagon lost on the trail",
+            stage: true,
           });
 
     const headline = victory ? "You made hop country" : "The trail wins this time";

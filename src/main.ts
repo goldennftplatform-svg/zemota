@@ -11,6 +11,7 @@ import {
   renderMeekerSpriteHtml,
   shareHopKingStart,
   startMeekerSpriteAnimations,
+  syncBrandSealToTrail,
   hydrateBrandSeal,
 } from "./ui/meekerSprites";
 import { ChanceMini } from "./ui/chanceGames";
@@ -618,6 +619,7 @@ function refreshPopupOverlay(): void {
         anim: pop.meekerAnim ?? "idle-west",
         size: "hero",
         label: pop.imageAlt,
+        stage: true,
       })}</div>`
     : pop.imageSrc
       ? `<img class="emota-popup__img emota-popup__img--${escapeHtml(pop.imageVariant ?? "pioneer")}" src="${escapeAttr(pop.imageSrc)}" alt="${escapeAttr(pop.imageAlt ?? "")}" decoding="async" />`
@@ -917,6 +919,7 @@ function render(): void {
         anim: sc.heroImage.meekerAnim ?? "idle-west",
         size: "hero",
         label: sc.heroImage.alt,
+        stage: true,
       })}</figure>`;
     } else {
       heroHtml = `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`;
@@ -926,7 +929,7 @@ function render(): void {
 
   const hopKingShareHtml =
     sc.phase === "title"
-      ? `<button type="button" class="hop-king-share" data-hop-king-share>Share · young Hop King start</button>`
+      ? `<button type="button" class="hop-king-share" data-hop-king-share>${renderMeekerSpriteHtml("hopKingYoung", { anim: "idle-west", size: "share", juice: false })}<span>Share · young Hop King start</span></button>`
       : "";
 
   const setupInputsHtml =
@@ -1082,6 +1085,9 @@ function render(): void {
   });
 
   startMeekerSpriteAnimations(document);
+
+  const trailPct = Math.round((engine.getDashboardSnapshot().miles / engine.getDashboardSnapshot().totalMiles) * 100);
+  syncBrandSealToTrail(trailPct, sc.phase);
 }
 
 function escapeAttr(s: string): string {

@@ -480,6 +480,13 @@ export class GameEngine {
           phase: "profile",
           badge: "Step 2 · leader's job",
           prompt: "Who leads the wagon?",
+          heroImage: {
+            src: GAME_ART.hopKingYoungSheet,
+            alt: "Young Ezra Meeker picks a profession",
+            variant: "title",
+            meekerSprite: "hopKingYoung",
+            meekerAnim: "idle-west",
+          },
           lines: [`Traveling: ${roster}`],
           coach: this.debugPlaytestArmed
             ? "Playtest lane armed — pick a leader to jump near Oregon (skips the supply store)."

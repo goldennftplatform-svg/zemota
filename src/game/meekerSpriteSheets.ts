@@ -21,3 +21,12 @@ export const MEEKER_WALK_WEST_FRAMES = [6, 7, 8, 9] as const;
 
 /** Standing profile facing west. */
 export const MEEKER_IDLE_WEST_FRAME = 7;
+
+/** Young Ezra at jump-off → elder Meeker deep on the trail. */
+export function meekerSpriteForTrailPct(pct: number): {
+  id: MeekerSpriteId;
+  anim: MeekerSpriteAnim;
+} {
+  if (pct >= 68) return { id: "ezraElder", anim: "walk-west" };
+  return { id: "hopKingYoung", anim: "walk-west" };
+}

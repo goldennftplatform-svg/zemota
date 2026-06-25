@@ -449,7 +449,7 @@ function render(): void {
     ? ""
     : `<header class="bb-header bb-header--slim">
         <div class="bb-brand bb-brand--slim">
-          <span class="bb-brand__mark">${renderMeekerSpriteHtml("hopKingYoung", { anim: "idle-west", size: "brand" })}</span>
+          <span class="bb-brand__mark">${renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "brand" })}</span>
           <span class="bb-brand__title">EMOTA</span>
         </div>
         <div class="bb-header__end">
@@ -518,10 +518,12 @@ function showBigPopup(ev: TrailFeedEvent): void {
   const art = ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
   const artHtml =
     ev.kind === "death" && !wall
-      ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("ezraElder", { anim: "idle-west", size: "hero" })}</div>`
-      : ev.kind === "death"
-        ? ""
-        : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
+      ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("ezraElder", { anim: "idle-west", size: "hero", stage: true })}</div>`
+      : ev.kind === "victory" && !wall
+        ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "hero", stage: true })}</div>`
+        : ev.kind === "death"
+          ? ""
+          : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
   const cardMod =
     ev.kind === "death"
       ? `bb-popup__card--death${wall ? " bb-popup__card--toast" : ""}`

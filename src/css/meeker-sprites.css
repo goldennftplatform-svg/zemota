@@ -1,19 +1,72 @@
-/* Meeker pixel sprites — multiply removes white sheet backdrop on dark UI */
+/* Meeker pixel sprites — canvas-drawn, white keyed out in JS */
 
 .meeker-sprite {
+  position: relative;
   display: inline-block;
   vertical-align: middle;
   flex-shrink: 0;
-  background-color: #001408;
-  background-repeat: no-repeat;
+  background: transparent;
+}
+
+.meeker-sprite__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  mix-blend-mode: darken;
+}
+
+.meeker-sprite--juice {
+  animation: meeker-bob 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(57, 255, 122, 0.45));
+}
+
+@keyframes meeker-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.meeker-stage {
+  position: relative;
+  display: inline-block;
+  padding: 0.35rem 0.5rem 0.15rem;
+}
+
+.meeker-stage::before {
+  content: "";
+  position: absolute;
+  inset: -12% -8%;
+  background: radial-gradient(ellipse 72% 68% at 50% 58%, rgba(57, 255, 122, 0.28), transparent 72%);
+  animation: meeker-glow-pulse 3.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.meeker-stage > .meeker-sprite {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes meeker-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
 }
 
 .meeker-sprite--hero {
-  width: 88px;
-  height: 132px;
+  width: 96px;
+  height: 144px;
 }
 
 .meeker-sprite--brand {
@@ -31,21 +84,19 @@
 }
 
 .app-brand__seal .meeker-sprite--brand {
-  width: 40px;
-  height: 60px;
-  mix-blend-mode: normal;
-  background-color: #000806;
-  border-radius: 2px;
+  width: 42px;
+  height: 63px;
+  filter: drop-shadow(0 0 8px rgba(57, 255, 122, 0.5));
 }
 
 .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
-  width: 2.25rem;
-  height: 3.35rem;
+  width: 2.35rem;
+  height: 3.5rem;
 }
 
 .app-layout.is-title .app-brand__seal .meeker-sprite--brand {
-  width: 34px;
-  height: 51px;
+  width: 36px;
+  height: 54px;
 }
 
 .emota-popup__sprite {
@@ -54,63 +105,81 @@
 }
 
 .meeker-sprite--wagon {
-  width: 52px;
-  height: 78px;
+  width: 54px;
+  height: 81px;
 }
 
 .meeker-sprite--popup {
-  width: 44px;
-  height: 66px;
+  width: 46px;
+  height: 69px;
 }
 
 .meeker-sprite--recap {
-  width: 96px;
-  height: 144px;
+  width: 104px;
+  height: 156px;
 }
 
-.screen-hero--title .meeker-sprite--hero {
-  filter: drop-shadow(0 0 14px rgba(0, 255, 119, 0.28));
+.meeker-sprite--share {
+  width: 32px;
+  height: 48px;
+  flex-shrink: 0;
+  animation: none;
+  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.4));
+}
+
+.screen-hero--title .meeker-stage {
+  margin: 0 auto 0.35rem;
 }
 
 .bb-wagon__icon .meeker-sprite--wagon {
-  filter: drop-shadow(0 0 8px rgba(57, 255, 120, 0.45));
+  filter: drop-shadow(0 0 10px rgba(57, 255, 120, 0.55));
   transform: scaleX(-1);
 }
 
-.trail-map-popup__wagon-icon .meeker-sprite--popup {
-  filter: drop-shadow(0 0 8px rgba(57, 255, 120, 0.55));
+.trail-map-popup__wagon-icon .meeker-sprite--wagon {
+  filter: drop-shadow(0 0 10px rgba(57, 255, 120, 0.6));
   transform: scaleX(-1);
 }
 
 .journey-recap__hero .meeker-sprite--recap {
-  filter: drop-shadow(0 0 16px rgba(0, 255, 119, 0.32));
+  filter: drop-shadow(0 0 18px rgba(0, 255, 119, 0.42));
 }
 
-.emota-boot__sprite .meeker-sprite--hero {
-  margin: 0 auto 0.35rem;
-  filter: drop-shadow(0 0 12px rgba(0, 255, 119, 0.35));
+.emota-boot__sprite {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 0.4rem;
+}
+
+.emota-boot__sprite .meeker-stage {
+  padding: 0.25rem 0.75rem 0;
 }
 
 .hop-king-share {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   width: 100%;
   max-width: 22rem;
   margin: 0.5rem auto 0;
   padding: 0.55rem 0.75rem;
   border: 2px solid var(--border);
   border-radius: 8px;
-  background: rgba(0, 28, 16, 0.92);
+  background: linear-gradient(180deg, rgba(0, 36, 20, 0.95) 0%, rgba(0, 18, 10, 0.98) 100%);
   color: var(--hi);
   font-family: var(--font-head);
   font-size: clamp(0.38rem, 1.05vw, 0.48rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
+  box-shadow: 0 0 16px rgba(0, 255, 119, 0.12);
   -webkit-tap-highlight-color: transparent;
 }
 
 .hop-king-share:hover {
-  background: rgba(0, 44, 24, 0.95);
+  background: linear-gradient(180deg, rgba(0, 52, 28, 0.98) 0%, rgba(0, 24, 14, 0.99) 100%);
+  box-shadow: 0 0 20px rgba(57, 255, 122, 0.2);
 }
 
 .hop-king-share:focus-visible {
@@ -119,6 +188,11 @@
 }
 
 html.bb-wall .bb-wagon__icon .meeker-sprite--wagon {
-  width: clamp(2.5rem, 3.2vw, 3.25rem);
-  height: clamp(3.75rem, 4.8vw, 4.85rem);
+  width: clamp(2.6rem, 3.3vw, 3.35rem);
+  height: clamp(3.9rem, 5vw, 5rem);
+}
+
+html.bb-wall .bb-brand__mark .meeker-sprite--brand {
+  width: clamp(2rem, 3.5vw, 2.6rem);
+  height: clamp(3rem, 5.25vw, 3.9rem);
 }
