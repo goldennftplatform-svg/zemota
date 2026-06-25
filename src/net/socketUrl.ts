@@ -1,7 +1,7 @@
 /**
  * Trail server origin for Socket.IO (Express + server/index.ts).
  * Priority (dev): `?trail=` → localStorage → `VITE_TRAIL_SERVER_URL` → `/trail.json`
- * Priority (production e.g. *.vercel.app): `?trail=` → env → `/trail.json` (localStorage skipped)
+ * Priority (production e.g. *.vercel.app): `?trail=` → `/trail.json` (live Vercel env via API) — not baked JS
  *
  * Query wins so stress tests (`?trail=`), classrooms, and tunnels can override a
  * baked Vercel env without redeploying. Same origin must be used by the game, bigboard, and bots.
@@ -49,6 +49,9 @@ async function originFromTrailJson(): Promise<string | undefined> {
 }
 
 async function canonicalDeployOrigin(): Promise<string | undefined> {
+  if (isProductionTrailHost()) {
+    return originFromTrailJson();
+  }
   return originFromBuildEnv() ?? (await originFromTrailJson());
 }
 
@@ -99,11 +102,6 @@ function trailOverrideFromBrowser(): string | undefined {
 export function trailServerOrigin(): string | undefined {
   const fromQuery = trailFromQuery();
   if (fromQuery) return fromQuery;
-
-  if (isProductionTrailHost()) {
-    const built = originFromBuildEnv();
-    if (built) return built;
-  }
 
   const fromBrowser = trailOverrideFromBrowser();
   if (fromBrowser) return fromBrowser;
