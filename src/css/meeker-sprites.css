@@ -1,0 +1,92 @@
+/* Meeker pixel sprites — multiply removes white sheet backdrop on dark UI */
+
+.meeker-sprite {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+  background-color: #001408;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  mix-blend-mode: multiply;
+}
+
+.meeker-sprite--hero {
+  width: 88px;
+  height: 132px;
+}
+
+.meeker-sprite--brand {
+  width: 56px;
+  height: 84px;
+}
+
+.meeker-sprite--wagon {
+  width: 52px;
+  height: 78px;
+}
+
+.meeker-sprite--popup {
+  width: 44px;
+  height: 66px;
+}
+
+.meeker-sprite--recap {
+  width: 96px;
+  height: 144px;
+}
+
+.screen-hero--title .meeker-sprite--hero {
+  filter: drop-shadow(0 0 14px rgba(0, 255, 119, 0.28));
+}
+
+.bb-wagon__icon .meeker-sprite--wagon {
+  filter: drop-shadow(0 0 8px rgba(57, 255, 120, 0.45));
+  transform: scaleX(-1);
+}
+
+.trail-map-popup__wagon-icon .meeker-sprite--popup {
+  filter: drop-shadow(0 0 8px rgba(57, 255, 120, 0.55));
+  transform: scaleX(-1);
+}
+
+.journey-recap__hero .meeker-sprite--recap {
+  filter: drop-shadow(0 0 16px rgba(0, 255, 119, 0.32));
+}
+
+.emota-boot__sprite .meeker-sprite--hero {
+  margin: 0 auto 0.35rem;
+  filter: drop-shadow(0 0 12px rgba(0, 255, 119, 0.35));
+}
+
+.hop-king-share {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+  margin: 0.5rem auto 0;
+  padding: 0.55rem 0.75rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: rgba(0, 28, 16, 0.92);
+  color: var(--hi);
+  font-family: var(--font-head);
+  font-size: clamp(0.38rem, 1.05vw, 0.48rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hop-king-share:hover {
+  background: rgba(0, 44, 24, 0.95);
+}
+
+.hop-king-share:focus-visible {
+  outline: 2px solid var(--border-hi);
+  outline-offset: 2px;
+}
+
+html.bb-wall .bb-wagon__icon .meeker-sprite--wagon {
+  width: clamp(2.5rem, 3.2vw, 3.25rem);
+  height: clamp(3.75rem, 4.8vw, 4.85rem);
+}

@@ -7,6 +7,9 @@ export const GAME_ART = {
   /** Vintage “Old Oregon Trail” chart — bigboard + minimap. */
   /** Ezra Meeker horizontal Oregon Trail postcard (bigboard + minimap + game BG). */
   oregonTrailMap: "/art/oregon-trail-map.png",
+  hopKingYoungSheet: "/art/sprites/hop-king-young.png",
+  ezraElderSheet: "/art/sprites/ezra-elder.png",
+  ezraWagonSheet: "/art/sprites/ezra-wagon.png",
 } as const;
 
 /** Top-down hunt targets — retro SVG sprites. */

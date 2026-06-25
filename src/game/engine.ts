@@ -412,9 +412,11 @@ export class GameEngine {
         return {
           phase: "title",
           heroImage: {
-            src: GAME_ART.drunkcowboyPioneer,
-            alt: "Pioneer wagon on the Oregon Trail",
+            src: GAME_ART.hopKingYoungSheet,
+            alt: "Young Ezra Meeker at jump-off — Hop King path",
             variant: "title",
+            meekerSprite: "hopKingYoung",
+            meekerAnim: "walk-west",
           },
           lines: [
             "The Oregon Trail — real history, not Hollywood.",

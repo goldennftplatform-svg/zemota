@@ -372,12 +372,18 @@ body {
 }
 
 .bb-brand__mark {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
   width: clamp(2.4rem, 4vw, 3rem);
   height: clamp(2.4rem, 4vw, 3rem);
-  object-fit: contain;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+  overflow: hidden;
   filter: drop-shadow(0 0 8px rgba(57, 255, 122, 0.25));
+}
+
+.bb-brand__mark .meeker-sprite--brand {
+  width: clamp(2rem, 3.5vw, 2.6rem);
+  height: clamp(3rem, 5.25vw, 3.9rem);
 }
 
 .bb-brand__title {

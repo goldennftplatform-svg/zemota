@@ -63,7 +63,10 @@ export interface EmotaPopup {
 export interface ScreenHeroImage {
   src: string;
   alt: string;
-  variant?: "game-over" | "pioneer";
+  variant?: "game-over" | "pioneer" | "title";
+  /** Animated pixel sheet instead of static `src`. */
+  meekerSprite?: "hopKingYoung" | "ezraElder" | "ezraWagon";
+  meekerAnim?: "walk-west" | "idle-west";
 }
 
 export interface DashboardSnapshot {

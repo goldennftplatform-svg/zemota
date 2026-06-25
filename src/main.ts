@@ -6,6 +6,13 @@ import { GameEngine, type EnginePhase } from "./game/engine";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { preloadHuntSprites } from "./ui/huntAnimalSprites";
+import {
+  preloadMeekerSprites,
+  renderMeekerSpriteHtml,
+  shareHopKingStart,
+  startMeekerSpriteAnimations,
+  mountMeekerSprite,
+} from "./ui/meekerSprites";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
 import { TrailMultiplayer, getDisplayName, setDisplayName, type TrailConnectionState } from "./net/multiplayer";
@@ -49,6 +56,7 @@ import { showJourneyRecap } from "./ui/journeyRecap";
 initMobileShellClass();
 persistTrailOriginFromQuery();
 void preloadHuntSprites();
+void preloadMeekerSprites();
 
 declare global {
   interface Window {
@@ -894,10 +902,24 @@ function render(): void {
       ? `<p class="screen-coach" role="note"><span class="screen-coach__lead">Trail tip</span><span class="screen-coach__text">${escapeHtml(sc.coach)}</span></p>`
       : "";
 
-  let heroHtml = sc.heroImage
-    ? `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`
-    : "";
+  let heroHtml = "";
+  if (sc.heroImage) {
+    if (sc.heroImage.meekerSprite) {
+      heroHtml = `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}">${renderMeekerSpriteHtml(sc.heroImage.meekerSprite, {
+        anim: sc.heroImage.meekerAnim ?? "idle-west",
+        size: "hero",
+        label: sc.heroImage.alt,
+      })}</figure>`;
+    } else {
+      heroHtml = `<figure class="screen-hero screen-hero--${escapeHtml(sc.heroImage.variant ?? "default")}"><img class="screen-hero__img" src="${escapeAttr(sc.heroImage.src)}" alt="${escapeAttr(sc.heroImage.alt)}" decoding="async" /></figure>`;
+    }
+  }
   if (mobile && onboard) heroHtml = "";
+
+  const hopKingShareHtml =
+    sc.phase === "title"
+      ? `<button type="button" class="hop-king-share" data-hop-king-share>Share · young Hop King start</button>`
+      : "";
 
   const setupInputsHtml =
     sc.phase === "party_names" ? partySetupHtml : sc.inputLine ? inputHtml : "";
@@ -913,7 +935,7 @@ function render(): void {
     storeRepurchase && tryPatchStoreScreen(screenEl, engine, engine.storeFeedback);
 
   if (!storePatched) {
-    screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${choicesHtml}`;
+    screenEl.innerHTML = `${heroHtml}${badgeHtml}${promptHtml}${bodyHtml}${coachHtml}${setupInputsHtml}${hopKingShareHtml}${choicesHtml}`;
   }
 
   hintEl.textContent = footerHint(sc.phase, isTitle);
@@ -1038,6 +1060,20 @@ function render(): void {
 
   const pstNow = todayCalendarKeyPST();
   if (pstNow !== lastRenderedPstDay) lastRenderedPstDay = pstNow;
+
+  screenEl.querySelector<HTMLButtonElement>("[data-hop-king-share]")?.addEventListener("click", async () => {
+    const btn = screenEl.querySelector<HTMLButtonElement>("[data-hop-king-share]");
+    const msg = await shareHopKingStart();
+    if (msg && btn) {
+      const prev = btn.textContent;
+      btn.textContent = msg;
+      window.setTimeout(() => {
+        if (btn.isConnected && prev) btn.textContent = prev;
+      }, 2600);
+    }
+  });
+
+  startMeekerSpriteAnimations(document);
 }
 
 function escapeAttr(s: string): string {
@@ -1155,7 +1191,21 @@ setInterval(() => {
 
 void (async () => {
   await runBootSplash();
+  hydrateMobileBrandSprite();
   tryAutoResumeFromSave();
   render();
 })();
+
+function hydrateMobileBrandSprite(): void {
+  if (!document.documentElement.classList.contains("emota-mobile")) return;
+  const seal = document.querySelector(".app-brand__seal");
+  if (!seal) return;
+  const wrap = document.createElement("div");
+  wrap.className = "app-brand__seal";
+  wrap.setAttribute("role", "img");
+  wrap.setAttribute("aria-label", "Young Hop King on the Oregon Trail");
+  wrap.innerHTML = renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "brand" });
+  seal.replaceWith(wrap);
+  mountMeekerSprite(wrap.querySelector<HTMLElement>("[data-meeker-sprite]")!);
+}
 

@@ -1,5 +1,6 @@
 import { GAME_ART } from "../game/artAssets";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "../game/config";
+import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./../css/journey-recap.css";
 
 export type JourneyRecapOutcome = "victory" | "game_over";
@@ -50,8 +51,19 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
   return new Promise((resolve) => {
     const victory = data.outcome === "victory";
     const pct = Math.round((data.miles / Math.max(1, data.totalMiles)) * 100);
-    const sprite = victory ? GAME_ART.drunkcowboyPioneer : GAME_ART.drunkcowboyGameOver;
-    const spriteAlt = victory ? "Pioneer celebrates the trail" : "Wagon lost on the trail";
+    const spriteHtml = victory
+      ? data.hopKing
+        ? renderMeekerSpriteHtml("hopKingYoung", {
+            anim: "walk-west",
+            size: "recap",
+            label: "Young Hop King celebrates the trail",
+          })
+        : renderMeekerSpriteHtml("ezraElder", {
+            anim: "idle-west",
+            size: "recap",
+            label: "Ezra Meeker on the Oregon Trail",
+          })
+      : `<img class="journey-recap__sprite" src="${escapeAttr(GAME_ART.drunkcowboyGameOver)}" alt="Wagon lost on the trail" decoding="async" />`;
 
     const headline = victory ? "You made hop country" : "The trail wins this time";
     const sub = victory
@@ -99,7 +111,7 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
       <div class="journey-recap__scan" aria-hidden="true"></div>
       <div class="journey-recap__card">
         <figure class="journey-recap__hero">
-          <img class="journey-recap__sprite" src="${escapeAttr(sprite)}" alt="${escapeAttr(spriteAlt)}" decoding="async" />
+          ${spriteHtml}
         </figure>
         <p class="journey-recap__brand">EMOTA · TRAIL RECAP</p>
         <h2 id="journey-recap-title" class="journey-recap__headline">${escapeHtml(headline)}</h2>
@@ -123,6 +135,7 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
     `;
 
     document.body.appendChild(el);
+    startMeekerSpriteAnimations(el);
 
     const btn = el.querySelector<HTMLButtonElement>(".journey-recap__cta")!;
     const waitLbl = el.querySelector<HTMLElement>(".journey-recap__cta-wait")!;
