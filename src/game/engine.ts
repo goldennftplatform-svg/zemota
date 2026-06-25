@@ -771,9 +771,11 @@ export class GameEngine {
         return {
           phase: "game_over",
           heroImage: {
-            src: GAME_ART.drunkcowboyGameOver,
+            src: GAME_ART.ezraElderSheet,
             alt: "You died on the old Oregon Trail",
             variant: "game-over",
+            meekerSprite: "ezraElder",
+            meekerAnim: "idle-west",
           },
           coach: "Hard run — the trail does that sometimes. Title returns home; your next party might fare better.",
           lines: [
@@ -1344,9 +1346,9 @@ export class GameEngine {
       this.pushPopup({
         title: dysentery ? "DYSENTERY" : "THE TRAIL TAKES",
         art: dysentery ? "" : ART.skull,
-        imageSrc: dysentery ? GAME_ART.drunkcowboyPioneer : undefined,
-        imageAlt: dysentery ? "Pioneer on the Oregon Trail" : undefined,
-        imageVariant: dysentery ? "pioneer" : undefined,
+        meekerSprite: dysentery ? "ezraElder" : undefined,
+        meekerAnim: dysentery ? "idle-west" : undefined,
+        imageAlt: dysentery ? "Ezra Meeker on the Oregon Trail" : undefined,
         body: deathLines,
         vibe: "doom",
       });

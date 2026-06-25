@@ -8,6 +8,7 @@
 @import "./css/trail-ribbon.css";
 @import "./css/trail-map-popup.css";
 @import "./css/trail-map-readability.css";
+@import "./css/meeker-sprites.css";
 @import "./css/mobile-cinema.css";
 
 /* EMOTA — 8-bit CRT depth + subtle motion */
@@ -1917,6 +1918,20 @@ body {
 .emota-popup__img--game-over {
   max-width: min(300px, 100%);
   padding: 0.25rem;
+}
+
+.emota-popup__sprite .meeker-sprite--hero {
+  filter: drop-shadow(0 0 10px rgba(0, 255, 119, 0.22));
+}
+
+.bb-popup__sprite {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+}
+
+.bb-popup__sprite .meeker-sprite--hero {
+  filter: drop-shadow(0 0 12px rgba(57, 255, 122, 0.35));
 }
 
 .emota-popup__kicker {

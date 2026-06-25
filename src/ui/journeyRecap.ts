@@ -1,4 +1,3 @@
-import { GAME_ART } from "../game/artAssets";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "../game/config";
 import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./../css/journey-recap.css";
@@ -63,7 +62,11 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
             size: "recap",
             label: "Ezra Meeker on the Oregon Trail",
           })
-      : `<img class="journey-recap__sprite" src="${escapeAttr(GAME_ART.drunkcowboyGameOver)}" alt="Wagon lost on the trail" decoding="async" />`;
+      : renderMeekerSpriteHtml("ezraElder", {
+            anim: "idle-west",
+            size: "recap",
+            label: "Wagon lost on the trail",
+          });
 
     const headline = victory ? "You made hop country" : "The trail wins this time";
     const sub = victory

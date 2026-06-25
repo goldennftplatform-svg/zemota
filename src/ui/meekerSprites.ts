@@ -121,3 +121,9 @@ export async function shareHopKingStart(): Promise<string> {
     return payload;
   }
 }
+
+/** Header seal + any static sprite markup in HTML. */
+export function hydrateBrandSeal(root: ParentNode = document): void {
+  const el = root.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
+  if (el) mountMeekerSprite(el);
+}

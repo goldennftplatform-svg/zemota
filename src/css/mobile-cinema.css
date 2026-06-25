@@ -187,7 +187,7 @@ html.emota-mobile .emota-boot__frame::after {
   height: min(72vw, 16rem);
   max-height: 14rem;
   margin: 0.65rem auto 0.35rem;
-  background: url("/art/drunkcowboy-pioneer.png") center bottom / contain no-repeat;
+  background: url("/art/sprites/hop-king-young.png") center bottom / min(42%, 180px) no-repeat;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 14px rgba(57, 255, 122, 0.2));

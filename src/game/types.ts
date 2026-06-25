@@ -58,6 +58,8 @@ export interface EmotaPopup {
   imageSrc?: string;
   imageAlt?: string;
   imageVariant?: "pioneer" | "game-over";
+  meekerSprite?: "hopKingYoung" | "ezraElder" | "ezraWagon";
+  meekerAnim?: "walk-west" | "idle-west";
 }
 
 export interface ScreenHeroImage {

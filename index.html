@@ -7,8 +7,8 @@
   <meta name="color-scheme" content="dark" />
   <meta name="format-detection" content="telephone=no" />
   <title>Ezra Meeker’s Oregon Trail Adventure (EMOTA)</title>
-  <link rel="icon" href="/meeker-mark.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/art/drunkcowboy-pioneer.png" />
+  <link rel="icon" href="/art/sprites/hop-king-young.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/art/sprites/hop-king-young.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
@@ -20,6 +20,7 @@
     <div class="emota-boot__inner">
       <div class="emota-boot__frame">
         <pre class="emota-boot__ascii" role="img" aria-label="EMOTA title in block characters"></pre>
+        <div class="emota-boot__sprite" aria-hidden="true"></div>
         <p class="emota-boot__sub">EZRA MEEKER · OREGON TRAIL</p>
         <p class="emota-boot__tag">8-bit classroom terminal — wagon days to hop country</p>
         <div class="emota-boot__bar-wrap" aria-hidden="true"><div class="emota-boot__bar"></div></div>
@@ -46,18 +47,8 @@
       <div class="app-header__inner">
         <div class="app-header__row">
         <div class="app-brand">
-          <div class="app-brand__seal" role="img" aria-label="Pioneer on the Oregon Trail">
-            <picture>
-              <source media="(max-width: 899px)" srcset="/art/drunkcowboy-pioneer.png" type="image/png" />
-              <img
-                class="app-brand__portrait"
-                src="/meeker-mark.svg"
-                width="68"
-                height="68"
-                alt=""
-                decoding="async"
-              />
-            </picture>
+          <div class="app-brand__seal" role="img" aria-label="Young Hop King on the Oregon Trail">
+            <span class="meeker-sprite meeker-sprite--brand app-brand__sprite" data-meeker-sprite="hopKingYoung" data-meeker-anim="walk-west" aria-hidden="true"></span>
           </div>
           <div class="app-brand__copy">
             <div class="app-brand__topline">

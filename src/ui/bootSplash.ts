@@ -1,4 +1,5 @@
 import { BOOT_LANDING_INTRO_MS } from "../game/config";
+import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./bootSplash.css";
 
 function bootIntroMs(): number {
@@ -72,6 +73,15 @@ export async function runBootSplash(): Promise<void> {
 
   const pre = el.querySelector(".emota-boot__ascii");
   if (pre) pre.textContent = ASCII_LOGO;
+
+  const spriteHost = el.querySelector(".emota-boot__sprite");
+  if (spriteHost) {
+    spriteHost.innerHTML = renderMeekerSpriteHtml("hopKingYoung", {
+      anim: "walk-west",
+      size: "hero",
+    });
+    startMeekerSpriteAnimations(spriteHost);
+  }
 
   if (shouldSkipBootSplash()) {
     el.remove();

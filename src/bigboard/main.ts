@@ -518,7 +518,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
   const art = ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
   const artHtml =
     ev.kind === "death" && !wall
-      ? `<img class="bb-popup__img" src="${GAME_ART.drunkcowboyGameOver}" alt="" decoding="async" />`
+      ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("ezraElder", { anim: "idle-west", size: "hero" })}</div>`
       : ev.kind === "death"
         ? ""
         : `<div class="bb-popup__art" aria-hidden="true">${art}</div>`;
@@ -538,6 +538,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
       <p class="bb-popup__body"><strong>${escapeHtml(ev.displayName)}</strong> — ${escapeHtml(ev.text)}</p>
     </div>
   </div>`;
+  startMeekerSpriteAnimations(el);
   if (popupTimer) clearTimeout(popupTimer);
   popupTimer = setTimeout(() => {
     el.hidden = true;

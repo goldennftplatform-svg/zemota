@@ -8,7 +8,7 @@
   background-repeat: no-repeat;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  mix-blend-mode: multiply;
+  mix-blend-mode: darken;
 }
 
 .meeker-sprite--hero {
@@ -19,6 +19,38 @@
 .meeker-sprite--brand {
   width: 56px;
   height: 84px;
+}
+
+.app-brand__seal {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  min-width: 46px;
+  min-height: 46px;
+}
+
+.app-brand__seal .meeker-sprite--brand {
+  width: 40px;
+  height: 60px;
+  mix-blend-mode: normal;
+  background-color: #000806;
+  border-radius: 2px;
+}
+
+.app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
+  width: 2.25rem;
+  height: 3.35rem;
+}
+
+.app-layout.is-title .app-brand__seal .meeker-sprite--brand {
+  width: 34px;
+  height: 51px;
+}
+
+.emota-popup__sprite {
+  display: block;
+  margin: 0 auto 0.5rem;
 }
 
 .meeker-sprite--wagon {

@@ -11,7 +11,7 @@ import {
   renderMeekerSpriteHtml,
   shareHopKingStart,
   startMeekerSpriteAnimations,
-  mountMeekerSprite,
+  hydrateBrandSeal,
 } from "./ui/meekerSprites";
 import { ChanceMini } from "./ui/chanceGames";
 import { GAME_ART } from "./game/artAssets";
@@ -54,6 +54,7 @@ import { showTrailInterstitial } from "./ui/trailInterstitial";
 import { showJourneyRecap } from "./ui/journeyRecap";
 
 initMobileShellClass();
+hydrateBrandSeal();
 persistTrailOriginFromQuery();
 void preloadHuntSprites();
 void preloadMeekerSprites();
@@ -612,9 +613,15 @@ function refreshPopupOverlay(): void {
   }
   popupRoot.hidden = false;
   const v = escapeHtml(pop.vibe);
-  const artBlock = pop.imageSrc
-    ? `<img class="emota-popup__img emota-popup__img--${escapeHtml(pop.imageVariant ?? "pioneer")}" src="${escapeAttr(pop.imageSrc)}" alt="${escapeAttr(pop.imageAlt ?? "")}" decoding="async" />`
-    : `<pre class="emota-popup__art">${escapeHtml(pop.art)}</pre>`;
+  const artBlock = pop.meekerSprite
+    ? `<div class="emota-popup__sprite">${renderMeekerSpriteHtml(pop.meekerSprite, {
+        anim: pop.meekerAnim ?? "idle-west",
+        size: "hero",
+        label: pop.imageAlt,
+      })}</div>`
+    : pop.imageSrc
+      ? `<img class="emota-popup__img emota-popup__img--${escapeHtml(pop.imageVariant ?? "pioneer")}" src="${escapeAttr(pop.imageSrc)}" alt="${escapeAttr(pop.imageAlt ?? "")}" decoding="async" />`
+      : `<pre class="emota-popup__art">${escapeHtml(pop.art)}</pre>`;
   popupRoot.innerHTML = `
     <div class="emota-popup-backdrop" data-close="1" aria-hidden="true"></div>
     <div class="emota-popup emota-popup--${v}" role="dialog" aria-modal="true" aria-labelledby="emota-popup-title">
@@ -633,6 +640,7 @@ function refreshPopupOverlay(): void {
   popupRoot.querySelector(".emota-popup__ok")?.addEventListener("click", close);
   popupRoot.querySelector("[data-close]")?.addEventListener("click", close);
   (popupRoot.querySelector(".emota-popup__ok") as HTMLButtonElement | null)?.focus();
+  startMeekerSpriteAnimations(popupRoot);
 }
 
 function render(): void {
@@ -1191,21 +1199,8 @@ setInterval(() => {
 
 void (async () => {
   await runBootSplash();
-  hydrateMobileBrandSprite();
+  hydrateBrandSeal();
   tryAutoResumeFromSave();
   render();
 })();
-
-function hydrateMobileBrandSprite(): void {
-  if (!document.documentElement.classList.contains("emota-mobile")) return;
-  const seal = document.querySelector(".app-brand__seal");
-  if (!seal) return;
-  const wrap = document.createElement("div");
-  wrap.className = "app-brand__seal";
-  wrap.setAttribute("role", "img");
-  wrap.setAttribute("aria-label", "Young Hop King on the Oregon Trail");
-  wrap.innerHTML = renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "brand" });
-  seal.replaceWith(wrap);
-  mountMeekerSprite(wrap.querySelector<HTMLElement>("[data-meeker-sprite]")!);
-}
 
