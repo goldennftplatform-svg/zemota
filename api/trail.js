@@ -4,6 +4,6 @@ export default function handler(_request, response) {
     .trim()
     .replace(/\/$/, "");
   response.setHeader("Content-Type", "application/json");
-  response.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120");
+  response.setHeader("Cache-Control", "public, s-maxage=10, stale-while-revalidate=30");
   response.status(200).send(`${JSON.stringify({ origin }, null, 2)}\n`);
 }
