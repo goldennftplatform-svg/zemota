@@ -1,8 +1,10 @@
 import {
   MEEKER_IDLE_WEST_FRAME,
   MEEKER_SPRITE_SHEETS,
+  MEEKER_ICON_FRONT_FRAME,
   MEEKER_WALK_FRAME_MS,
   MEEKER_WALK_FRAME_MS_PLAY,
+  MEEKER_WALK_FRONT_FRAMES,
   MEEKER_WALK_WEST_FRAMES,
   playerBoxMeekerSprite,
   type MeekerSpriteAnim,
@@ -76,7 +78,17 @@ function loadKeyedSheet(id: MeekerSpriteId): Promise<KeyedSheet | null> {
 }
 
 function framesForAnim(anim: MeekerSpriteAnim): readonly number[] {
-  return anim === "walk-west" ? MEEKER_WALK_WEST_FRAMES : [MEEKER_IDLE_WEST_FRAME];
+  switch (anim) {
+    case "walk-west":
+      return MEEKER_WALK_WEST_FRAMES;
+    case "walk-front":
+      return MEEKER_WALK_FRONT_FRAMES;
+    case "icon-front":
+      return [MEEKER_ICON_FRONT_FRAME];
+    case "idle-west":
+    default:
+      return [MEEKER_IDLE_WEST_FRAME];
+  }
 }
 
 function isEzraCharacter(id: MeekerSpriteId | undefined): boolean {
@@ -85,11 +97,14 @@ function isEzraCharacter(id: MeekerSpriteId | undefined): boolean {
 
 /** Ezra characters stay static during play; walk only on title / boot / recap. */
 function effectiveAnim(el: HTMLElement, anim: MeekerSpriteAnim): MeekerSpriteAnim {
-  if (anim !== "walk-west" || !isEzraCharacter(el.dataset.meekerSprite as MeekerSpriteId | undefined)) {
+  if (!isEzraCharacter(el.dataset.meekerSprite as MeekerSpriteId | undefined)) {
     return anim;
   }
   if (el.closest(".journey-recap, .emota-boot, .app-layout.is-title")) return anim;
-  if (el.closest(".app-layout.is-playing")) return "idle-west";
+  if (el.closest(".app-layout.is-playing")) {
+    if (anim === "walk-west" || anim === "walk-front") return "icon-front";
+    return anim;
+  }
   return anim;
 }
 
@@ -167,7 +182,7 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
   const requested = (el.dataset.meekerAnim as MeekerSpriteAnim | undefined) ?? "idle-west";
   const anim = effectiveAnim(el, requested);
   const key = `${id}:${anim}`;
-  if (!opts?.force && runningKey.get(el) === key && (anim === "idle-west" || timers.has(el))) return;
+  if (!opts?.force && runningKey.get(el) === key && (anim === "idle-west" || anim === "icon-front" || timers.has(el))) return;
 
   const prev = timers.get(el);
   if (prev) clearInterval(prev);
@@ -256,9 +271,11 @@ export function syncBrandSealToTrail(_trailPct: number, phase: string): void {
   el.dataset.meekerSprite = id;
   el.dataset.meekerAnim = anim;
 
-  const walkTimerWhileIdle = anim === "idle-west" && timers.has(el);
-  const needsWalkRestart = anim === "walk-west" && !timers.has(el);
-  if (prevAnim !== anim || prevId !== id || walkTimerWhileIdle || needsWalkRestart) {
+  const walkTimerWhileStatic =
+    (anim === "icon-front" || anim === "idle-west") && timers.has(el);
+  const needsWalkRestart =
+    (anim === "walk-west" || anim === "walk-front") && !timers.has(el);
+  if (prevAnim !== anim || prevId !== id || walkTimerWhileStatic || needsWalkRestart) {
     mountMeekerSprite(el, { force: true });
   }
 }
@@ -273,8 +290,8 @@ export function startBrandSealWatch(): void {
     const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
     if (!el) return;
     const playing = !!document.querySelector(".app-layout.is-playing");
-    if (playing && el.dataset.meekerAnim === "walk-west") {
-      el.dataset.meekerAnim = "idle-west";
+    if (playing && (el.dataset.meekerAnim === "walk-west" || el.dataset.meekerAnim === "walk-front")) {
+      el.dataset.meekerAnim = "icon-front";
       mountMeekerSprite(el, { force: true });
       return;
     }
@@ -282,7 +299,7 @@ export function startBrandSealWatch(): void {
       mountMeekerSprite(el, { force: true });
       return;
     }
-    if (!playing && el.dataset.meekerAnim === "walk-west" && !timers.has(el)) {
+    if (!playing && (el.dataset.meekerAnim === "walk-west" || el.dataset.meekerAnim === "walk-front") && !timers.has(el)) {
       mountMeekerSprite(el, { force: true });
     }
   }, 2000);

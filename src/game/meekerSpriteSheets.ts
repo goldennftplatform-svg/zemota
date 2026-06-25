@@ -2,7 +2,7 @@
 
 export type MeekerSpriteId = "hopKingYoung" | "ezraElder" | "ezraWagon";
 
-export type MeekerSpriteAnim = "walk-west" | "idle-west";
+export type MeekerSpriteAnim = "walk-west" | "walk-front" | "idle-west" | "icon-front";
 
 export interface MeekerSpriteSheet {
   src: string;
@@ -19,8 +19,14 @@ export const MEEKER_SPRITE_SHEETS: Record<MeekerSpriteId, MeekerSpriteSheet> = {
 /** Westbound trail (map runs east → west): back-left, left, front-left walk cycle. */
 export const MEEKER_WALK_WEST_FRAMES = [6, 7, 8, 9] as const;
 
-/** Standing profile facing west. */
+/** Title / header attract — front-facing shuffle from uploaded sheet (row 1). */
+export const MEEKER_WALK_FRONT_FRAMES = [1, 2, 3] as const;
+
+/** Standing profile facing west (sidebar / legacy). */
 export const MEEKER_IDLE_WEST_FRAME = 7;
+
+/** Straight-on front pose — best read at phone header size (row 3, col 4). */
+export const MEEKER_ICON_FRONT_FRAME = 11;
 
 /** Walk cycle frame interval on title / attract screens (ms). */
 export const MEEKER_WALK_FRAME_MS = 220;
@@ -37,9 +43,9 @@ export const PLAYER_BOX_MEEKER: MeekerSpriteId = "hopKingYoung";
 /** Monument-era Ezra — death screens, loss slash, dysentery popups. */
 export const SLASH_MEEKER: MeekerSpriteId = "ezraElder";
 
-/** Title/attract: walk. Gameplay HUD: static idle (no looping walk). */
+/** Title/attract: front walk. Gameplay HUD: static front icon (no side-profile loop). */
 export function playerBoxMeekerSprite(phase?: string): { id: MeekerSpriteId; anim: MeekerSpriteAnim } {
-  const anim = phase === "title" ? "walk-west" : "idle-west";
+  const anim = phase === "title" ? "walk-front" : "icon-front";
   return { id: PLAYER_BOX_MEEKER, anim };
 }
 

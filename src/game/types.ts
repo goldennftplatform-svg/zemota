@@ -59,7 +59,7 @@ export interface EmotaPopup {
   imageAlt?: string;
   imageVariant?: "pioneer" | "game-over";
   meekerSprite?: "hopKingYoung" | "ezraElder" | "ezraWagon";
-  meekerAnim?: "walk-west" | "idle-west";
+  meekerAnim?: "walk-west" | "walk-front" | "idle-west" | "icon-front";
 }
 
 export interface ScreenHeroImage {
@@ -68,7 +68,7 @@ export interface ScreenHeroImage {
   variant?: "game-over" | "pioneer" | "title";
   /** Animated pixel sheet instead of static `src`. */
   meekerSprite?: "hopKingYoung" | "ezraElder" | "ezraWagon";
-  meekerAnim?: "walk-west" | "idle-west";
+  meekerAnim?: "walk-west" | "walk-front" | "idle-west" | "icon-front";
 }
 
 export interface DashboardSnapshot {

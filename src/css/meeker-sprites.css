@@ -78,20 +78,20 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  overflow: hidden;
-  min-width: 46px;
-  min-height: 46px;
+  overflow: visible;
+  min-width: 52px;
+  min-height: 52px;
 }
 
 .app-brand__seal .meeker-sprite--brand {
-  width: 42px;
-  height: 63px;
+  width: 52px;
+  height: 78px;
   filter: drop-shadow(0 0 8px rgba(57, 255, 122, 0.5));
 }
 
 .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
-  width: 2.35rem;
-  height: 3.5rem;
+  width: 3rem;
+  height: 4.35rem;
   animation: none;
   filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.35));
 }
@@ -102,8 +102,23 @@
 }
 
 .app-layout.is-title .app-brand__seal .meeker-sprite--brand {
-  width: 36px;
-  height: 54px;
+  width: 48px;
+  height: 72px;
+}
+
+html.emota-mobile .app-brand__seal {
+  min-width: var(--cinema-mark, 4.25rem);
+  min-height: calc(var(--cinema-mark, 4.25rem) * 1.35);
+}
+
+html.emota-mobile .app-brand__seal .meeker-sprite--brand {
+  width: var(--cinema-mark, 4.25rem);
+  height: calc(var(--cinema-mark, 4.25rem) * 1.45);
+}
+
+html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
+  width: clamp(3.25rem, 12vw, 4rem);
+  height: clamp(4.7rem, 17vw, 5.8rem);
 }
 
 .emota-popup__sprite {
