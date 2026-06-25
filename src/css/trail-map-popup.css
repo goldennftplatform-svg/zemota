@@ -91,7 +91,6 @@
   width: 100%;
   height: 100%;
   object-fit: fill;
-  opacity: 0.88;
   pointer-events: none;
 }
 
@@ -148,11 +147,8 @@
 .trail-map-popup__label {
   position: absolute;
   font-family: var(--font-head);
-  font-size: clamp(0.28rem, 0.75vw, 0.38rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(143, 255, 170, 0.75);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
 
 .trail-map-popup__label--e {
@@ -169,7 +165,6 @@
   left: 50%;
   top: 4%;
   transform: translateX(-50%);
-  color: var(--warn);
 }
 
 .trail-map-popup__foot {

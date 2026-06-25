@@ -1,4 +1,5 @@
 @import "../css/mobile-shell.css";
+@import "../css/trail-map-readability.css";
 
 :root {
   --bb-bg: #020806;
@@ -872,12 +873,10 @@ html.bb-wall .bb-dock {
   height: 100%;
   object-fit: contain;
   object-position: center;
-  opacity: 0.96;
   pointer-events: none;
   z-index: 0;
   image-rendering: crisp-edges;
   image-rendering: -webkit-optimize-contrast;
-  filter: contrast(1.06);
 }
 
 .bb-markers {
@@ -1131,8 +1130,6 @@ html.bb-wall .bb-dock {
 .bb-map-label {
   position: absolute;
   font-family: var(--font-pixel);
-  font-size: clamp(0.35rem, 0.75vw, 0.5rem);
-  color: rgba(57, 255, 122, 0.55);
   white-space: nowrap;
 }
 
@@ -1154,7 +1151,6 @@ html.bb-wall .bb-dock {
   transform: translateX(-50%);
   writing-mode: horizontal-tb;
   letter-spacing: 0.08em;
-  opacity: 0.45;
 }
 
 #bb-popup-host {
@@ -1397,7 +1393,7 @@ html.bb-wall .bb-map-inner {
 }
 
 html.bb-wall .bb-map__raster {
-  opacity: 1;
+  /* contrast boost in trail-map-readability.css */
 }
 
 html.bb-wall .bb-dock {
@@ -1468,10 +1464,6 @@ html.bb-wall .bb-wagon--loss-flash .bb-wagon-svg {
 
 html.bb-wall .bb-wagon-svg {
   width: clamp(1.55rem, 2.1vw, 2.25rem);
-}
-
-html.bb-wall .bb-map-labels .bb-map-label {
-  font-size: clamp(0.32rem, 0.62vw, 0.45rem);
 }
 
 html.bb-wall #bb-popup-host {
