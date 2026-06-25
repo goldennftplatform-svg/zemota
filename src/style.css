@@ -10,6 +10,7 @@
 @import "./css/trail-map-readability.css";
 @import "./css/meeker-sprites.css";
 @import "./css/mobile-cinema.css";
+@import "./css/header-overlay.css";
 
 /* EMOTA — 8-bit CRT depth + subtle motion */
 :root {
@@ -349,8 +350,9 @@ body {
 
 .app-brand {
   display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 0 0 auto;
 }
 
 .app-brand__seal {
@@ -386,7 +388,7 @@ body {
 
 .app-brand__copy {
   min-width: 0;
-  flex: 1;
+  flex: 0 1 auto;
 }
 
 .app-brand__topline {

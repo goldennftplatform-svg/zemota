@@ -1,0 +1,95 @@
+/* Compact top-left brand overlay — tight icon + title, no dead flex gap */
+
+html.emota-mobile .app-header__row {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+}
+
+html.emota-mobile .app-brand {
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: min(72%, calc(100% - 5.25rem));
+}
+
+html.emota-mobile .app-brand__copy {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+html.emota-mobile .app-header__stat-stack {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+/* Title / setup: score stays top-right; brand hugs the left edge */
+html.emota-mobile .app-layout.is-title .app-header__inner,
+html.emota-mobile .app-layout.is-onboard .app-header__inner {
+  padding-top: 0.28rem;
+  padding-bottom: 0.35rem;
+}
+
+/* Active play: floating top-left badge + ribbon stacked tight */
+html.emota-mobile .app-layout.is-playing .app-header {
+  position: relative;
+  z-index: 8;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+html.emota-mobile .app-layout.is-playing .app-header__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+html.emota-mobile .app-layout.is-playing .app-header__row {
+  display: flex !important;
+  align-items: center;
+  gap: 0.28rem;
+  width: fit-content;
+  max-width: calc(100% - 0.35rem);
+  margin: 0;
+  padding: 0.18rem 0.42rem 0.16rem 0.28rem;
+  pointer-events: auto;
+  background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(0, 12, 8, 0.98) 100%);
+  border: 2px solid rgba(0, 255, 119, 0.28);
+  border-top: none;
+  border-left: none;
+  border-radius: 0 0 12px 0;
+  box-shadow: 3px 3px 0 var(--shadow), 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+html.emota-mobile .app-layout.is-playing .app-header__stat-stack,
+html.emota-mobile .app-layout.is-playing .app-header__glow {
+  display: none !important;
+}
+
+html.emota-mobile .app-layout.is-playing .app-brand {
+  max-width: 100%;
+}
+
+html.emota-mobile .app-layout.is-playing .app-brand__title {
+  font-size: clamp(0.62rem, 2.6vw, 0.78rem);
+  letter-spacing: 0.08em;
+}
+
+html.emota-mobile .app-layout.is-playing .trail-ribbon-host {
+  margin-top: 0;
+  padding-top: 0.12rem;
+  border-top: none;
+  pointer-events: auto;
+}
+
+html.emota-mobile .app-layout.is-playing .trail-ribbon {
+  max-height: 2.5rem;
+  padding-left: 0.12rem;
+}

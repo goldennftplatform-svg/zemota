@@ -70,28 +70,49 @@
 }
 
 .meeker-sprite--brand {
-  width: 56px;
-  height: 84px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.meeker-sprite--brand .meeker-sprite__canvas {
+  display: block;
+  width: auto !important;
+  height: 100% !important;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .app-brand__seal {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: visible;
-  min-width: 52px;
-  min-height: 52px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  min-width: 3rem;
+  min-height: 3rem;
+  padding: 2px;
+  overflow: hidden;
 }
 
 .app-brand__seal .meeker-sprite--brand {
-  width: 52px;
-  height: 78px;
+  width: 2.85rem;
+  height: 2.85rem;
   filter: drop-shadow(0 0 8px rgba(57, 255, 122, 0.5));
 }
 
+.app-layout.is-playing .app-brand__seal {
+  width: 2.35rem;
+  height: 2.35rem;
+  min-width: 2.35rem;
+  min-height: 2.35rem;
+}
+
 .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
-  width: 3rem;
-  height: 4.35rem;
+  width: 2.15rem;
+  height: 2.15rem;
   animation: none;
   filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.35));
 }
@@ -101,24 +122,40 @@
   animation: none;
 }
 
+.app-layout.is-title .app-brand__seal {
+  width: 3.1rem;
+  height: 3.1rem;
+  min-width: 3.1rem;
+  min-height: 3.1rem;
+}
+
 .app-layout.is-title .app-brand__seal .meeker-sprite--brand {
-  width: 48px;
-  height: 72px;
+  width: 2.95rem;
+  height: 2.95rem;
 }
 
 html.emota-mobile .app-brand__seal {
-  min-width: var(--cinema-mark, 4.25rem);
-  min-height: calc(var(--cinema-mark, 4.25rem) * 1.35);
+  width: 3.15rem;
+  height: 3.15rem;
+  min-width: 3.15rem;
+  min-height: 3.15rem;
 }
 
 html.emota-mobile .app-brand__seal .meeker-sprite--brand {
-  width: var(--cinema-mark, 4.25rem);
-  height: calc(var(--cinema-mark, 4.25rem) * 1.45);
+  width: 3rem;
+  height: 3rem;
+}
+
+html.emota-mobile .app-layout.is-playing .app-brand__seal {
+  width: 2.4rem;
+  height: 2.4rem;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
 }
 
 html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand {
-  width: clamp(3.25rem, 12vw, 4rem);
-  height: clamp(4.7rem, 17vw, 5.8rem);
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .emota-popup__sprite {

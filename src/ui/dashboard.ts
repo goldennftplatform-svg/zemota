@@ -162,13 +162,6 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
     phase === "travel_menu"
       ? `D${s.day} · ${Math.round(s.miles)} mi · Pace ${s.pace} · ${s.rations} · ${s.food} lb`
       : `Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% · ${s.alive}/${s.partyCap}`;
-  const ribbonEzra = renderMeekerSpriteHtml("hopKingYoung", {
-    anim: "idle-west",
-    size: "ribbon",
-    className: "trail-ribbon__ezra",
-    label: "Young Ezra Meeker on the trail",
-    juice: false,
-  });
 
   return `
     <div class="trail-ribbon" role="region" aria-label="Trail progress">
@@ -181,7 +174,6 @@ export function buildMobileTrailRibbon(s: DashboardSnapshot, phase: string): str
           <p class="trail-ribbon__loc">${escapeHtml(loc)}</p>
           <p class="trail-ribbon__stats">${escapeHtml(stats)}</p>
         </div>
-        ${ribbonEzra}
       </div>
     </div>
   `.trim();

@@ -80,9 +80,7 @@ html.emota-mobile .app-layout.is-trail-play .app-brand__sub {
   display: none !important;
 }
 
-/* Active play: drop branding chrome — ribbon + game screen only */
-html.emota-mobile .app-layout.is-playing .app-header__row,
-html.emota-mobile .app-layout.is-playing .app-header__glow,
+/* Active play: compact top-left overlay (see header-overlay.css) */
 html.emota-mobile .app-layout.is-playing .today-high-score {
   display: none !important;
 }

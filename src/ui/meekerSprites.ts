@@ -113,6 +113,78 @@ function walkFrameMs(el: HTMLElement): number {
   return MEEKER_WALK_FRAME_MS;
 }
 
+interface FrameTrim {
+  sx: number;
+  sy: number;
+  sw: number;
+  sh: number;
+}
+
+const trimCache = new Map<string, FrameTrim>();
+
+function shouldTrimSprite(el: HTMLElement): boolean {
+  return (
+    el.classList.contains("meeker-sprite--brand") ||
+    el.classList.contains("meeker-sprite--ribbon") ||
+    el.classList.contains("meeker-sprite--share") ||
+    el.closest(".app-brand__seal") !== null
+  );
+}
+
+function getFrameTrim(keyed: KeyedSheet, frameIndex: number): FrameTrim {
+  const cacheKey = `${keyed.frameW}x${keyed.frameH}:${frameIndex}`;
+  const cached = trimCache.get(cacheKey);
+  if (cached) return cached;
+
+  const col = frameIndex % keyed.cols;
+  const row = Math.floor(frameIndex / keyed.cols);
+  const x0 = col * keyed.frameW;
+  const y0 = row * keyed.frameH;
+  const full: FrameTrim = { sx: x0, sy: y0, sw: keyed.frameW, sh: keyed.frameH };
+
+  const ctx = keyed.canvas.getContext("2d");
+  if (!ctx) {
+    trimCache.set(cacheKey, full);
+    return full;
+  }
+
+  const data = ctx.getImageData(x0, y0, keyed.frameW, keyed.frameH).data;
+  let minX = keyed.frameW;
+  let minY = keyed.frameH;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < keyed.frameH; y++) {
+    for (let x = 0; x < keyed.frameW; x++) {
+      const a = data[(y * keyed.frameW + x) * 4 + 3]!;
+      if (a > 12) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  if (maxX < 0) {
+    trimCache.set(cacheKey, full);
+    return full;
+  }
+
+  const pad = 1;
+  minX = Math.max(0, minX - pad);
+  minY = Math.max(0, minY - pad);
+  maxX = Math.min(keyed.frameW - 1, maxX + pad);
+  maxY = Math.min(keyed.frameH - 1, maxY + pad);
+  const trim: FrameTrim = {
+    sx: x0 + minX,
+    sy: y0 + minY,
+    sw: maxX - minX + 1,
+    sh: maxY - minY + 1,
+  };
+  trimCache.set(cacheKey, trim);
+  return trim;
+}
+
 function ensureCanvas(el: HTMLElement): HTMLCanvasElement {
   let canvas = el.querySelector<HTMLCanvasElement>("canvas.meeker-sprite__canvas");
   if (!canvas) {
@@ -127,16 +199,29 @@ function drawSpriteFrame(
   target: HTMLCanvasElement,
   keyed: KeyedSheet,
   frameIndex: number,
+  opts?: { trim?: boolean },
 ): void {
+  const ctx = target.getContext("2d");
+  if (!ctx) return;
+  ctx.imageSmoothingEnabled = false;
+
+  if (opts?.trim) {
+    const t = getFrameTrim(keyed, frameIndex);
+    if (target.width !== t.sw || target.height !== t.sh) {
+      target.width = t.sw;
+      target.height = t.sh;
+    }
+    ctx.clearRect(0, 0, target.width, target.height);
+    ctx.drawImage(keyed.canvas, t.sx, t.sy, t.sw, t.sh, 0, 0, t.sw, t.sh);
+    return;
+  }
+
   const col = frameIndex % keyed.cols;
   const row = Math.floor(frameIndex / keyed.cols);
   if (target.width !== keyed.frameW || target.height !== keyed.frameH) {
     target.width = keyed.frameW;
     target.height = keyed.frameH;
   }
-  const ctx = target.getContext("2d");
-  if (!ctx) return;
-  ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, target.width, target.height);
   ctx.drawImage(
     keyed.canvas,
@@ -164,7 +249,7 @@ export function renderMeekerSpriteHtml(
 ): string {
   const anim = opts?.anim ?? "idle-west";
   const size = opts?.size ?? "hero";
-  const juice = opts?.juice !== false && (size === "hero" || size === "recap" || size === "brand");
+  const juice = opts?.juice !== false && (size === "hero" || size === "recap");
   const extra = `${opts?.className ? ` ${opts.className}` : ""}${juice ? " meeker-sprite--juice" : ""}`;
   const label = opts?.label ?? "";
   const aria = label ? ` aria-label="${label.replace(/"/g, "&quot;")}"` : ` aria-hidden="true"`;
@@ -198,8 +283,10 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
     if (!keyed || !el.isConnected || mountGen.get(el) !== gen) return;
     const canvas = ensureCanvas(el);
 
+    const trim = shouldTrimSprite(el);
+
     const tick = (): void => {
-      drawSpriteFrame(canvas, keyed, frames[fi]!);
+      drawSpriteFrame(canvas, keyed, frames[fi]!, { trim });
       fi = (fi + 1) % frames.length;
     };
 
