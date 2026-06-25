@@ -51,25 +51,20 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
     const victory = data.outcome === "victory";
     const pct = Math.round((data.miles / Math.max(1, data.totalMiles)) * 100);
     const spriteHtml = victory
-      ? data.hopKing
-        ? renderMeekerSpriteHtml("hopKingYoung", {
-            anim: "walk-west",
-            size: "recap",
-            label: "Young Hop King celebrates the trail",
-            stage: true,
-          })
-        : renderMeekerSpriteHtml("ezraElder", {
-            anim: "idle-west",
-            size: "recap",
-            label: "Ezra Meeker on the Oregon Trail",
-            stage: true,
-          })
+      ? renderMeekerSpriteHtml("hopKingYoung", {
+          anim: "walk-west",
+          size: "recap",
+          label: data.hopKing
+            ? "Young Hop King — the real story was always the hops"
+            : "Young Ezra Meeker made hop country",
+          stage: true,
+        })
       : renderMeekerSpriteHtml("ezraElder", {
-            anim: "idle-west",
-            size: "recap",
-            label: "Wagon lost on the trail",
-            stage: true,
-          });
+          anim: "idle-west",
+          size: "recap",
+          label: "Ezra Meeker remembers the trail",
+          stage: true,
+        });
 
     const headline = victory ? "You made hop country" : "The trail wins this time";
     const sub = victory

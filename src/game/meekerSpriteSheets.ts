@@ -22,11 +22,19 @@ export const MEEKER_WALK_WEST_FRAMES = [6, 7, 8, 9] as const;
 /** Standing profile facing west. */
 export const MEEKER_IDLE_WEST_FRAME = 7;
 
-/** Young Ezra at jump-off → elder Meeker deep on the trail. */
-export function meekerSpriteForTrailPct(pct: number): {
-  id: MeekerSpriteId;
-  anim: MeekerSpriteAnim;
-} {
-  if (pct >= 68) return { id: "ezraElder", anim: "walk-west" };
-  return { id: "hopKingYoung", anim: "walk-west" };
+/**
+ * Player-facing Ezra — young Hop King at jump-off (the “gotcha”: trail is only half the story).
+ * Stays in the header / player chrome for the whole run.
+ */
+export const PLAYER_BOX_MEEKER: MeekerSpriteId = "hopKingYoung";
+
+/** Monument-era Ezra — death screens, loss slash, dysentery popups. */
+export const SLASH_MEEKER: MeekerSpriteId = "ezraElder";
+
+export function playerBoxMeekerSprite(): { id: MeekerSpriteId; anim: MeekerSpriteAnim } {
+  return { id: PLAYER_BOX_MEEKER, anim: "walk-west" };
+}
+
+export function slashMeekerSprite(): { id: MeekerSpriteId; anim: MeekerSpriteAnim } {
+  return { id: SLASH_MEEKER, anim: "idle-west" };
 }

@@ -955,8 +955,19 @@ body {
   gap: 0.35rem;
 }
 
+.dash-party-panel__lead {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+
+.dash-party-panel__ezra {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.4));
+}
+
 .dash-chip--roster {
-  align-self: flex-start;
+  align-self: flex-end;
 }
 
 .dash-minimap-host {

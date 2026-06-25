@@ -1,6 +1,7 @@
 import type { DashboardSnapshot } from "../game/types";
 import { renderPartyRoster } from "./partyFigures";
 import { renderTrailMinimap } from "./trailMinimap";
+import { renderMeekerSpriteHtml } from "./meekerSprites";
 
 const PHASE_LABEL: Record<string, string> = {
   training_text: "Training",
@@ -86,6 +87,13 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
     s.party.map((p) => ({ name: p.name, alive: p.alive })),
   );
 
+  const leaderSprite = renderMeekerSpriteHtml("hopKingYoung", {
+    anim: "walk-west",
+    size: "share",
+    className: "dash-party-panel__ezra",
+    label: "Your wagon leader — young Ezra Meeker",
+  });
+
   return `
     <div class="dash-wrap">
       <header class="dash-head">
@@ -94,7 +102,10 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
           <p class="dash-loc">${escapeHtml(s.landmark)}</p>
         </div>
         <div class="dash-party-panel" aria-label="Party roster">
-          <span class="dash-chip dash-chip--roster">Party · ${s.alive}/${s.partyCap}</span>
+          <div class="dash-party-panel__lead">
+            ${leaderSprite}
+            <span class="dash-chip dash-chip--roster">Party · ${s.alive}/${s.partyCap}</span>
+          </div>
           ${partyHtml}
         </div>
         <button type="button" class="trail-map-trigger dash-minimap-host" data-trail-map-open aria-label="View your wagon on the trail map">

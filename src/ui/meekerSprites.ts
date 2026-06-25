@@ -2,7 +2,7 @@ import {
   MEEKER_IDLE_WEST_FRAME,
   MEEKER_SPRITE_SHEETS,
   MEEKER_WALK_WEST_FRAMES,
-  meekerSpriteForTrailPct,
+  playerBoxMeekerSprite,
   type MeekerSpriteAnim,
   type MeekerSpriteId,
   type MeekerSpriteSheet,
@@ -226,21 +226,12 @@ export function hydrateBrandSeal(root: ParentNode = document): void {
   if (el) mountMeekerSprite(el);
 }
 
-/** Header Ezra ages as the wagon moves west — always walking. */
-export function syncBrandSealToTrail(trailPct: number, phase: string): void {
+/** Young Hop King in the header — walks forever; never ages mid-run. */
+export function syncBrandSealToTrail(_trailPct: number, _phase: string): void {
   const el = document.querySelector<HTMLElement>(".app-brand__seal [data-meeker-sprite]");
   if (!el) return;
 
-  const onboard =
-    phase === "title" ||
-    phase === "training_text" ||
-    phase === "training_quiz" ||
-    phase === "party_names" ||
-    phase === "profile" ||
-    phase === "store";
-
-  const id = onboard ? "hopKingYoung" : meekerSpriteForTrailPct(trailPct).id;
-  const anim: MeekerSpriteAnim = "walk-west";
+  const { id, anim } = playerBoxMeekerSprite();
 
   if (el.dataset.meekerSprite !== id) {
     el.dataset.meekerSprite = id;

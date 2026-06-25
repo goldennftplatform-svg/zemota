@@ -931,7 +931,7 @@ function render(): void {
 
   const hopKingShareHtml =
     sc.phase === "title"
-      ? `<button type="button" class="hop-king-share" data-hop-king-share>${renderMeekerSpriteHtml("hopKingYoung", { anim: "idle-west", size: "share", juice: false })}<span>Share · young Hop King start</span></button>`
+      ? `<button type="button" class="hop-king-share" data-hop-king-share>${renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "share", juice: false })}<span>Share · young Hop King start</span></button>`
       : "";
 
   const setupInputsHtml =

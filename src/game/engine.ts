@@ -794,9 +794,21 @@ export class GameEngine {
 
       case "victory": {
         const score = this.computeScore();
+        const hop = this.lastLandResult?.hopKing ?? false;
         return {
           phase: "victory",
-          coach: "Nice run — Title starts fresh. Your local best today stays in the header when you have one.",
+          heroImage: {
+            src: GAME_ART.hopKingYoungSheet,
+            alt: hop
+              ? "Young Hop King — trail was only the beginning"
+              : "Young Ezra Meeker reaches Oregon",
+            variant: "title",
+            meekerSprite: "hopKingYoung",
+            meekerAnim: "walk-west",
+          },
+          coach: hop
+            ? "You made hop country — Ezra’s Puyallup story was always the real punchline."
+            : "Nice run — Title starts fresh. Your local best today stays in the header when you have one.",
           lines: [
             `Score ${score}`,
             this.stage2Archetype ? `Stage 2 · ${this.stage2Archetype} (+${this.stage2ScoreBonus})` : "",
