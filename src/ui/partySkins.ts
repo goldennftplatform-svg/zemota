@@ -1,95 +1,28 @@
 import {
   PARTY_SKIN_SHEETS,
-  PARTY_SKINS_PER_SHEET,
-  partySkinCell,
-  partySkinCellRect,
+  partySkinLocalIndex,
   partySkinSheetIndex,
-  type PartySkinCellRect,
   type PartySkinSheet,
 } from "../game/partySkinSheets";
+import { partySkinTrimRect } from "../game/partySkinRects";
 import "../css/party-skins.css";
+
+const PARTY_SKIN_REV = "3";
 
 interface KeyedPartySheet {
   canvas: HTMLCanvasElement;
   def: PartySkinSheet;
-  trimmed: Map<number, PartySkinCellRect>;
 }
 
 const keyedCache = new Map<number, KeyedPartySheet>();
 const keyedLoads = new Map<number, Promise<KeyedPartySheet | null>>();
-
-function trimOpaqueRect(
-  px: Uint8ClampedArray,
-  sheetW: number,
-  sx: number,
-  sy: number,
-  sw: number,
-  sh: number,
-): PartySkinCellRect {
-  let minX = sx + sw;
-  let minY = sy + sh;
-  let maxX = sx;
-  let maxY = sy;
-
-  for (let y = sy; y < sy + sh; y++) {
-    for (let x = sx; x < sx + sw; x++) {
-      const a = px[(y * sheetW + x) * 4 + 3]!;
-      if (a > 16) {
-        if (x < minX) minX = x;
-        if (y < minY) minY = y;
-        if (x > maxX) maxX = x;
-        if (y > maxY) maxY = y;
-      }
-    }
-  }
-
-  if (maxX < minX || maxY < minY) {
-    return { sx, sy, sw, sh };
-  }
-
-  const pad = 1;
-  minX = Math.max(sx, minX - pad);
-  minY = Math.max(sy, minY - pad);
-  maxX = Math.min(sx + sw - 1, maxX + pad);
-  maxY = Math.min(sy + sh - 1, maxY + pad);
-  return { sx: minX, sy: minY, sw: maxX - minX + 1, sh: maxY - minY + 1 };
-}
-
-function buildTrimCache(canvas: HTMLCanvasElement): Map<number, PartySkinCellRect> {
-  const trimmed = new Map<number, PartySkinCellRect>();
-  for (let local = 0; local < PARTY_SKINS_PER_SHEET; local++) {
-    const col = local % 8;
-    const row = Math.floor(local / 8);
-    trimmed.set(local, partySkinCellRect(col, row));
-  }
-
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return trimmed;
-
-  let px: Uint8ClampedArray;
-  try {
-    px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  } catch {
-    return trimmed;
-  }
-
-  for (let local = 0; local < PARTY_SKINS_PER_SHEET; local++) {
-    const col = local % 8;
-    const row = Math.floor(local / 8);
-    const cell = partySkinCellRect(col, row);
-    trimmed.set(local, trimOpaqueRect(px, canvas.width, cell.sx, cell.sy, cell.sw, cell.sh));
-  }
-  return trimmed;
-}
 
 function keyBlackSheet(img: HTMLImageElement, def: PartySkinSheet): KeyedPartySheet {
   const canvas = document.createElement("canvas");
   canvas.width = img.naturalWidth;
   canvas.height = img.naturalHeight;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) {
-    return { canvas, def, trimmed: buildTrimCache(canvas) };
-  }
+  if (!ctx) return { canvas, def };
 
   ctx.drawImage(img, 0, 0);
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -103,7 +36,7 @@ function keyBlackSheet(img: HTMLImageElement, def: PartySkinSheet): KeyedPartySh
     }
   }
   ctx.putImageData(data, 0, 0);
-  return { canvas, def, trimmed: buildTrimCache(canvas) };
+  return { canvas, def };
 }
 
 function loadKeyedSheet(sheetIndex: number): Promise<KeyedPartySheet | null> {
@@ -142,9 +75,11 @@ function ensureCanvas(el: HTMLElement): HTMLCanvasElement {
 }
 
 function drawPartySkin(target: HTMLCanvasElement, keyed: KeyedPartySheet, skinId: number): void {
-  const { col, row } = partySkinCell(skinId);
-  const local = row * 8 + col;
-  const trimmed = keyed.trimmed.get(local) ?? partySkinCellRect(col, row);
+  const sheetIndex = partySkinSheetIndex(skinId);
+  const local = partySkinLocalIndex(skinId);
+  const trimmed = partySkinTrimRect(sheetIndex, local);
+  if (!trimmed) return;
+
   const { canvas: sheet } = keyed;
 
   if (target.width !== trimmed.sw || target.height !== trimmed.sh) {
@@ -170,7 +105,7 @@ function drawPartySkin(target: HTMLCanvasElement, keyed: KeyedPartySheet, skinId
 }
 
 export function renderPartySkinHtml(skinId: number): string {
-  return `<span class="party-skin" data-party-skin="${skinId}" aria-hidden="true"></span>`;
+  return `<span class="party-skin" data-party-skin="${skinId}" data-party-skin-rev="${PARTY_SKIN_REV}" aria-hidden="true"></span>`;
 }
 
 export function mountPartySkin(el: HTMLElement, opts?: { force?: boolean }): void {
@@ -179,14 +114,14 @@ export function mountPartySkin(el: HTMLElement, opts?: { force?: boolean }): voi
 
   const skinId = Number(raw);
   if (!Number.isFinite(skinId)) return;
-  if (!opts?.force && el.dataset.partySkinMounted === String(skinId)) return;
+  if (!opts?.force && el.dataset.partySkinMounted === `${PARTY_SKIN_REV}:${skinId}`) return;
 
   const sheetIndex = partySkinSheetIndex(skinId);
   void loadKeyedSheet(sheetIndex).then((keyed) => {
     if (!keyed || !el.isConnected) return;
     if (el.dataset.partySkin !== String(skinId)) return;
     drawPartySkin(ensureCanvas(el), keyed, skinId);
-    el.dataset.partySkinMounted = String(skinId);
+    el.dataset.partySkinMounted = `${PARTY_SKIN_REV}:${skinId}`;
   });
 }
 

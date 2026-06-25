@@ -1,4 +1,4 @@
-/** 72 pioneer portraits — 24 per sheet × 3 sets (calibrated 8×3 grid). */
+/** 72 pioneer portraits — 24 per sheet × 3 sets. */
 
 export interface PartySkinSheet {
   src: string;
@@ -17,25 +17,6 @@ export const PARTY_SKINS_PER_SHEET = 24;
 export const PARTY_SKIN_SHEET_COUNT = 3;
 export const PARTY_SKIN_COUNT = PARTY_SKINS_PER_SHEET * PARTY_SKIN_SHEET_COUNT;
 
-/** Measured column slices (1024px sheets) — not uniform 128px. */
-export const PARTY_SKIN_COL_BOUNDS: readonly (readonly [number, number])[] = [
-  [40, 158],
-  [158, 281],
-  [281, 404],
-  [404, 527],
-  [527, 646],
-  [646, 770],
-  [770, 901],
-  [901, 1024],
-];
-
-/** Measured row slices below title band. */
-export const PARTY_SKIN_ROW_BOUNDS: readonly (readonly [number, number])[] = [
-  [228, 403],
-  [403, 565],
-  [565, 720],
-];
-
 export const PARTY_SKIN_SHEETS: readonly PartySkinSheet[] = [
   { src: "/art/sprites/party-skins/set-1.png", cols: 8, rows: 3 },
   { src: "/art/sprites/party-skins/set-2.png", cols: 8, rows: 3 },
@@ -52,10 +33,9 @@ export function partySkinCell(skinId: number): { col: number; row: number } {
   return { col: local % 8, row: Math.floor(local / 8) };
 }
 
-export function partySkinCellRect(col: number, row: number): PartySkinCellRect {
-  const [left, right] = PARTY_SKIN_COL_BOUNDS[col] ?? [0, 128];
-  const [top, bottom] = PARTY_SKIN_ROW_BOUNDS[row] ?? [228, 403];
-  return { sx: left, sy: top, sw: right - left, sh: bottom - top };
+export function partySkinLocalIndex(skinId: number): number {
+  const { col, row } = partySkinCell(skinId);
+  return row * 8 + col;
 }
 
 /** Stable skin pick from traveler name + roster slot. */
