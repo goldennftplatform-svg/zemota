@@ -618,7 +618,7 @@ body {
   height: auto;
   aspect-ratio: 976 / 310;
   max-height: 100cqh;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0.9);
   transform-origin: center center;
 }
 
