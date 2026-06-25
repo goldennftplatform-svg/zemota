@@ -1,20 +1,23 @@
 /* Party roster — 72 random pioneer skins */
 
 .party-roster {
-  --party-cell: 3.5rem;
-  padding-bottom: 0.55rem;
-  overflow: visible;
+  --party-cell: min(2.35rem, 18vw);
+  width: 100%;
+  max-width: 100%;
+  padding-bottom: 0.45rem;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .party-skin {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  display: block;
   width: 100%;
-  height: calc(var(--party-cell) * 1.5);
-  flex-shrink: 0;
-  overflow: visible;
+  height: calc(var(--party-cell) * 1.35);
+  max-height: 3.4rem;
+  flex-shrink: 1;
+  overflow: hidden;
+  contain: layout paint;
 }
 
 .party-skin__img,
@@ -28,50 +31,78 @@
   object-position: center bottom;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+  pointer-events: none;
+  user-select: none;
 }
 
 .party-roster--compact {
-  --party-cell: 3rem;
+  --party-cell: min(2.1rem, 16vw);
 }
 
 .party-roster--bare {
-  --party-cell: 2.75rem;
+  --party-cell: min(2rem, 15vw);
 }
 
 .party-roster__fig--gone .party-skin__img,
 .party-roster__fig--gone .party-skin__canvas {
-  filter: grayscale(1) brightness(0.7);
+  opacity: 0.45;
+  filter: grayscale(1) brightness(0.75);
 }
 
 .party-roster .party-roster__fig {
   border: 1px solid rgba(0, 255, 119, 0.22);
   border-radius: 6px;
-  padding: 0.2rem 0.08rem 0.28rem;
+  padding: 0.12rem 0.04rem 0.18rem;
   background: rgba(0, 10, 6, 0.45);
   box-sizing: border-box;
-  overflow: visible;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .party-roster--bare .party-roster__fig {
   border-color: rgba(0, 255, 119, 0.14);
   background: rgba(0, 8, 4, 0.25);
-  padding-bottom: 0.22rem;
+  padding-bottom: 0.16rem;
 }
 
 html.emota-mobile .party-roster {
-  --party-cell: 2.85rem;
-  padding-bottom: 0.5rem;
+  --party-cell: min(2.15rem, 17vw);
 }
 
 html.emota-mobile .party-roster--bare {
-  --party-cell: 2.55rem;
+  --party-cell: min(1.95rem, 15.5vw);
 }
 
 .bb-dock__panel--party .party-roster {
-  --party-cell: 2.25rem;
+  --party-cell: 2rem;
 }
 
 .bb-dock__panel--party .party-skin {
-  height: calc(var(--party-cell) * 1.45);
+  height: calc(var(--party-cell) * 1.3);
+  max-height: 2.8rem;
+}
+
+/* Narrow sidebar — roster must stay inside the panel */
+.sidebar .party-roster {
+  --party-cell: 1fr;
+  gap: 0.18rem;
+  padding: 0.38rem 0.32rem 0.42rem;
+}
+
+.sidebar .party-skin {
+  height: 2.65rem;
+  max-height: 2.65rem;
+}
+
+.sidebar .party-roster__name {
+  font-size: 0.5rem;
+}
+
+.dash-party-panel {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.dash-party-panel .party-roster {
+  width: 100%;
 }

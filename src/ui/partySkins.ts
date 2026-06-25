@@ -1,11 +1,11 @@
 import { partyPortraitSrc } from "../game/partySkinSheets";
 import "../css/party-skins.css";
 
-const PARTY_SKIN_REV = "4";
+const PARTY_SKIN_REV = "5";
 
 export function renderPartySkinHtml(skinId: number): string {
   const src = partyPortraitSrc(skinId);
-  return `<span class="party-skin" data-party-skin="${skinId}" data-party-skin-rev="${PARTY_SKIN_REV}" aria-hidden="true"><img class="party-skin__img" src="${src}" alt="" loading="lazy" decoding="async" width="64" height="96" /></span>`;
+  return `<span class="party-skin" data-party-skin="${skinId}" data-party-skin-rev="${PARTY_SKIN_REV}" aria-hidden="true"><img class="party-skin__img" src="${src}" alt="" loading="lazy" decoding="async" /></span>`;
 }
 
 /** No-op — portraits are inline <img> tags now. Kept for call sites. */
