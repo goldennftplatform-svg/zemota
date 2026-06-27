@@ -826,12 +826,19 @@ export class OverheadMini {
     this.raf = requestAnimationFrame(tick);
   }
 
-  private finishHunt(): void {
-    if (!this.hunt || this.hunt.done) return;
+  /** End hunt — keeps meat earned this session (Oregon Trail style). */
+  endHunt(): { food: number; ammo: number } {
+    if (!this.hunt || this.hunt.done) return { food: 0, ammo: 0 };
     const food = this.hunt.meatLb;
     const ammo = this.hunt.shotsFired;
     this.hunt.done = true;
     this.stop();
+    return { food, ammo };
+  }
+
+  private finishHunt(): void {
+    if (!this.hunt || this.hunt.done) return;
+    const { food, ammo } = this.endHunt();
     this._onHuntDone(food, ammo);
   }
 
@@ -846,19 +853,12 @@ export class OverheadMini {
     h.shotsFired += 1;
     const ax = h.aimX;
     const ay = h.aimY;
-
-    for (const c of h.clumps) {
-      if (circleHitsPoint(c.x, c.y, c.r, ax, ay)) {
-        h.hitFlash = 10;
-        if (h.shotsFired >= h.maxShots) this.finishHunt();
-        return;
-      }
-    }
+    const hitPad = 5;
 
     let hit = false;
     for (const a of h.animals) {
       if (!a.alive) continue;
-      if (this.pointInRect(ax, ay, a.x, a.y, a.w, a.h)) {
+      if (this.pointInRect(ax, ay, a.x - hitPad, a.y - hitPad, a.w + hitPad * 2, a.h + hitPad * 2)) {
         const raw = meatLbForKind(a.kind);
         const room = Math.max(0, h.maxCarryLb - h.meatLb);
         h.meatLb += Math.min(room, raw);
@@ -870,7 +870,20 @@ export class OverheadMini {
         break;
       }
     }
-    if (!hit) h.hitFlash = 10;
+    if (hit) {
+      if (h.shotsFired >= h.maxShots) this.finishHunt();
+      return;
+    }
+
+    for (const c of h.clumps) {
+      if (circleHitsPoint(c.x, c.y, c.r, ax, ay)) {
+        h.hitFlash = 10;
+        if (h.shotsFired >= h.maxShots) this.finishHunt();
+        return;
+      }
+    }
+
+    h.hitFlash = 10;
 
     if (h.shotsFired >= h.maxShots) {
       this.finishHunt();

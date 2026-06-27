@@ -654,13 +654,13 @@ export class GameEngine {
         const scarce = huntsHere >= 3 ? " Game is getting scarce here — hunt smarter, not harder." : "";
         return {
           phase: "overhead_hunt",
-          coach: "Play on the green field below — aim, then shoot. Cancel hunt brings you back to camp, no pressure.",
+          coach: "Play on the green field below — aim, then shoot. Return to camp when you are done — meat you bagged comes with you.",
           lines: [
             "Hunting — drag to aim at buffalo, deer, and rabbits. Tap FIRE or press Space to shoot.",
             `${z.label}. Wagon limit ${HUNT_MAX_MEAT_LB} lb per trip. Shots use your ammo.${scarce}`,
           ],
           overhead: "hunt",
-          choices: [{ n: 1, text: "Cancel hunt" }],
+          choices: [{ n: 1, text: "Return to camp" }],
         };
       }
 
@@ -1202,8 +1202,14 @@ export class GameEngine {
     const gained = Math.min(Math.max(0, foodGained), HUNT_MAX_MEAT_LB);
     const bonus =
       gained > 0 ? Math.round(PROFILES[this.profile].forageBonus * 0.35) : 0;
-    this.inv.foodLbs += gained + bonus;
+    const total = gained + bonus;
+    this.inv.foodLbs += total;
     this.inv.ammo = Math.max(0, this.inv.ammo - ammoSpent);
+    if (total > 0) {
+      this.campFlash = `Hunt: +${total} lb food${bonus > 0 ? ` (+${bonus} lb trail bonus)` : ""} · ${ammoSpent} shot${ammoSpent === 1 ? "" : "s"}`;
+    } else if (ammoSpent > 0) {
+      this.campFlash = `Hunt: no game bagged · ${ammoSpent} shot${ammoSpent === 1 ? "" : "s"} fired`;
+    }
     this.phase = "travel_menu";
   }
 

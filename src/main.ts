@@ -1132,9 +1132,9 @@ function choice(n: number): void {
   }
 
   if (engine.phase === "overhead_hunt" && n === 1) {
-    overhead.stop();
+    const { food, ammo } = overhead.endHunt();
     overheadActive = false;
-    engine.choose(1);
+    engine.completeOverheadHunt(food, ammo);
     canvas.hidden = true;
     canvas.classList.remove("overhead-canvas--hunt");
     render();
