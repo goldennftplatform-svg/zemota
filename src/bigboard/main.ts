@@ -549,7 +549,6 @@ function render(): void {
             ${lossCalloutHtml}
             <div class="bb-map-inner" id="bb-map-inner">
               <img class="bb-map__raster" id="bb-map-img" src="${GAME_ART.oregonTrailMap}" alt="" aria-hidden="true" decoding="async" />
-              ${wall ? `<div class="bb-map-brand" aria-hidden="true"><span class="bb-map-brand__chip">EMOTA</span></div>` : ""}
               <div class="bb-markers" id="markers">${markersHtml}</div>
               <div class="bb-map-labels">
                 <span class="bb-map-label bb-map-label--w">Oregon City</span>
