@@ -314,7 +314,7 @@ html.emota-mobile .emota-boot__frame::before {
   font-family: var(--font-head);
   font-size: clamp(2.75rem, 12vw, 3.75rem);
   line-height: 1.1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   color: var(--hi);
   text-shadow: 0 0 18px rgba(57, 255, 122, 0.35);
   margin-bottom: 0.35rem;
