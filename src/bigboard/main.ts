@@ -7,7 +7,7 @@ import { io, type Socket } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
-import { trailChartStageCoverPercent, trailPortraitNormAt } from "../game/trailChartCoords";
+import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { clearStoredTrailOrigin, persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
@@ -127,25 +127,14 @@ function feedKindLabel(kind: string): string {
 /** Place wagons on the horizontal Ezra Meeker chart (east right → west left). */
 function layoutWagonsOnChart(): void {
   const inner = document.getElementById("bb-map-inner");
-  const stage = document.getElementById("bb-map-stage");
-  if (!inner || !stage) return;
-
-  const { width, height } = stage.getBoundingClientRect();
-  const containerAspect = width / Math.max(1, height);
-  const cover = isWallMode();
+  if (!inner) return;
 
   for (const el of inner.querySelectorAll<HTMLElement>(".bb-wagon")) {
     const miles = Number(el.dataset.miles ?? 0);
-    if (cover) {
-      const { left, top } = trailChartStageCoverPercent(miles, containerAspect);
-      el.style.left = `${left}%`;
-      el.style.top = `${top}%`;
-    } else {
-      const { x, y } = trailPortraitNormAt(miles);
-      const bob = Math.sin(miles * 0.02) * 0.004;
-      el.style.left = `${x * 100}%`;
-      el.style.top = `${(y + bob) * 100}%`;
-    }
+    const { x, y } = trailPortraitNormAt(miles);
+    const bob = Math.sin(miles * 0.02) * 0.004;
+    el.style.left = `${x * 100}%`;
+    el.style.top = `${(y + bob) * 100}%`;
   }
 }
 

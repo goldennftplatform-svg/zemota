@@ -1524,24 +1524,32 @@ html.bb-wall .bb-map-wrap {
 
 html.bb-wall .bb-map-stage {
   flex: 1 1 auto;
-  padding: 0;
+  padding: 0.1rem 0.25rem 0;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html.bb-wall {
+  --bb-map-fit: 0.96;
 }
 
 html.bb-wall .bb-map-inner {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  max-height: none;
-  aspect-ratio: unset;
+  position: relative;
+  flex: 0 0 auto;
+  left: auto;
+  top: auto;
+  width: min(calc(100cqw * var(--bb-map-fit)), calc(100cqh * 976 / 310 * var(--bb-map-fit)));
+  height: auto;
+  aspect-ratio: 976 / 310;
+  max-height: calc(100cqh * var(--bb-map-fit));
   transform: none;
 }
 
 html.bb-wall .bb-map__raster {
   opacity: 1;
-  object-fit: cover;
-  object-position: center center;
+  object-fit: fill;
 }
 
 html.bb-wall .bb-dock {
