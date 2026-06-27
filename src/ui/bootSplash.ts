@@ -2,12 +2,17 @@ import { BOOT_LANDING_INTRO_MS } from "../game/config";
 import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./bootSplash.css";
 
+function isMobileLanding(): boolean {
+  return document.documentElement.classList.contains("emota-mobile");
+}
+
 function bootIntroMs(): number {
   try {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 240;
   } catch {
     /* ignore */
   }
+  if (isMobileLanding()) return Math.max(1200, BOOT_LANDING_INTRO_MS - 200);
   return BOOT_LANDING_INTRO_MS;
 }
 
@@ -27,6 +32,13 @@ const STATUS_LINES = [
   "Hearing rumors from down the trail…",
 ];
 
+const MOBILE_STATUS_LINES = [
+  "Warming CRT phosphor…",
+  "Loading young Hop King…",
+  "Real history · Oregon Trail",
+  "Jump-off almost ready…",
+];
+
 function shouldSkipBootSplash(): boolean {
   try {
     if (new URLSearchParams(window.location.search).get("nosplash") === "1") return true;
@@ -39,6 +51,10 @@ function shouldSkipBootSplash(): boolean {
 
 function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function revealAppLayout(): void {
+  document.getElementById("app-layout")?.classList.add("app-layout--ready");
 }
 
 /** Resolves when the player activates the landing CTA (click or keyboard on button). */
@@ -85,25 +101,7 @@ export async function runBootSplash(): Promise<void> {
   }
 
   if (shouldSkipBootSplash()) {
-    el.remove();
-    return;
-  }
-
-  if (document.documentElement.classList.contains("emota-mobile")) {
-    const statusEl = el.querySelector<HTMLElement>(".emota-boot__status");
-    const hintWait = el.querySelector<HTMLElement>(".emota-boot__hint--wait");
-    const bar = el.querySelector<HTMLElement>(".emota-boot__bar");
-    if (hintWait) hintWait.hidden = true;
-    if (bar) bar.style.width = "100%";
-    if (statusEl) {
-      statusEl.textContent = "Real history · Oregon Trail";
-      statusEl.style.animation = "none";
-    }
-    el.classList.remove("emota-boot--intro");
-    el.setAttribute("aria-busy", "false");
-    await wait(900);
-    el.classList.add("emota-boot--exit");
-    await wait(340);
+    revealAppLayout();
     el.remove();
     return;
   }
@@ -115,15 +113,18 @@ export async function runBootSplash(): Promise<void> {
   const hintCta = el.querySelector<HTMLElement>(".emota-boot__hint--cta");
 
   if (!cta) {
+    revealAppLayout();
     el.remove();
     return;
   }
 
+  const mobile = isMobileLanding();
+  const statusLines = mobile ? MOBILE_STATUS_LINES : STATUS_LINES;
   let i = 0;
   const tick = window.setInterval(() => {
-    if (statusEl) statusEl.textContent = STATUS_LINES[i % STATUS_LINES.length] ?? "";
+    if (statusEl) statusEl.textContent = statusLines[i % statusLines.length] ?? "";
     i++;
-  }, 440);
+  }, mobile ? 520 : 440);
 
   const fonts = document.fonts?.ready?.catch(() => undefined) ?? Promise.resolve();
   await fonts;
@@ -137,7 +138,7 @@ export async function runBootSplash(): Promise<void> {
     bar.style.width = "100%";
   }
   if (statusEl) {
-    statusEl.textContent = "Jump-off ready.";
+    statusEl.textContent = mobile ? "Tap to open the title menu." : "Jump-off ready.";
     statusEl.style.animation = "none";
   }
   if (hintWait) hintWait.hidden = true;
@@ -153,18 +154,19 @@ export async function runBootSplash(): Promise<void> {
   }
 
   el.setAttribute("aria-busy", "false");
-  cta.focus({ preventScroll: true });
+  if (!mobile) cta.focus({ preventScroll: true });
 
   const continueAc = new AbortController();
   await waitForLandingContinue(cta, continueAc.signal);
   continueAc.abort();
 
+  revealAppLayout();
   el.classList.add("emota-boot--finishing");
-  await wait(200);
+  await wait(mobile ? 160 : 200);
   el.classList.add("emota-boot--exit");
 
   await Promise.race([
-    wait(720),
+    wait(mobile ? 680 : 720),
     new Promise<void>((resolve) => {
       el.addEventListener("transitionend", () => resolve(), { once: true });
     }),

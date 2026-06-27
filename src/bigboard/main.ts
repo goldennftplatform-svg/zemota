@@ -149,6 +149,8 @@ type ScoreRow = { name: string; score: number; at: string };
 
 let peers: TrailPeer[] = [];
 let feed: TrailFeedEvent[] = [];
+/** Client-side join lines for the wall ticker (session only). */
+let joinTicker: TrailFeedEvent[] = [];
 let scoreRows: ScoreRow[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
 let connState: "ok" | "warn" | "bad" = "warn";
@@ -227,6 +229,61 @@ const popupHost = document.createElement("div");
 popupHost.id = "bb-popup-host";
 popupHost.hidden = true;
 document.body.appendChild(popupHost);
+
+const TICKER_MAX = 24;
+
+function tickerItems(): TrailFeedEvent[] {
+  const seen = new Set<string>();
+  const out: TrailFeedEvent[] = [];
+  for (const ev of [...joinTicker, ...feed]) {
+    if (seen.has(ev.id)) continue;
+    seen.add(ev.id);
+    out.push(ev);
+    if (out.length >= TICKER_MAX) break;
+  }
+  return out;
+}
+
+function tickerItemMod(kind: string): string {
+  if (kind === "death" || kind === "wipeout") return " bb-ticker__item--loss";
+  if (kind === "victory") return " bb-ticker__item--victory";
+  if (kind === "river") return " bb-ticker__item--river";
+  if (kind === "milestone") return " bb-ticker__item--milestone";
+  return "";
+}
+
+function renderTicker(wall: boolean): string {
+  if (!wall) return "";
+
+  const items = tickerItems();
+  if (items.length === 0) {
+    return `<div class="bb-ticker" aria-live="polite">
+      <p class="bb-ticker__idle">Waiting for trail events…</p>
+    </div>`;
+  }
+
+  const strip = items
+    .map((ev) => {
+      const mod = tickerItemMod(ev.kind);
+      return `<span class="bb-ticker__item${mod}">
+        <span class="bb-ticker__ico">${bbFeedIcon(ev.kind)}</span>
+        <strong>${escapeHtml(ev.displayName)}</strong>
+        <span class="bb-ticker__text">${escapeHtml(ev.text)}</span>
+      </span>`;
+    })
+    .join('<span class="bb-ticker__sep" aria-hidden="true">·</span>');
+
+  const dur = Math.max(32, items.length * 7);
+
+  return `<div class="bb-ticker" aria-label="Recent trail events">
+    <div class="bb-ticker__viewport">
+      <div class="bb-ticker__track" style="--bb-ticker-dur:${dur}s">
+        <div class="bb-ticker__strip">${strip}</div>
+        <div class="bb-ticker__strip" aria-hidden="true">${strip}</div>
+      </div>
+    </div>
+  </div>`;
+}
 
 function renderDock(wall: boolean): string {
   if (!wall) return "";
@@ -500,6 +557,7 @@ function render(): void {
               </div>
             </div>
           </div>
+          ${renderTicker(wall)}
           ${renderDock(wall)}
         </div>
         <aside class="bb-feed" aria-label="Trail news">
@@ -611,6 +669,19 @@ function wireBigboardSocket(socket: Socket): void {
             220,
           );
       }
+      const now = Date.now();
+      newly.forEach((p, i) => {
+        joinTicker = [
+          {
+            id: `join-${p.id}-${now}-${i}`,
+            at: new Date(now).toISOString(),
+            kind: "system",
+            displayName: p.displayName,
+            text: "joined the trail",
+          },
+          ...joinTicker,
+        ].slice(0, 20);
+      });
       if (joinToast) {
         if (joinToastTimer) clearTimeout(joinToastTimer);
         joinToastTimer = setTimeout(() => {

@@ -179,16 +179,41 @@ html.emota-mobile .emota-popup__body {
   font-size: 1.12rem;
 }
 
-/* —— Boot: quick pioneer flash on phone —— */
-html.emota-mobile .emota-boot__frame::after {
-  content: "";
-  display: block;
-  width: min(72vw, 16rem);
-  height: min(72vw, 16rem);
-  max-height: 14rem;
-  margin: 0.65rem auto 0.35rem;
-  background: url("/art/sprites/hop-king-young.png") center bottom / min(42%, 180px) no-repeat;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 14px rgba(57, 255, 122, 0.2));
+/* —— Boot + title: animated Meeker sprite (see bootSplash.ts) —— */
+html.emota-mobile .emota-boot__sprite {
+  margin: 0.45rem auto 0.25rem;
+}
+
+html.emota-mobile .emota-boot__sprite .meeker-sprite--hero {
+  width: clamp(92px, 30vw, 132px);
+  height: clamp(138px, 45vw, 198px);
+}
+
+html.emota-mobile .app-layout:not(.app-layout--ready) {
+  opacity: 0;
+}
+
+html.emota-mobile .app-layout.app-layout--ready {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+html.emota-mobile.app-layout.is-title .screen-hero {
+  animation: emota-mobile-hero-enter 0.55s ease-out both;
+}
+
+@keyframes emota-mobile-hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+html.emota-mobile .screen-hero .meeker-sprite--hero {
+  width: clamp(96px, 32vw, 148px);
+  height: clamp(144px, 48vw, 222px);
 }
