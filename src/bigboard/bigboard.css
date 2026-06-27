@@ -1283,6 +1283,59 @@ html.bb-wall .bb-dock__panel--party .party-roster__fig {
   opacity: 0.52;
 }
 
+.bb-map-brand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.bb-map-brand__chip {
+  display: inline-block;
+  margin: 0;
+  padding: 0.45rem 1.1rem 0.4rem;
+  font-family: var(--font-pixel);
+  font-size: clamp(0.85rem, 2.4vw, 1.65rem);
+  font-weight: normal;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bb-hi);
+  text-shadow:
+    0 0 18px rgba(57, 255, 122, 0.45),
+    2px 2px 0 rgba(0, 18, 8, 0.95);
+  background: linear-gradient(135deg, rgba(0, 36, 20, 0.82) 0%, rgba(0, 14, 8, 0.88) 100%);
+  border: 2px solid rgba(0, 255, 119, 0.38);
+  border-radius: 4px;
+  box-shadow:
+    0 0 28px rgba(0, 255, 120, 0.2),
+    5px 5px 0 rgba(0, 18, 8, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  opacity: 0.92;
+  -webkit-font-smoothing: none;
+}
+
+html.bb-wall .bb-map-label--title {
+  display: none;
+}
+
+html.bb-wall .bb-map-brand__chip {
+  font-size: clamp(1rem, 2.8vw, 2rem);
+  padding: 0.55rem 1.35rem 0.5rem;
+}
+
+html.bb-event .bb-map-brand__chip {
+  color: #fff;
+  border-color: rgba(0, 224, 96, 0.5);
+  background: linear-gradient(135deg, rgba(0, 48, 26, 0.88) 0%, rgba(0, 16, 10, 0.92) 100%);
+  box-shadow:
+    0 0 32px rgba(0, 255, 120, 0.28),
+    5px 5px 0 rgba(0, 0, 0, 0.85);
+  opacity: 0.94;
+}
+
 #bb-popup-host {
   position: fixed;
   inset: 0;
