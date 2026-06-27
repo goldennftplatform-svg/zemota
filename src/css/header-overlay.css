@@ -161,6 +161,24 @@ html.emota-mobile .app-layout.is-playing .trail-ribbon {
     margin-bottom: 0.4rem;
   }
 
+  /* Edge-to-edge map — no chunky CRT frame eating pixels */
+  .app-layout.is-playing .land-view-frame {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    border-radius: 0;
+  }
+
+  .app-layout.is-playing .land-view-map {
+    background: transparent;
+  }
+
+  .app-layout.is-playing .land-view-map .minimap-svg {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
   .app-layout.is-playing .land-view-label {
     display: none;
   }

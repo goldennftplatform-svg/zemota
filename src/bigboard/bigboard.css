@@ -624,7 +624,7 @@ body {
   height: auto;
   aspect-ratio: 976 / 310;
   max-height: 100cqh;
-  transform: translate(-50%, -50%) scale(0.9);
+  transform: translate(-50%, -50%) scale(1);
   transform-origin: center center;
 }
 
@@ -1519,6 +1519,7 @@ html.bb-wall .bb-map-stage {
 
 html.bb-wall .bb-map-inner {
   width: min(100cqw, calc(100cqh * 976 / 310));
+  transform: translate(-50%, -50%) scale(1);
 }
 
 html.bb-wall .bb-map__raster {
@@ -1643,9 +1644,17 @@ html.bb-event .bb-stars {
   display: none;
 }
 
+html.bb-event .bb-map-inner {
+  transform: translate(-50%, -50%) scale(1);
+}
+
 html.bb-event .bb-map__raster {
   opacity: 1;
   filter: contrast(1.22) brightness(1.12) saturate(1.08);
+}
+
+html.bb-event .bb-map-wrap {
+  background: #000806;
 }
 
 html.bb-event .bb-map-label {

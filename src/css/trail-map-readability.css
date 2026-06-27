@@ -55,7 +55,8 @@
 }
 
 .land-view-map .minimap-svg {
-  border-width: 2px;
+  border: none;
+  box-shadow: none;
 }
 
 html.emota-easy-read .minimap-tag {
