@@ -198,6 +198,14 @@ html.emota-mobile .app-layout.app-layout--ready {
   transition: opacity 0.5s ease;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html.emota-mobile .app-layout:not(.app-layout--ready),
+  html.emota-mobile .app-layout.app-layout--ready {
+    opacity: 1;
+    transition: none;
+  }
+}
+
 html.emota-mobile.app-layout.is-title .screen-hero {
   animation: emota-mobile-hero-enter 0.55s ease-out both;
 }

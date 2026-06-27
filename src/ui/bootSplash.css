@@ -268,3 +268,11 @@
     opacity: 0;
   }
 }
+
+html.emota-mobile .emota-boot__tag {
+  display: none;
+}
+
+html.emota-mobile .emota-boot__bar-wrap {
+  max-width: min(20rem, 88vw);
+}
