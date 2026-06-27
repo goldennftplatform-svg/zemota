@@ -2,433 +2,433 @@
   {
     "id": 0,
     "file": "/art/sprites/party-skins/portraits/skin-000.png",
-    "w": 114,
-    "h": 128
+    "w": 118,
+    "h": 119
   },
   {
     "id": 1,
     "file": "/art/sprites/party-skins/portraits/skin-001.png",
-    "w": 64,
-    "h": 131
+    "w": 66,
+    "h": 119
   },
   {
     "id": 2,
     "file": "/art/sprites/party-skins/portraits/skin-002.png",
-    "w": 59,
-    "h": 127
+    "w": 98,
+    "h": 119
   },
   {
     "id": 3,
     "file": "/art/sprites/party-skins/portraits/skin-003.png",
-    "w": 65,
-    "h": 135
+    "w": 67,
+    "h": 119
   },
   {
     "id": 4,
     "file": "/art/sprites/party-skins/portraits/skin-004.png",
     "w": 60,
-    "h": 135
+    "h": 119
   },
   {
     "id": 5,
     "file": "/art/sprites/party-skins/portraits/skin-005.png",
-    "w": 68,
-    "h": 134
+    "w": 70,
+    "h": 119
   },
   {
     "id": 6,
     "file": "/art/sprites/party-skins/portraits/skin-006.png",
-    "w": 68,
-    "h": 125
+    "w": 66,
+    "h": 119
   },
   {
     "id": 7,
     "file": "/art/sprites/party-skins/portraits/skin-007.png",
-    "w": 68,
-    "h": 132
+    "w": 70,
+    "h": 119
   },
   {
     "id": 8,
     "file": "/art/sprites/party-skins/portraits/skin-008.png",
-    "w": 114,
-    "h": 128
+    "w": 118,
+    "h": 123
   },
   {
     "id": 9,
     "file": "/art/sprites/party-skins/portraits/skin-009.png",
-    "w": 61,
-    "h": 135
+    "w": 63,
+    "h": 124
   },
   {
     "id": 10,
     "file": "/art/sprites/party-skins/portraits/skin-010.png",
-    "w": 57,
-    "h": 131
+    "w": 59,
+    "h": 124
   },
   {
     "id": 11,
     "file": "/art/sprites/party-skins/portraits/skin-011.png",
-    "w": 60,
-    "h": 134
+    "w": 62,
+    "h": 124
   },
   {
     "id": 12,
     "file": "/art/sprites/party-skins/portraits/skin-012.png",
-    "w": 63,
-    "h": 131
+    "w": 65,
+    "h": 124
   },
   {
     "id": 13,
     "file": "/art/sprites/party-skins/portraits/skin-013.png",
-    "w": 73,
-    "h": 132
+    "w": 65,
+    "h": 124
   },
   {
     "id": 14,
     "file": "/art/sprites/party-skins/portraits/skin-014.png",
-    "w": 67,
-    "h": 137
+    "w": 69,
+    "h": 124
   },
   {
     "id": 15,
     "file": "/art/sprites/party-skins/portraits/skin-015.png",
     "w": 67,
-    "h": 131
+    "h": 124
   },
   {
     "id": 16,
     "file": "/art/sprites/party-skins/portraits/skin-016.png",
-    "w": 70,
+    "w": 121,
     "h": 127
   },
   {
     "id": 17,
     "file": "/art/sprites/party-skins/portraits/skin-017.png",
-    "w": 58,
-    "h": 135
+    "w": 60,
+    "h": 129
   },
   {
     "id": 18,
     "file": "/art/sprites/party-skins/portraits/skin-018.png",
-    "w": 59,
-    "h": 132
+    "w": 98,
+    "h": 129
   },
   {
     "id": 19,
     "file": "/art/sprites/party-skins/portraits/skin-019.png",
-    "w": 65,
-    "h": 135
+    "w": 67,
+    "h": 128
   },
   {
     "id": 20,
     "file": "/art/sprites/party-skins/portraits/skin-020.png",
-    "w": 63,
-    "h": 133
+    "w": 65,
+    "h": 129
   },
   {
     "id": 21,
     "file": "/art/sprites/party-skins/portraits/skin-021.png",
-    "w": 69,
-    "h": 134
+    "w": 71,
+    "h": 128
   },
   {
     "id": 22,
     "file": "/art/sprites/party-skins/portraits/skin-022.png",
-    "w": 65,
+    "w": 66,
     "h": 128
   },
   {
     "id": 23,
     "file": "/art/sprites/party-skins/portraits/skin-023.png",
     "w": 68,
-    "h": 131
+    "h": 128
   },
   {
     "id": 24,
     "file": "/art/sprites/party-skins/portraits/skin-024.png",
     "w": 77,
-    "h": 118
+    "h": 122
   },
   {
     "id": 25,
     "file": "/art/sprites/party-skins/portraits/skin-025.png",
-    "w": 71,
-    "h": 118
+    "w": 74,
+    "h": 122
   },
   {
     "id": 26,
     "file": "/art/sprites/party-skins/portraits/skin-026.png",
-    "w": 69,
-    "h": 118
+    "w": 72,
+    "h": 122
   },
   {
     "id": 27,
     "file": "/art/sprites/party-skins/portraits/skin-027.png",
-    "w": 76,
-    "h": 118
+    "w": 79,
+    "h": 122
   },
   {
     "id": 28,
     "file": "/art/sprites/party-skins/portraits/skin-028.png",
-    "w": 72,
-    "h": 118
+    "w": 74,
+    "h": 122
   },
   {
     "id": 29,
     "file": "/art/sprites/party-skins/portraits/skin-029.png",
     "w": 73,
-    "h": 118
+    "h": 122
   },
   {
     "id": 30,
     "file": "/art/sprites/party-skins/portraits/skin-030.png",
     "w": 73,
-    "h": 118
+    "h": 122
   },
   {
     "id": 31,
     "file": "/art/sprites/party-skins/portraits/skin-031.png",
     "w": 80,
-    "h": 87
+    "h": 89
   },
   {
     "id": 32,
     "file": "/art/sprites/party-skins/portraits/skin-032.png",
-    "w": 76,
-    "h": 92
+    "w": 80,
+    "h": 94
   },
   {
     "id": 33,
     "file": "/art/sprites/party-skins/portraits/skin-033.png",
-    "w": 67,
-    "h": 91
+    "w": 70,
+    "h": 93
   },
   {
     "id": 34,
     "file": "/art/sprites/party-skins/portraits/skin-034.png",
-    "w": 77,
-    "h": 95
+    "w": 80,
+    "h": 97
   },
   {
     "id": 35,
     "file": "/art/sprites/party-skins/portraits/skin-035.png",
-    "w": 74,
-    "h": 89
+    "w": 72,
+    "h": 91
   },
   {
     "id": 36,
     "file": "/art/sprites/party-skins/portraits/skin-036.png",
-    "w": 80,
-    "h": 93
+    "w": 83,
+    "h": 95
   },
   {
     "id": 37,
     "file": "/art/sprites/party-skins/portraits/skin-037.png",
-    "w": 75,
-    "h": 92
+    "w": 77,
+    "h": 94
   },
   {
     "id": 38,
     "file": "/art/sprites/party-skins/portraits/skin-038.png",
-    "w": 84,
-    "h": 118
+    "w": 85,
+    "h": 122
   },
   {
     "id": 39,
     "file": "/art/sprites/party-skins/portraits/skin-039.png",
-    "w": 114,
-    "h": 118
+    "w": 120,
+    "h": 122
   },
   {
     "id": 40,
     "file": "/art/sprites/party-skins/portraits/skin-040.png",
-    "w": 112,
-    "h": 118
+    "w": 67,
+    "h": 122
   },
   {
     "id": 41,
     "file": "/art/sprites/party-skins/portraits/skin-041.png",
-    "w": 112,
-    "h": 118
+    "w": 78,
+    "h": 122
   },
   {
     "id": 42,
     "file": "/art/sprites/party-skins/portraits/skin-042.png",
-    "w": 76,
-    "h": 118
+    "w": 75,
+    "h": 122
   },
   {
     "id": 43,
     "file": "/art/sprites/party-skins/portraits/skin-043.png",
-    "w": 112,
-    "h": 118
+    "w": 117,
+    "h": 122
   },
   {
     "id": 44,
     "file": "/art/sprites/party-skins/portraits/skin-044.png",
-    "w": 95,
-    "h": 118
+    "w": 100,
+    "h": 122
   },
   {
     "id": 45,
     "file": "/art/sprites/party-skins/portraits/skin-045.png",
     "w": 83,
-    "h": 83
+    "h": 85
   },
   {
     "id": 46,
     "file": "/art/sprites/party-skins/portraits/skin-046.png",
-    "w": 65,
-    "h": 81
+    "w": 68,
+    "h": 82
   },
   {
     "id": 47,
     "file": "/art/sprites/party-skins/portraits/skin-047.png",
-    "w": 112,
-    "h": 117
+    "w": 80,
+    "h": 85
   },
   {
     "id": 48,
     "file": "/art/sprites/party-skins/portraits/skin-048.png",
-    "w": 70,
-    "h": 118
+    "w": 122,
+    "h": 127
   },
   {
     "id": 49,
     "file": "/art/sprites/party-skins/portraits/skin-049.png",
-    "w": 62,
-    "h": 118
+    "w": 64,
+    "h": 127
   },
   {
     "id": 50,
     "file": "/art/sprites/party-skins/portraits/skin-050.png",
-    "w": 60,
-    "h": 118
+    "w": 63,
+    "h": 127
   },
   {
     "id": 51,
     "file": "/art/sprites/party-skins/portraits/skin-051.png",
-    "w": 98,
-    "h": 118
+    "w": 103,
+    "h": 127
   },
   {
     "id": 52,
     "file": "/art/sprites/party-skins/portraits/skin-052.png",
-    "w": 93,
-    "h": 118
+    "w": 98,
+    "h": 127
   },
   {
     "id": 53,
     "file": "/art/sprites/party-skins/portraits/skin-053.png",
-    "w": 99,
-    "h": 118
+    "w": 104,
+    "h": 127
   },
   {
     "id": 54,
     "file": "/art/sprites/party-skins/portraits/skin-054.png",
-    "w": 94,
-    "h": 118
+    "w": 99,
+    "h": 127
   },
   {
     "id": 55,
     "file": "/art/sprites/party-skins/portraits/skin-055.png",
-    "w": 87,
-    "h": 118
+    "w": 92,
+    "h": 127
   },
   {
     "id": 56,
     "file": "/art/sprites/party-skins/portraits/skin-056.png",
-    "w": 81,
-    "h": 90
+    "w": 128,
+    "h": 128
   },
   {
     "id": 57,
     "file": "/art/sprites/party-skins/portraits/skin-057.png",
-    "w": 59,
-    "h": 87
+    "w": 98,
+    "h": 128
   },
   {
     "id": 58,
     "file": "/art/sprites/party-skins/portraits/skin-058.png",
-    "w": 63,
-    "h": 87
+    "w": 66,
+    "h": 128
   },
   {
     "id": 59,
     "file": "/art/sprites/party-skins/portraits/skin-059.png",
-    "w": 98,
-    "h": 84
+    "w": 103,
+    "h": 128
   },
   {
     "id": 60,
     "file": "/art/sprites/party-skins/portraits/skin-060.png",
-    "w": 59,
-    "h": 89
+    "w": 61,
+    "h": 128
   },
   {
     "id": 61,
     "file": "/art/sprites/party-skins/portraits/skin-061.png",
-    "w": 99,
-    "h": 85
+    "w": 104,
+    "h": 128
   },
   {
     "id": 62,
     "file": "/art/sprites/party-skins/portraits/skin-062.png",
-    "w": 62,
-    "h": 88
+    "w": 99,
+    "h": 128
   },
   {
     "id": 63,
     "file": "/art/sprites/party-skins/portraits/skin-063.png",
-    "w": 52,
-    "h": 84
+    "w": 56,
+    "h": 128
   },
   {
     "id": 64,
     "file": "/art/sprites/party-skins/portraits/skin-064.png",
     "w": 79,
-    "h": 118
+    "h": 135
   },
   {
     "id": 65,
     "file": "/art/sprites/party-skins/portraits/skin-065.png",
-    "w": 93,
-    "h": 118
+    "w": 79,
+    "h": 135
   },
   {
     "id": 66,
     "file": "/art/sprites/party-skins/portraits/skin-066.png",
-    "w": 65,
-    "h": 118
+    "w": 103,
+    "h": 135
   },
   {
     "id": 67,
     "file": "/art/sprites/party-skins/portraits/skin-067.png",
-    "w": 98,
-    "h": 118
+    "w": 103,
+    "h": 134
   },
   {
     "id": 68,
     "file": "/art/sprites/party-skins/portraits/skin-068.png",
-    "w": 93,
-    "h": 118
+    "w": 98,
+    "h": 135
   },
   {
     "id": 69,
     "file": "/art/sprites/party-skins/portraits/skin-069.png",
-    "w": 99,
-    "h": 118
+    "w": 104,
+    "h": 135
   },
   {
     "id": 70,
     "file": "/art/sprites/party-skins/portraits/skin-070.png",
-    "w": 94,
-    "h": 118
+    "w": 99,
+    "h": 135
   },
   {
     "id": 71,
     "file": "/art/sprites/party-skins/portraits/skin-071.png",
-    "w": 87,
-    "h": 118
+    "w": 61,
+    "h": 134
   }
 ]

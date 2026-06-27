@@ -48,7 +48,7 @@ async function boot(): Promise<void> {
   const root = document.getElementById("join-app")!;
   const origin = window.location.origin;
   const playUrl = `${origin}/play`;
-  const boardUrl = `${origin}/bigboard?wall=1`;
+  const boardUrl = `${origin}/bigboard?wall=1&event=1`;
   const signUrl = `${origin}/join`;
 
   root.innerHTML = `
@@ -94,7 +94,7 @@ async function boot(): Promise<void> {
       <p class="join-note">Open this on the big screen so everyone sees wagons move on the map.</p>
       <div class="join-actions">
         <button type="button" class="join-btn join-btn--ghost" id="join-copy-board">Copy board link</button>
-        <a class="join-btn join-btn--ghost" href="/bigboard?wall=1" target="_blank" rel="noopener">Open bigboard</a>
+        <a class="join-btn join-btn--ghost" href="/bigboard?wall=1&event=1" target="_blank" rel="noopener">Open bigboard</a>
       </div>
     </section>
 

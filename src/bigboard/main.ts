@@ -29,8 +29,18 @@ initMobileShellClass();
 persistTrailOriginFromQuery();
 
 /** Projector / TV layout — big map, icon feed, minimal chrome. */
+function isEventMode(): boolean {
+  try {
+    const p = new URLSearchParams(window.location.search);
+    return p.get("event") === "1" || p.get("outdoor") === "1";
+  } catch {
+    return false;
+  }
+}
+
 function isWallMode(): boolean {
   try {
+    if (isEventMode()) return true;
     if (new URLSearchParams(window.location.search).get("wall") === "1") return true;
     return window.matchMedia("(min-width: 1100px) and (min-height: 600px)").matches;
   } catch {
@@ -40,6 +50,7 @@ function isWallMode(): boolean {
 
 function applyWallClass(): void {
   document.documentElement.classList.toggle("bb-wall", isWallMode());
+  document.documentElement.classList.toggle("bb-event", isEventMode());
 }
 
 /** Meeker history / trail facts on the wall dock — new pick every 40s. */
