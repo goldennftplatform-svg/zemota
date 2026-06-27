@@ -1,7 +1,7 @@
 import { partyPortraitSrc } from "../game/partySkinSheets";
 import "../css/party-skins.css";
 
-const PARTY_SKIN_REV = "8";
+const PARTY_SKIN_REV = "9";
 
 export function partyPortraitUrl(skinId: number): string {
   const src = partyPortraitSrc(skinId);
