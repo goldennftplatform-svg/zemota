@@ -87,3 +87,34 @@ export function trailChartStagePercent(
   const { x, y } = trailChartNormAt(miles);
   return chartNormToContainPercent(x, y, containerAspect, OREGON_TRAIL_LANDSCAPE_ASPECT);
 }
+
+/** Map image scaled with object-fit: cover — fills TV stage, no top/bottom letterbox. */
+export function chartNormToCoverPercent(
+  nx: number,
+  ny: number,
+  containerAspect: number,
+  imgAspect = OREGON_TRAIL_LANDSCAPE_ASPECT,
+): { left: number; top: number } {
+  let left: number;
+  let top: number;
+  if (imgAspect > containerAspect) {
+    const renderWidth = imgAspect / containerAspect;
+    const offsetX = (1 - renderWidth) / 2;
+    left = offsetX + nx * renderWidth;
+    top = ny;
+  } else {
+    const renderHeight = containerAspect / imgAspect;
+    const offsetY = (1 - renderHeight) / 2;
+    left = nx;
+    top = offsetY + ny * renderHeight;
+  }
+  return { left: left * 100, top: top * 100 };
+}
+
+export function trailChartStageCoverPercent(
+  miles: number,
+  containerAspect: number,
+): { left: number; top: number } {
+  const { x, y } = trailChartNormAt(miles);
+  return chartNormToCoverPercent(x, y, containerAspect, OREGON_TRAIL_LANDSCAPE_ASPECT);
+}

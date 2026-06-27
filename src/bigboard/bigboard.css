@@ -609,11 +609,12 @@ body {
   position: relative;
   min-height: 0;
   margin: 0;
-  padding: 0.25rem 0.5rem 0;
+  padding: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
   container-type: size;
+  overflow: hidden;
 }
 
 .bb-map-inner {
@@ -1513,17 +1514,34 @@ html.bb-wall .bb-lb {
   display: none;
 }
 
+html.bb-wall .bb-feed {
+  display: none;
+}
+
+html.bb-wall .bb-map-wrap {
+  background: #000806;
+}
+
 html.bb-wall .bb-map-stage {
-  padding: 0.15rem 0.35rem 0;
+  flex: 1 1 auto;
+  padding: 0;
+  overflow: hidden;
 }
 
 html.bb-wall .bb-map-inner {
-  width: min(100cqw, calc(100cqh * 976 / 310));
-  transform: translate(-50%, -50%) scale(1);
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: unset;
+  transform: none;
 }
 
 html.bb-wall .bb-map__raster {
   opacity: 1;
+  object-fit: cover;
+  object-position: center center;
 }
 
 html.bb-wall .bb-dock {
@@ -1644,17 +1662,25 @@ html.bb-event .bb-stars {
   display: none;
 }
 
-html.bb-event .bb-map-inner {
-  transform: translate(-50%, -50%) scale(1);
-}
-
 html.bb-event .bb-map__raster {
   opacity: 1;
   filter: contrast(1.22) brightness(1.12) saturate(1.08);
 }
 
-html.bb-event .bb-map-wrap {
-  background: #000806;
+html.bb-event .bb-root {
+  padding:
+    env(safe-area-inset-top, 0)
+    env(safe-area-inset-right, 0)
+    env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
+}
+
+html.bb-event .bb-dock {
+  height: clamp(6.5rem, 15vh, 9rem);
+  min-height: clamp(6.5rem, 15vh, 9rem);
+  max-height: clamp(6.5rem, 15vh, 9rem);
+  border-top: none;
+  background: #001408;
 }
 
 html.bb-event .bb-map-label {
@@ -1755,14 +1781,6 @@ html.bb-event .bb-ticker__item {
 
 html.bb-event .bb-ticker__item strong {
   color: var(--bb-fg);
-}
-
-html.bb-event .bb-dock {
-  height: clamp(7.5rem, 18vh, 10.5rem);
-  min-height: clamp(7.5rem, 18vh, 10.5rem);
-  max-height: clamp(7.5rem, 18vh, 10.5rem);
-  border-top: none;
-  background: #001408;
 }
 
 html.bb-event .bb-dock__panel {
