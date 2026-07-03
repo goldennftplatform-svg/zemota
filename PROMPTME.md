@@ -1,6 +1,6 @@
 # PROMPTME.md — EMOTA (Ezra Meeker’s Oregon Trail Adventure)
 
-Machine-facing context for AI agents working in this repo. Human docs: `README.md`, `AGENTS.md`, `.agents/skills/emota/SKILL.md`.
+Machine-facing context for AI agents working in this repo. Human docs: `README.md`, `VISION.md`, `AGENTS.md`, `.agents/skills/emota/SKILL.md`.
 
 ## System role
 
