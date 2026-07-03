@@ -1,0 +1,13 @@
+---
+description: EMOTA north star — read VISION.md before planning, roadmaps, or large scope work
+alwaysApply: true
+---
+
+# EMOTA vision (planning)
+
+Before **planning**, **roadmaps**, **architecture proposals**, **multi-file refactors**, or **scoping new subsystems**:
+
+1. Read **`VISION.md`** at the repo root — product north star, scale limits, anti-drift list.
+2. Then **`AGENTS.md`** and **`.agents/skills/emota/SKILL.md`** for paths and stack.
+
+Do not start large plans without checking VISION.md pillars (mobile-first, solo trail + optional live wall, no signup wall, per-class scale path — not one global room at national scale).

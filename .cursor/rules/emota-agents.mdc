@@ -1,0 +1,15 @@
+---
+description: EMOTA project context for AI agents — read AGENTS.md and emota skill first
+alwaysApply: true
+---
+
+# EMOTA workspace
+
+Before changing code in this repo:
+
+1. Read **`AGENTS.md`** at the repo root.
+2. Read **`.agents/skills/emota/SKILL.md`** for accurate paths (Vite + TypeScript; not Phaser/Three template layout).
+
+Before **planning**, **roadmaps**, or **large scope** work, also read **`VISION.md`** (north star).
+
+Generic skills under **`.agents/skills/`** may reference other frameworks — map their *ideas* to `src/game/engine.ts`, `src/game/config.ts`, and `src/game/types.ts` per the `emota` skill.

@@ -8,7 +8,9 @@ dist
 # Persisted trail scores / feed / daily archives (local server)
 data/trail/
 
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .agents/
 
 # Playwright
