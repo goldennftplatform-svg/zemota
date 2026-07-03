@@ -7,9 +7,22 @@
  * baked Vercel env without redeploying. Same origin must be used by the game, bigboard, and bots.
  */
 const LS_TRAIL = "emota_trail_server";
+/** Render blueprint from render.yaml — fallback when Vercel still points at a dead quick tunnel. */
+const PRODUCTION_TRAIL_ORIGIN = "https://emota-trail.onrender.com";
 
 function normalizeOrigin(s: string): string {
   return s.trim().replace(/\/$/, "");
+}
+
+function sanitizeTrailOrigin(s: string | undefined): string | undefined {
+  if (!s) return undefined;
+  const n = normalizeOrigin(s);
+  try {
+    if (/\.trycloudflare\.com$/i.test(new URL(n).hostname)) return PRODUCTION_TRAIL_ORIGIN;
+  } catch {
+    return PRODUCTION_TRAIL_ORIGIN;
+  }
+  return n;
 }
 
 function isProductionTrailHost(): boolean {
@@ -30,7 +43,7 @@ function trailFromQuery(): string | undefined {
 
 function originFromBuildEnv(): string | undefined {
   const v = import.meta.env.VITE_TRAIL_SERVER_URL;
-  if (typeof v === "string" && v.trim()) return normalizeOrigin(v);
+  if (typeof v === "string" && v.trim()) return sanitizeTrailOrigin(v);
   return undefined;
 }
 
@@ -41,7 +54,7 @@ async function originFromTrailJson(): Promise<string | undefined> {
     if (!r.ok) return undefined;
     const j = (await r.json()) as { origin?: string };
     const o = j?.origin?.trim?.();
-    if (o) return normalizeOrigin(o);
+    if (o) return sanitizeTrailOrigin(o);
   } catch {
     return undefined;
   }

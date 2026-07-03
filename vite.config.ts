@@ -37,9 +37,18 @@ export default defineConfig(({ mode }) => {
         /** So /trail.json on the deployed site matches VITE_TRAIL_SERVER_URL (bigboard + `trail-bots --site`). */
         closeBundle() {
           if (mode !== "production") return;
-          const v = String(process.env.VITE_TRAIL_SERVER_URL ?? "")
+          let v = String(process.env.VITE_TRAIL_SERVER_URL ?? "")
             .trim()
             .replace(/\/$/, "");
+          if (v) {
+            try {
+              if (/\.trycloudflare\.com$/i.test(new URL(v).hostname)) {
+                v = "https://emota-trail.onrender.com";
+              }
+            } catch {
+              v = "https://emota-trail.onrender.com";
+            }
+          }
           if (!v) return;
           const distTrail = path.resolve(__dirname, "dist/trail.json");
           try {
