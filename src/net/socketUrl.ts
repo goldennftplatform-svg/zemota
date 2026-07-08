@@ -34,7 +34,7 @@ function trailFromQuery(): string | undefined {
   if (typeof window === "undefined") return undefined;
   try {
     const q = new URLSearchParams(window.location.search).get("trail");
-    if (q?.trim()) return normalizeOrigin(q);
+    if (q?.trim()) return sanitizeTrailOrigin(normalizeOrigin(q)) ?? normalizeOrigin(q);
   } catch {
     return undefined;
   }
@@ -128,15 +128,13 @@ export async function resolveTrailOrigin(): Promise<string | undefined> {
   if (fromQuery) return fromQuery;
 
   if (isProductionTrailHost()) {
-    const canonical = await canonicalDeployOrigin();
-    if (canonical) {
-      clearStoredTrailOriginIfStale(canonical);
-      return canonical;
-    }
+    const canonical = (await canonicalDeployOrigin()) ?? PRODUCTION_TRAIL_ORIGIN;
+    clearStoredTrailOriginIfStale(canonical);
+    return canonical;
   }
 
   const fromBrowser = trailOverrideFromBrowser();
   if (fromBrowser) return fromBrowser;
 
-  return canonicalDeployOrigin();
+  return (await canonicalDeployOrigin()) ?? originFromBuildEnv();
 }
