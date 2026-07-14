@@ -299,32 +299,18 @@ html.emota-mobile .tmh-member__name {
   font-size: 1.1rem;
 }
 
-/* Boot — plain title instead of tiny ASCII on small screens */
-html.emota-mobile .emota-boot__ascii {
-  display: none;
+/* Boot — wordmark scales on phone; drop CSS text fallback */
+html.emota-mobile .emota-boot__wordmark {
+  width: min(90vw, 22rem);
+  margin-bottom: 0.5rem;
 }
 
 html.emota-mobile .emota-boot__frame {
   padding: 1rem 0.75rem 1.15rem;
 }
 
-html.emota-mobile .emota-boot__frame::before {
-  content: "EMOTA";
-  display: block;
-  font-family: var(--font-head);
-  font-size: clamp(2.75rem, 12vw, 3.75rem);
-  line-height: 1.1;
-  letter-spacing: 0.05em;
-  color: var(--hi);
-  text-shadow: 0 0 18px rgba(57, 255, 122, 0.35);
-  margin-bottom: 0.35rem;
-}
-
 html.emota-mobile .emota-boot__sub {
-  font-family: var(--font-head);
-  font-size: 1.25rem;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
+  display: none;
 }
 
 html.emota-mobile .emota-boot__tag {

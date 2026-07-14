@@ -6,6 +6,7 @@ import { GameEngine, type EnginePhase } from "./game/engine";
 import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "./game/config";
 import { OverheadMini } from "./ui/overhead";
 import { preloadHuntSprites } from "./ui/huntAnimalSprites";
+import { preloadVistaArt } from "./ui/landView";
 import {
   preloadMeekerSprites,
   renderMeekerSpriteHtml,
@@ -61,6 +62,7 @@ hydrateBrandSeal();
 startBrandSealWatch();
 persistTrailOriginFromQuery();
 void preloadHuntSprites();
+void preloadVistaArt();
 void preloadMeekerSprites();
 void preloadPartySkinSheets();
 

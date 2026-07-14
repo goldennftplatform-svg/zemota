@@ -1,7 +1,26 @@
 import { landmarkAtMiles, nextRiverAhead } from "../game/map";
+import { VISTA_WAGON_ART } from "../game/artAssets";
 
 const W = 640;
 const H = 180;
+
+let vistaWagonImg: HTMLImageElement | null = null;
+let vistaWagonLoad: Promise<void> | null = null;
+
+export function preloadVistaArt(): Promise<void> {
+  if (vistaWagonLoad) return vistaWagonLoad;
+  vistaWagonLoad = new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => {
+      vistaWagonImg = img;
+      resolve();
+    };
+    img.onerror = () => resolve();
+    img.src = VISTA_WAGON_ART;
+  });
+  return vistaWagonLoad;
+}
 
 export interface LandViewState {
   miles: number;
@@ -194,6 +213,21 @@ function drawWagonTopDown(
   cx: number,
   cy: number,
 ): void {
+  const img = vistaWagonImg;
+  if (img?.complete && img.naturalWidth > 0) {
+    const iw = 72;
+    const ih = 48;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 14, 34, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.drawImage(img, cx - iw / 2, cy - ih / 2 - 4, iw, ih);
+    ctx.restore();
+    return;
+  }
+
   ctx.save();
   ctx.translate(cx, cy);
   ctx.fillStyle = "rgba(0,0,0,0.35)";

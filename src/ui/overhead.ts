@@ -5,9 +5,28 @@
 
 import type { AnimalKind, HuntSessionOptions, HuntZoneId } from "../game/huntZones";
 import { meatLbForKind, pickAnimalKind } from "../game/huntZones";
+import { HUNT_HUNTER_ART } from "../game/artAssets";
 import { drawHuntAnimalSprite, preloadHuntSprites } from "./huntAnimalSprites";
 
 export type OverheadMode = "hunt" | "build" | null;
+
+let hunterImg: HTMLImageElement | null = null;
+let hunterLoad: Promise<void> | null = null;
+
+function preloadHunterSprite(): Promise<void> {
+  if (hunterLoad) return hunterLoad;
+  hunterLoad = new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => {
+      hunterImg = img;
+      resolve();
+    };
+    img.onerror = () => resolve();
+    img.src = HUNT_HUNTER_ART;
+  });
+  return hunterLoad;
+}
 
 const TILE = 16;
 const COLS = 20;
@@ -420,6 +439,21 @@ function drawTopDownField(ctx: CanvasRenderingContext2D, hunt: HuntState, _t: nu
 function drawTdHunter(ctx: CanvasRenderingContext2D): void {
   const cx = W / 2;
   const cy = H - 22;
+  const img = hunterImg;
+  if (img?.complete && img.naturalWidth > 0) {
+    const iw = 36;
+    const ih = 42;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 8, 16, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.drawImage(img, cx - iw / 2, cy - ih / 2 - 2, iw, ih);
+    ctx.restore();
+    return;
+  }
+
   ctx.save();
   ctx.fillStyle = "rgba(0,0,0,0.4)";
   ctx.beginPath();
@@ -698,6 +732,7 @@ export class OverheadMini {
     this.mode = "hunt";
     this.t0 = performance.now();
     void preloadHuntSprites();
+    void preloadHunterSprite();
     this.hunt = buildHuntState(opts);
     this.build = null;
     this.aimDragPointerId = null;

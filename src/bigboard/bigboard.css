@@ -1207,27 +1207,32 @@ html.bb-wall .bb-dock__panel--party .party-roster__fig {
 }
 
 .bb-wagon__icon {
-  filter: drop-shadow(0 0 6px rgba(0, 255, 120, 0.45));
+  filter: drop-shadow(0 0 8px rgba(0, 255, 120, 0.55)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85))
+    hue-rotate(calc(var(--h, 0) * 0.28deg)) saturate(1.2) brightness(1.08);
   transform: scaleX(-1);
 }
 
 .bb-wagon-svg {
-  width: clamp(1.5rem, 2.35vw, 2.1rem);
+  width: clamp(1.75rem, 2.6vw, 2.45rem);
   height: auto;
   display: block;
   margin: 0 auto;
 }
 
 .bb-wagon__name {
-  margin-top: 0.08rem;
+  margin-top: 0.12rem;
   font-family: var(--font-pixel);
-  font-size: clamp(0.28rem, 0.48vw, 0.36rem);
-  max-width: 7.5em;
+  font-size: clamp(0.32rem, 0.55vw, 0.42rem);
+  max-width: 9em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--bb-hi);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+  color: #b8ffcc;
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 1),
+    0 1px 0 #000,
+    0 0 12px rgba(57, 255, 122, 0.45),
+    1px 1px 0 rgba(0, 0, 0, 0.95);
 }
 
 .bb-wagon__meta {
@@ -1618,11 +1623,13 @@ html.bb-wall .bb-loss-callout__text {
 }
 
 html.bb-wall .bb-wagon--loss-flash .bb-wagon-svg {
-  width: clamp(1.75rem, 2.4vw, 2.5rem);
+  width: clamp(2.2rem, 3.2vw, 3.1rem);
 }
 
-html.bb-wall .bb-wagon-svg {
-  width: clamp(1.55rem, 2.1vw, 2.25rem);
+html.bb-wall .bb-wagon__name {
+  font-size: clamp(0.38rem, 0.7vw, 0.52rem);
+  max-width: 11em;
+  color: #d4ffe0;
 }
 
 html.bb-wall .bb-map-labels .bb-map-label {

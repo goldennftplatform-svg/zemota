@@ -466,7 +466,7 @@ function paintBoard(): void {
         ? `${Math.round(p.miles)} mi`
         : `${Math.round(p.miles)} mi · day ${p.day}${p.alive != null ? ` · ${p.alive} alive` : ""}`;
       return `<div class="bb-wagon${flashing ? " bb-wagon--loss-flash" : ""}" data-miles="${p.miles}" data-display-name="${escapeAttr(p.displayName)}" style="--h:${h}">
-        <div class="bb-wagon__icon" style="filter:hue-rotate(${h % 80}deg)">${wagonSpriteHtml()}</div>
+        <div class="bb-wagon__icon">${wagonSpriteHtml()}</div>
         <div class="bb-wagon__name">${escapeHtml(p.displayName)}</div>
         <div class="bb-wagon__meta">${escapeHtml(meta)}</div>
       </div>`;

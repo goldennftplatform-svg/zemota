@@ -1,5 +1,7 @@
 /** 3×4 pixel sprite sheets — young Hop King, elder Ezra, elder + wagon. */
 
+import { GAME_ART } from "./artAssets";
+
 export type MeekerSpriteId = "hopKingYoung" | "ezraElder" | "ezraWagon";
 
 export type MeekerSpriteAnim = "walk-west" | "walk-front" | "idle-west" | "icon-front";
@@ -11,9 +13,9 @@ export interface MeekerSpriteSheet {
 }
 
 export const MEEKER_SPRITE_SHEETS: Record<MeekerSpriteId, MeekerSpriteSheet> = {
-  hopKingYoung: { src: "/art/sprites/hop-king-young.png", cols: 4, rows: 3 },
-  ezraElder: { src: "/art/sprites/ezra-elder.png", cols: 4, rows: 3 },
-  ezraWagon: { src: "/art/sprites/ezra-wagon.png", cols: 4, rows: 3 },
+  hopKingYoung: { src: GAME_ART.hopKingYoungSheet, cols: 4, rows: 3 },
+  ezraElder: { src: GAME_ART.ezraElderSheet, cols: 4, rows: 3 },
+  ezraWagon: { src: GAME_ART.ezraWagonSheet, cols: 4, rows: 3 },
 };
 
 /** Westbound trail (map runs east → west): back-left, left, front-left walk cycle. */

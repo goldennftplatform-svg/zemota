@@ -77,35 +77,37 @@
   background: linear-gradient(165deg, rgba(0, 32, 20, 0.92) 0%, rgba(0, 12, 8, 0.97) 100%);
 }
 
-.emota-boot__ascii {
-  display: inline-block;
-  margin: 0 auto;
-  padding: 0.45rem 0.85rem 0.4rem;
-  font-family: "Courier New", Consolas, "Liberation Mono", ui-monospace, monospace;
-  font-size: clamp(0.62rem, min(2.35vw, 4.2vh), 1.05rem);
-  font-weight: 700;
-  line-height: 1.14;
-  letter-spacing: 0.02em;
-  white-space: pre;
-  overflow-x: auto;
-  text-align: center;
-  color: var(--hi);
-  background: rgba(0, 14, 8, 0.72);
-  border: 1px solid rgba(0, 255, 119, 0.28);
-  box-shadow: 0 0 24px rgba(0, 255, 119, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  text-shadow: 0 0 10px rgba(57, 255, 122, 0.4), 1px 1px 0 var(--shadow-deep);
-  animation: emota-boot-phosphor 3.2s ease-in-out infinite;
+.emota-boot__wordmark {
+  display: block;
+  width: min(92vw, 36rem);
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 0.35rem;
+  image-rendering: auto;
+  filter: drop-shadow(0 0 18px rgba(57, 255, 122, 0.35));
+  animation: emota-boot-phosphor 2.8s ease-in-out infinite;
+}
+
+/* Desktop landing — larger wordmark + stronger CRT pulse */
+html:not(.emota-mobile) .emota-boot__wordmark {
+  width: min(94vw, 42rem);
+  padding: 0.35rem 0.5rem;
+  animation: emota-boot-phosphor 2.8s ease-in-out infinite;
+}
+
+html:not(.emota-mobile) .emota-boot__sub {
+  display: none;
 }
 
 @keyframes emota-boot-phosphor {
   0%,
   100% {
-    opacity: 0.94;
-    filter: brightness(1);
+    opacity: 0.92;
+    filter: brightness(0.94) drop-shadow(0 0 12px rgba(57, 255, 122, 0.22));
   }
   50% {
     opacity: 1;
-    filter: brightness(1.04);
+    filter: brightness(1.14) drop-shadow(0 0 22px rgba(57, 255, 122, 0.55));
   }
 }
 
@@ -263,7 +265,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .emota-boot__scan,
-  .emota-boot__ascii,
+  .emota-boot__wordmark,
   .emota-boot__bar,
   .emota-boot__status,
   .emota-boot__cta {

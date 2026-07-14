@@ -1,4 +1,5 @@
 import { BOOT_LANDING_INTRO_MS } from "../game/config";
+import { GAME_ART } from "../game/artAssets";
 import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./bootSplash.css";
 
@@ -15,15 +16,6 @@ function bootIntroMs(): number {
   if (isMobileLanding()) return Math.max(1200, BOOT_LANDING_INTRO_MS - 200);
   return BOOT_LANDING_INTRO_MS;
 }
-
-/** Classic `#` block letters — readable on any monospace (no heavy Unicode). */
-const ASCII_LOGO = `
-#####  #   #   ###  #####   ###
-#      ## ##  #   #    #    #   #
-#####  # # #  #   #    #    #####
-#      #   #  #   #    #    #   #
-#####  #   #   ###     #    #   #`.trimStart();
-
 const STATUS_LINES = [
   "Warming CRT phosphor…",
   "Loading wagon roster…",
@@ -86,8 +78,8 @@ export async function runBootSplash(): Promise<void> {
   const el = document.getElementById("emota-boot");
   if (!el) return;
 
-  const pre = el.querySelector(".emota-boot__ascii");
-  if (pre) pre.textContent = ASCII_LOGO;
+  const mark = el.querySelector<HTMLImageElement>(".emota-boot__wordmark");
+  if (mark) mark.src = GAME_ART.emotaWordmark;
 
   const spriteHost = el.querySelector(".emota-boot__sprite");
   if (spriteHost) {
