@@ -541,7 +541,7 @@ const mp = new TrailMultiplayer(
     updateTrailLiveBanner();
   },
   () => {
-    render();
+    /* Scores update strip only — avoid full game re-render on leaderboard floods. */
   },
   (state, detail) => {
     trailConnState = state;

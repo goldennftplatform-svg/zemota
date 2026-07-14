@@ -6,7 +6,6 @@
 import { io, type Socket } from "socket.io-client";
 import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
-import { TOTAL_TRAIL_MILES } from "../game/config";
 import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
@@ -20,8 +19,14 @@ import {
   preloadMeekerSprites,
   renderMeekerSpriteHtml,
   startMeekerSpriteAnimations,
+  stopMeekerSpriteAnimations,
 } from "../ui/meekerSprites";
 import { renderPartyRoster, hydratePartySkins } from "../ui/partyFigures";
+import {
+  sanitizeScoreRows,
+  sanitizeTrailFeedList,
+  sanitizeTrailPeers,
+} from "../net/trailSanitize";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
 import "./bigboard.css";
 
@@ -93,6 +98,9 @@ const WAGON_LOSS_FLASH_MS = 2800;
 const LOSS_CALLOUT_MS = 5200;
 const LB_WALL = 6;
 const LB_DEFAULT = 12;
+/** Coalesce room/feed/score floods so the projector doesn't full-DOM every tick. */
+const RENDER_COALESCE_MS = 200;
+const POPUP_QUEUE_MAX = 4;
 
 function escapeHtml(s: string): string {
   return s
@@ -153,6 +161,10 @@ let feed: TrailFeedEvent[] = [];
 let joinTicker: TrailFeedEvent[] = [];
 let scoreRows: ScoreRow[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
+let popupQueue: TrailFeedEvent[] = [];
+let popupShowing = false;
+let renderTimer: ReturnType<typeof setTimeout> | null = null;
+let renderQueued = false;
 let connState: "ok" | "warn" | "bad" = "warn";
 let lastPeerIds = new Set<string>();
 let roomSyncCount = 0;
@@ -167,6 +179,22 @@ let deathCalloutTimer: ReturnType<typeof setTimeout> | null = null;
 /** displayName → flash end timestamp (ms) */
 const wagonLossFlashUntil = new Map<string, number>();
 const wagonLossFlashTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+function scheduleRender(): void {
+  renderQueued = true;
+  if (renderTimer) return;
+  renderTimer = setTimeout(() => {
+    renderTimer = null;
+    if (!renderQueued) return;
+    renderQueued = false;
+    paintBoard();
+  }, RENDER_COALESCE_MS);
+}
+
+/** Force a paint soon (still coalesced) — used after local UI state changes. */
+function render(): void {
+  scheduleRender();
+}
 
 function isWagonLossFlashing(displayName: string): boolean {
   const until = wagonLossFlashUntil.get(displayName);
@@ -390,7 +418,7 @@ function renderDock(wall: boolean): string {
   </section>`;
 }
 
-function render(): void {
+function paintBoard(): void {
   const wall = isWallMode();
   const conn = connState;
   const connClass = conn === "ok" ? "bb-live--ok" : conn === "bad" ? "" : "bb-live--warn";
@@ -534,6 +562,7 @@ function render(): void {
         <div class="bb-lb__body">${leaderboardBody}</div>
       </section>`;
 
+  stopMeekerSpriteAnimations(app);
   app.innerHTML = `
     <div class="bb-root">
       <div class="bb-vignette" aria-hidden="true"></div>
@@ -578,10 +607,25 @@ function render(): void {
   hydratePartySkins(app);
 }
 
+function enqueuePopup(ev: TrailFeedEvent): void {
+  if (!["death", "victory", "wipeout"].includes(ev.kind)) return;
+  if (popupQueue.length >= POPUP_QUEUE_MAX) return;
+  popupQueue.push(ev);
+  drainPopupQueue();
+}
+
+function drainPopupQueue(): void {
+  if (popupShowing || popupQueue.length === 0) return;
+  const next = popupQueue.shift();
+  if (!next) return;
+  showBigPopup(next);
+}
+
 function showBigPopup(ev: TrailFeedEvent): void {
   if (!["death", "victory", "wipeout"].includes(ev.kind)) return;
   const el = popupHost;
   if (!el) return;
+  popupShowing = true;
   const wall = isWallMode();
   el.classList.toggle("bb-popup-host--toast", wall);
   el.hidden = false;
@@ -602,6 +646,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
         : `bb-popup__card--wipeout${wall ? " bb-popup__card--toast" : ""}`;
   const title =
     ev.kind === "death" ? "LOSS ON THE TRAIL" : ev.kind === "victory" ? "OREGON REACHED" : "WAGON LOST";
+  stopMeekerSpriteAnimations(el);
   el.innerHTML = `<div class="bb-popup${wall ? " bb-popup--toast" : ""}">
     <div class="bb-popup__card ${cardMod}">
       <span class="bb-popup__ico">${bbFeedIcon(ev.kind)}</span>
@@ -613,8 +658,12 @@ function showBigPopup(ev: TrailFeedEvent): void {
   startMeekerSpriteAnimations(el);
   if (popupTimer) clearTimeout(popupTimer);
   popupTimer = setTimeout(() => {
+    stopMeekerSpriteAnimations(el);
     el.hidden = true;
     el.innerHTML = "";
+    popupShowing = false;
+    popupTimer = null;
+    drainPopupQueue();
   }, wall ? POPUP_MS_WALL : POPUP_MS_DEFAULT);
 }
 
@@ -623,18 +672,18 @@ function prependFeed(ev: TrailFeedEvent): void {
   if (ev.kind === "death" || ev.kind === "wipeout") {
     showLossCallout(ev);
   }
-  render();
-  showBigPopup(ev);
+  scheduleRender();
+  enqueuePopup(ev);
 }
 
 function setConn(s: "ok" | "warn" | "bad"): void {
   connState = s;
-  render();
+  scheduleRender();
 }
 
 refreshRotatingFact();
 void preloadMeekerSprites();
-render();
+paintBoard();
 
 const socketOpts = {
   ...EMOTA_SOCKET_BASE,
@@ -655,8 +704,8 @@ function wireBigboardSocket(socket: Socket): void {
     setConn("warn");
   });
 
-  socket.on("trail:room", (list: TrailPeer[]) => {
-    const next = Array.isArray(list) ? list : [];
+  socket.on("trail:room", (list: unknown) => {
+    const next = sanitizeTrailPeers(list);
     roomSyncCount += 1;
     if (roomSyncCount > 1) {
       const newly = next.filter((p) => !lastPeerIds.has(p.id));
@@ -686,38 +735,30 @@ function wireBigboardSocket(socket: Socket): void {
         if (joinToastTimer) clearTimeout(joinToastTimer);
         joinToastTimer = setTimeout(() => {
           joinToast = null;
-          render();
+          scheduleRender();
         }, 5000);
       }
     }
     lastPeerIds = new Set(next.map((p) => p.id));
     peers = next;
-    render();
+    scheduleRender();
   });
 
-  socket.on("trail:feed:sync", (list: TrailFeedEvent[]) => {
-    feed = Array.isArray(list) ? [...list].reverse() : [];
-    render();
+  socket.on("trail:feed:sync", (list: unknown) => {
+    feed = sanitizeTrailFeedList(list).reverse();
+    scheduleRender();
   });
 
-  socket.on("trail:feed:append", (ev: TrailFeedEvent) => {
-    if (!ev?.id) return;
-    prependFeed(ev);
+  socket.on("trail:feed:append", (ev: unknown) => {
+    const rows = sanitizeTrailFeedList(ev && typeof ev === "object" ? [ev] : []);
+    const one = rows[0];
+    if (!one) return;
+    prependFeed(one);
   });
 
   socket.on("scores:list", (list: unknown) => {
-    const rows = Array.isArray(list) ? list : [];
-    scoreRows = rows
-      .map((r) => {
-        const o = r as Record<string, unknown>;
-        const name = String(o?.name ?? "").slice(0, 40);
-        const score = Number(o?.score);
-        const at = String(o?.at ?? "");
-        if (!name || !Number.isFinite(score)) return null;
-        return { name, score, at };
-      })
-      .filter((x): x is ScoreRow => x != null);
-    render();
+    scoreRows = sanitizeScoreRows(list);
+    scheduleRender();
   });
 }
 

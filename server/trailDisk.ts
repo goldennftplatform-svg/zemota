@@ -45,7 +45,16 @@ export function loadPersistedScores(): PersistedScore[] {
       const score = Number(r.score);
       const at = String(r.at ?? "");
       if (!name || !Number.isFinite(score) || !at) continue;
-      out.push({ name, score, at, meta: r.meta });
+      let meta: unknown;
+      if (r.meta != null && typeof r.meta === "object" && !Array.isArray(r.meta)) {
+        try {
+          const s = JSON.stringify(r.meta);
+          if (s.length <= 256) meta = JSON.parse(s);
+        } catch {
+          meta = undefined;
+        }
+      }
+      out.push({ name, score, at, meta });
     }
     return out;
   } catch {
@@ -71,14 +80,16 @@ export function loadPersistedFeed(): TrailFeedEvent[] {
       const displayName = String(r.displayName ?? "").slice(0, 40);
       const text = String(r.text ?? "").slice(0, 280);
       if (!id || !at || !text) continue;
+      const miles = Number(r.miles);
+      const day = Number(r.day);
       out.push({
         id,
         at,
         kind,
         displayName,
         text,
-        miles: typeof r.miles === "number" ? r.miles : undefined,
-        day: typeof r.day === "number" ? r.day : undefined,
+        miles: Number.isFinite(miles) ? miles : undefined,
+        day: Number.isFinite(day) ? Math.floor(day) : undefined,
       });
     }
     return out;

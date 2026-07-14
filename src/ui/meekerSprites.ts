@@ -286,6 +286,13 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
     const trim = shouldTrimSprite(el);
 
     const tick = (): void => {
+      if (!el.isConnected) {
+        const t = timers.get(el);
+        if (t) clearInterval(t);
+        timers.delete(el);
+        runningKey.delete(el);
+        return;
+      }
       drawSpriteFrame(canvas, keyed, frames[fi]!, { trim });
       fi = (fi + 1) % frames.length;
     };
@@ -298,6 +305,15 @@ export function mountMeekerSprite(el: HTMLElement, opts?: { force?: boolean }): 
       runningKey.set(el, key);
     }
   });
+}
+
+export function stopMeekerSpriteAnimations(root: ParentNode = document): void {
+  for (const el of root.querySelectorAll<HTMLElement>("[data-meeker-sprite]")) {
+    const prev = timers.get(el);
+    if (prev) clearInterval(prev);
+    timers.delete(el);
+    runningKey.delete(el);
+  }
 }
 
 export function startMeekerSpriteAnimations(root: ParentNode = document): void {

@@ -49,7 +49,7 @@ Mobile-first Oregon Trail on every phone, with an optional **live trail wall** f
 - **Bigboard TVs:** spectators; they do not count toward the wagon cap.
 - **Deploy split:** static UI on CDN (e.g. Vercel); trail server on a small always-on host (not free-tier sleep for events).
 
-**Known limits (honest):** No per-classroom rooms yet; position updates are not throttled; national same-hour spikes are **not** supported without sharding and engineering.
+**Known limits (honest):** No per-classroom rooms yet; national same-hour spikes are **not** supported without sharding. Trail updates are **coalesced + rate-limited** (hostile floods inside the 100 cap are mitigated, not unlimited).
 
 ---
 
