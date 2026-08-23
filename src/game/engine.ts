@@ -1094,6 +1094,14 @@ export class GameEngine {
     this.phase = "profile";
   }
 
+  setPartyMemberName(index: number, raw: string): void {
+    const row = this.party[index];
+    if (!row) return;
+    const name = raw.trim().slice(0, 48);
+    if (!name) return;
+    row.name = name;
+  }
+
   /** Call when wagon / trail display name is {@link DEBUG_WAGON_NAME}. */
   armDebugPlaytest(): void {
     this.debugPlaytestHopKingReady = rollDebugPlaytestHopKing();

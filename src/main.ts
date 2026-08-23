@@ -297,6 +297,10 @@ const footerGiftShopEl = document.getElementById("footer-gift-shop") as HTMLAnch
 const footerMansionEl = document.getElementById("footer-mansion-history") as HTMLAnchorElement | null;
 if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
 if (footerMansionEl) footerMansionEl.href = MEEKER_MANSION_HISTORY_URL;
+const runToolsDockEl = document.getElementById("run-tools-dock")!;
+const runRenameBtn = document.getElementById("run-rename") as HTMLButtonElement | null;
+const runRestartBtn = document.getElementById("run-restart") as HTMLButtonElement | null;
+const runRenameSheetEl = document.getElementById("run-rename-sheet")!;
 
 const engine = new GameEngine();
 
@@ -528,6 +532,116 @@ function openPeerSheet(peer: TrailPeer): void {
   `;
   peerSheetEl.querySelector<HTMLButtonElement>(".mp-peer-sheet__close")?.focus();
 }
+
+function closeRunRenameSheet(): void {
+  runRenameSheetEl.hidden = true;
+  runRenameSheetEl.setAttribute("aria-hidden", "true");
+  runRenameSheetEl.innerHTML = "";
+}
+
+function openRunRenameSheet(): void {
+  if (engine.phase === "title" || !runRenameSheetEl.hidden) return;
+  const travelerRows = engine.party
+    .map(
+      (m, i) => `
+      <div class="party-setup__row">
+        <label class="party-setup__lbl" for="rename-party-${i}">${m.alive ? "Traveler" : "Fallen"} ${i + 1}</label>
+        <input id="rename-party-${i}" type="text" class="party-setup__input" maxlength="24" value="${escapeAttr(m.name)}" />
+      </div>`,
+    )
+    .join("");
+  runRenameSheetEl.hidden = false;
+  runRenameSheetEl.removeAttribute("aria-hidden");
+  runRenameSheetEl.innerHTML = `
+    <div class="mp-peer-sheet__backdrop" data-close-rename="1" aria-hidden="true"></div>
+    <div class="mp-peer-sheet__panel" role="dialog" aria-modal="true" aria-labelledby="run-rename-title">
+      <header class="mp-peer-sheet__head">
+        <h2 id="run-rename-title" class="mp-peer-sheet__title">Wagon &amp; party names</h2>
+        <button type="button" class="mp-peer-sheet__close" data-close-rename="1" aria-label="Close names">×</button>
+      </header>
+      <p class="mp-peer-sheet__meta">Wagon name rides the live board. Leave a traveler blank to keep their name.</p>
+      <div class="party-setup">
+        <div class="party-setup__row">
+          <label class="party-setup__lbl" for="rename-wagon-input">Wagon</label>
+          <input id="rename-wagon-input" type="text" class="party-setup__input" maxlength="24" value="${escapeAttr(getDisplayName())}" autocomplete="nickname" />
+        </div>
+        ${travelerRows}
+        <div class="party-setup__actions">
+          <button type="button" class="party-shuffle-btn" data-close-rename="1">Cancel</button>
+          <button type="button" class="party-continue-btn" data-save-rename="1">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+  runRenameSheetEl.querySelector<HTMLInputElement>("#rename-wagon-input")?.focus();
+}
+
+runRenameSheetEl.addEventListener("click", (e) => {
+  const t = e.target as HTMLElement | null;
+  if (!t) return;
+  if (t.closest("[data-save-rename]")) {
+    const wagonInput = runRenameSheetEl.querySelector<HTMLInputElement>("#rename-wagon-input");
+    const wagonName = wagonInput?.value.trim() ?? "";
+    if (wagonName) setDisplayName(wagonName);
+    engine.party.forEach((_m, i) => {
+      const el = runRenameSheetEl.querySelector<HTMLInputElement>(`#rename-party-${i}`);
+      if (el) engine.setPartyMemberName(i, el.value);
+    });
+    closeRunRenameSheet();
+    pushNetworkProgress();
+    render();
+    return;
+  }
+  if (t.closest("[data-close-rename]")) closeRunRenameSheet();
+});
+
+let restartDisarmTimer: number | null = null;
+
+function disarmRestart(): void {
+  if (restartDisarmTimer !== null) {
+    clearTimeout(restartDisarmTimer);
+    restartDisarmTimer = null;
+  }
+  if (!runRestartBtn) return;
+  delete runRestartBtn.dataset.armed;
+  runRestartBtn.classList.remove("run-tool-btn--armed");
+  runRestartBtn.textContent = "Restart";
+}
+
+function startOverFromTrail(): void {
+  overhead.stop();
+  chanceMini.stop();
+  overheadActive = false;
+  chanceActive = false;
+  welcomeBackNote = null;
+  canvas.hidden = true;
+  canvas.classList.remove("overhead-canvas--hunt", "overhead-canvas--chance");
+  clearRunSave();
+  closePeerSheet();
+  closeTrailMapPopup();
+  closeRunRenameSheet();
+  disarmRestart();
+  engine.resetFromTitle();
+  render();
+}
+
+if (runRestartBtn) {
+  runRestartBtn.addEventListener("click", () => {
+    if (runRestartBtn.dataset.armed !== "1") {
+      runRestartBtn.dataset.armed = "1";
+      runRestartBtn.classList.add("run-tool-btn--armed");
+      runRestartBtn.textContent = "Sure? Tap again";
+      if (restartDisarmTimer !== null) clearTimeout(restartDisarmTimer);
+      restartDisarmTimer = window.setTimeout(disarmRestart, 3200);
+      return;
+    }
+    startOverFromTrail();
+  });
+}
+runRenameBtn?.addEventListener("click", () => {
+  disarmRestart();
+  openRunRenameSheet();
+});
 
 /** Other wagons stay on the bigboard only — main client never shows peer chips. */
 function hideTrailStrip(peers: TrailPeer[]): void {
@@ -966,6 +1080,21 @@ function render(): void {
     isEasyReadUI() && (!!sc.choices?.length || sc.phase === "store" || pickScreen),
   );
 
+  if (isTitle) {
+    runToolsDockEl.hidden = true;
+    if (runRestartBtn?.dataset.armed === "1") disarmRestart();
+  } else {
+    runToolsDockEl.hidden = false;
+    let offPx = 8;
+    const footerRect = appFooterEl?.getBoundingClientRect();
+    if (footerRect && footerRect.height > 0) offPx = Math.max(offPx, Math.ceil(footerRect.height) + 6);
+    if (mobile) {
+      const choicesRect = screenEl.querySelector(".choices")?.getBoundingClientRect();
+      if (choicesRect && choicesRect.height > 0) offPx = Math.max(offPx, Math.ceil(choicesRect.height) + 10);
+    }
+    runToolsDockEl.style.bottom = `calc(${offPx}px + env(safe-area-inset-bottom, 0px))`;
+  }
+
   const bestLocal = getTodaysBestLocalScore();
   if (bestLocal) {
     todayHighEl.hidden = false;
@@ -1185,6 +1314,13 @@ document.addEventListener("keydown", (e) => {
   if (isTrailMapPopupOpen() && e.key === "Escape") {
     e.preventDefault();
     closeTrailMapPopup();
+    return;
+  }
+  if (!runRenameSheetEl.hidden) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeRunRenameSheet();
+    }
     return;
   }
   if (e.target instanceof HTMLInputElement) return;
