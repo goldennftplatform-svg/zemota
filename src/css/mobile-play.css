@@ -1,4 +1,4 @@
-/* Mobile play viewport — flex shell, game screen fills what is left */
+﻿/* Mobile play viewport â€” flex shell, game screen fills what is left */
 
 html.emota-mobile .app-layout:not(.is-title) {
   height: 100dvh;
@@ -57,11 +57,11 @@ html.emota-mobile .app-layout:not(.is-title) .choices--store {
   padding-bottom: max(0.25rem, env(safe-area-inset-bottom, 0px));
   background: linear-gradient(
     180deg,
-    rgba(0, 8, 4, 0) 0%,
-    rgba(0, 12, 8, 0.92) 16%,
-    rgba(0, 18, 10, 0.98) 100%
+    rgba(14, 10, 6, 0) 0%,
+    rgba(18, 13, 8, 0.92) 16%,
+    rgba(24, 17, 10, 0.98) 100%
   );
-  border-top: 2px solid rgba(0, 255, 119, 0.2);
+  border-top: 2px solid rgba(255, 178, 96, 0.2);
 }
 
 html.emota-mobile .app-layout.is-trail-play .supply-strip-host,
@@ -260,8 +260,8 @@ html.emota-mobile .party-continue-btn {
   touch-action: manipulation;
   border: 3px solid var(--border-hi);
   border-radius: 12px;
-  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 38%, #00aa55 100%);
-  box-shadow: 0 4px 0 var(--shadow), 0 0 20px rgba(57, 255, 122, 0.25);
+  background: linear-gradient(180deg, #ffe9b8 0%, #ffc45e 38%, #b87723 100%);
+  box-shadow: 0 4px 0 var(--shadow), 0 0 20px rgba(255, 196, 120, 0.25);
 }
 
 html.emota-mobile .party-continue-btn:active {

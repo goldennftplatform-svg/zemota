@@ -1,4 +1,4 @@
-.trail-map-popup {
+﻿.trail-map-popup {
   position: fixed;
   inset: 0;
   z-index: 95;
@@ -27,8 +27,8 @@
   display: flex;
   flex-direction: column;
   border: 2px solid var(--border);
-  background: linear-gradient(180deg, rgba(0, 24, 14, 0.98) 0%, rgba(0, 10, 6, 0.99) 100%);
-  box-shadow: 0 0 32px rgba(0, 255, 119, 0.18), 8px 8px 0 #003318;
+  background: linear-gradient(180deg, rgba(0, 24, 14, 0.98) 0%, rgba(16, 11, 7, 0.99) 100%);
+  box-shadow: 0 0 32px rgba(255, 178, 96, 0.18), 8px 8px 0 #2a1a0c;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -39,7 +39,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.45rem 0.55rem 0.4rem 0.65rem;
-  border-bottom: 1px solid rgba(0, 255, 119, 0.22);
+  border-bottom: 1px solid rgba(255, 178, 96, 0.22);
 }
 
 .trail-map-popup__title {
@@ -180,7 +180,7 @@
   font-size: clamp(0.88rem, 2.5vw, 1rem);
   line-height: 1.35;
   color: var(--text-dim);
-  border-top: 1px solid rgba(0, 255, 119, 0.15);
+  border-top: 1px solid rgba(255, 178, 96, 0.15);
 }
 
 .trail-map-popup__foot strong {

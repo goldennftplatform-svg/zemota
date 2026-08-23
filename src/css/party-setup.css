@@ -1,4 +1,4 @@
-/* Compact party setup — wagon + five names without eating the screen */
+﻿/* Compact party setup â€” wagon + five names without eating the screen */
 
 .screen--party-setup {
   display: flex;
@@ -80,7 +80,7 @@
 
 .party-shuffle-btn {
   color: var(--hi);
-  background: rgba(0, 28, 16, 0.85);
+  background: rgba(30, 21, 12, 0.85);
 }
 
 .party-shuffle-btn:active {
@@ -90,7 +90,7 @@
 .party-setup .party-continue-btn {
   color: var(--shadow-deep);
   border-color: var(--border-hi);
-  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 38%, #00aa55 100%);
+  background: linear-gradient(180deg, #ffe9b8 0%, #ffc45e 38%, #b87723 100%);
   box-shadow: 0 3px 0 var(--shadow);
 }
 
@@ -133,7 +133,7 @@ html.emota-mobile .party-setup .party-continue-btn {
   padding: 0.55rem 0.65rem !important;
 }
 
-/* easy-read uses !important on inputs — keep party setup compact */
+/* easy-read uses !important on inputs â€” keep party setup compact */
 html.emota-mobile .screen--party-setup input.party-setup__input,
 html.emota-mobile .screen--party-setup input.line-input {
   font-size: 16px !important;

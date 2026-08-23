@@ -9,10 +9,10 @@ const H = 240;
 /** Time to read win/lose on the CRT before handing off to the text result screen. */
 const RESULT_HOLD_MS = 3000;
 
-const BG = "#001a0f";
-const FG = "#39ff7a";
-const DIM = "#1a6644";
-const HI = "#8fffaa";
+const BG = "#1a120a";
+const FG = "#ffc45e";
+const DIM = "#66512a";
+const HI = "#ffe9b8";
 const WARN = "#ffcc66";
 
 function rankLabel(n: number): string {

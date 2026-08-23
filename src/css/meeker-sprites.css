@@ -1,4 +1,4 @@
-/* Meeker pixel sprites — canvas-drawn, white keyed out in JS */
+﻿/* Meeker pixel sprites â€” canvas-drawn, white keyed out in JS */
 
 .meeker-sprite {
   position: relative;
@@ -18,7 +18,7 @@
 
 .meeker-sprite--juice {
   animation: meeker-bob 2.8s ease-in-out infinite;
-  filter: drop-shadow(0 0 10px rgba(57, 255, 122, 0.45));
+  filter: drop-shadow(0 0 10px rgba(255, 196, 120, 0.45));
 }
 
 @keyframes meeker-bob {
@@ -41,7 +41,7 @@
   content: "";
   position: absolute;
   inset: -12% -8%;
-  background: radial-gradient(ellipse 72% 68% at 50% 58%, rgba(57, 255, 122, 0.28), transparent 72%);
+  background: radial-gradient(ellipse 72% 68% at 50% 58%, rgba(255, 196, 120, 0.28), transparent 72%);
   animation: meeker-glow-pulse 3.2s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
@@ -100,7 +100,7 @@
 .app-brand__seal .meeker-sprite--brand {
   width: 2.85rem;
   height: 2.85rem;
-  filter: drop-shadow(0 0 8px rgba(57, 255, 122, 0.5));
+  filter: drop-shadow(0 0 8px rgba(255, 196, 120, 0.5));
 }
 
 .app-layout.is-playing .app-brand__seal {
@@ -114,7 +114,7 @@
   width: 2.15rem;
   height: 2.15rem;
   animation: none;
-  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.35));
+  filter: drop-shadow(0 0 6px rgba(255, 196, 120, 0.35));
 }
 
 .app-layout.is-playing .meeker-sprite--juice,
@@ -183,7 +183,7 @@ html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand 
   height: 48px;
   flex-shrink: 0;
   animation: none;
-  filter: drop-shadow(0 0 6px rgba(57, 255, 122, 0.4));
+  filter: drop-shadow(0 0 6px rgba(255, 196, 120, 0.4));
 }
 
 .meeker-sprite--ribbon {
@@ -191,7 +191,7 @@ html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand 
   height: 33px;
   flex-shrink: 0;
   animation: none;
-  filter: drop-shadow(0 0 5px rgba(57, 255, 122, 0.35));
+  filter: drop-shadow(0 0 5px rgba(255, 196, 120, 0.35));
 }
 
 .screen-hero--title .meeker-stage {
@@ -209,7 +209,7 @@ html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand 
 }
 
 .journey-recap__hero .meeker-sprite--recap {
-  filter: drop-shadow(0 0 18px rgba(0, 255, 119, 0.42));
+  filter: drop-shadow(0 0 18px rgba(255, 178, 96, 0.42));
 }
 
 .emota-boot__sprite {
@@ -233,20 +233,20 @@ html.emota-mobile .app-layout.is-playing .app-brand__seal .meeker-sprite--brand 
   padding: 0.55rem 0.75rem;
   border: 2px solid var(--border);
   border-radius: 8px;
-  background: linear-gradient(180deg, rgba(0, 36, 20, 0.95) 0%, rgba(0, 18, 10, 0.98) 100%);
+  background: linear-gradient(180deg, rgba(0, 36, 20, 0.95) 0%, rgba(24, 17, 10, 0.98) 100%);
   color: var(--hi);
   font-family: var(--font-head);
   font-size: clamp(0.38rem, 1.05vw, 0.48rem);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 0 16px rgba(0, 255, 119, 0.12);
+  box-shadow: 0 0 16px rgba(255, 178, 96, 0.12);
   -webkit-tap-highlight-color: transparent;
 }
 
 .hop-king-share:hover {
   background: linear-gradient(180deg, rgba(0, 52, 28, 0.98) 0%, rgba(0, 24, 14, 0.99) 100%);
-  box-shadow: 0 0 20px rgba(57, 255, 122, 0.2);
+  box-shadow: 0 0 20px rgba(255, 196, 120, 0.2);
 }
 
 .hop-king-share:focus-visible {

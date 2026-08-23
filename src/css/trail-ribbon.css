@@ -1,4 +1,4 @@
-/* Trail map strip — lives inside header under the looping pioneer */
+﻿/* Trail map strip â€” lives inside header under the looping pioneer */
 
 .trail-ribbon-host[hidden] {
   display: none !important;
@@ -9,7 +9,7 @@ html.emota-mobile .trail-ribbon-host {
   width: 100%;
   margin-top: 0.3rem;
   padding-top: 0.3rem;
-  border-top: 1px solid rgba(0, 255, 119, 0.18);
+  border-top: 1px solid rgba(255, 178, 96, 0.18);
 }
 
 html.emota-mobile .trail-ribbon {

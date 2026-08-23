@@ -1,4 +1,4 @@
-.journey-recap {
+﻿.journey-recap {
   position: fixed;
   inset: 0;
   z-index: 9500;
@@ -65,15 +65,15 @@
   border-radius: 16px;
   background: linear-gradient(165deg, rgba(8, 36, 22, 0.98) 0%, rgba(0, 14, 8, 0.99) 100%);
   box-shadow:
-    4px 4px 0 var(--shadow, #001208),
-    0 0 40px rgba(0, 255, 119, 0.12);
+    4px 4px 0 var(--shadow, #0f0a05),
+    0 0 40px rgba(255, 178, 96, 0.12);
   text-align: center;
 }
 
 .journey-recap--game_over .journey-recap__card {
   border-color: rgba(180, 80, 60, 0.55);
   box-shadow:
-    4px 4px 0 var(--shadow, #001208),
+    4px 4px 0 var(--shadow, #0f0a05),
     0 0 32px rgba(200, 80, 60, 0.12);
 }
 
@@ -81,8 +81,8 @@
   margin: 0 0 0.55rem;
   padding: 0.65rem 0.5rem 0.5rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(0, 40, 22, 0.65) 0%, rgba(0, 8, 4, 0.4) 100%);
-  border: 2px solid rgba(0, 255, 119, 0.22);
+  background: linear-gradient(180deg, rgba(0, 40, 22, 0.65) 0%, rgba(14, 10, 6, 0.4) 100%);
+  border: 2px solid rgba(255, 178, 96, 0.22);
 }
 
 .journey-recap--game_over .journey-recap__hero {
@@ -108,7 +108,7 @@
   }
   50% {
     transform: translateY(-4px);
-    filter: drop-shadow(0 8px 20px rgba(57, 255, 122, 0.2));
+    filter: drop-shadow(0 8px 20px rgba(255, 196, 120, 0.2));
   }
 }
 
@@ -131,7 +131,7 @@
   font-family: var(--font-head, "Press Start 2P", monospace);
   font-size: clamp(0.42rem, 1.8vw, 0.52rem);
   letter-spacing: 0.14em;
-  color: var(--hi, #9effb8);
+  color: var(--hi, #ffdf9e);
 }
 
 .journey-recap__headline {
@@ -149,7 +149,7 @@
   font-family: var(--font, "VT323", monospace);
   font-size: clamp(1.1rem, 4vw, 1.28rem);
   line-height: 1.35;
-  color: var(--text, #4dff8f);
+  color: var(--text, #e8d2a0);
 }
 
 .journey-recap__stats {
@@ -201,7 +201,7 @@
   font-size: 0.38rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-dim, #26c965);
+  color: var(--text-dim, #a98f60);
   margin-bottom: 0.15rem;
 }
 
@@ -261,9 +261,9 @@
   color: var(--shadow-deep, #000);
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
-  border: 2px solid var(--border-hi, #33ff8c);
-  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 55%, #00aa55 100%);
-  box-shadow: 2px 2px 0 var(--shadow, #001208);
+  border: 2px solid var(--border-hi, #ffc766);
+  background: linear-gradient(180deg, #ffe9b8 0%, #ffc45e 55%, #b87723 100%);
+  box-shadow: 2px 2px 0 var(--shadow, #0f0a05);
 }
 
 .journey-recap__cta {
@@ -276,10 +276,10 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--shadow-deep, #000);
-  border: 3px solid var(--border-hi, #33ff8c);
+  border: 3px solid var(--border-hi, #ffc766);
   border-radius: 12px;
-  background: linear-gradient(180deg, #8fffaa 0%, #39ff7a 38%, #00aa55 100%);
-  box-shadow: 0 4px 0 var(--shadow, #001208);
+  background: linear-gradient(180deg, #ffe9b8 0%, #ffc45e 38%, #b87723 100%);
+  box-shadow: 0 4px 0 var(--shadow, #0f0a05);
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -292,7 +292,7 @@
 
 .journey-recap__cta:not(:disabled):active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--shadow, #001208);
+  box-shadow: 0 2px 0 var(--shadow, #0f0a05);
 }
 
 html.emota-mobile .journey-recap__card {

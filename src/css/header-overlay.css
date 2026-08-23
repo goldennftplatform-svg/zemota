@@ -1,4 +1,4 @@
-/* Compact top-left brand overlay — text-only EMOTA on mobile; Ezra stays with party */
+﻿/* Compact top-left brand overlay â€” text-only EMOTA on mobile; Ezra stays with party */
 
 html.emota-mobile .app-brand__seal {
   display: none !important;
@@ -70,8 +70,8 @@ html.emota-mobile .app-layout.is-playing .app-header__row {
   margin: 0;
   padding: 0.14rem 0.55rem 0.12rem 0.38rem;
   pointer-events: auto;
-  background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(0, 12, 8, 0.98) 100%);
-  border: 2px solid rgba(0, 255, 119, 0.28);
+  background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(18, 13, 8, 0.98) 100%);
+  border: 2px solid rgba(255, 178, 96, 0.28);
   border-top: none;
   border-left: none;
   border-radius: 0 0 12px 0;
@@ -92,7 +92,7 @@ html.emota-mobile .app-layout.is-playing .app-brand__title {
   letter-spacing: 0.1em;
 }
 
-/* Desktop play: party panel has Ezra — drop duplicate header portrait */
+/* Desktop play: party panel has Ezra â€” drop duplicate header portrait */
 .app-layout.is-playing .app-brand__seal {
   display: none !important;
 }
@@ -113,7 +113,7 @@ html.emota-mobile .app-layout.is-playing .trail-ribbon {
   padding-left: 0.12rem;
 }
 
-/* —— Desktop play: EMOTA chip over trail map (not stacked header rows) —— */
+/* â€”â€” Desktop play: EMOTA chip over trail map (not stacked header rows) â€”â€” */
 .land-view-brand {
   display: none;
 }
@@ -161,7 +161,7 @@ html.emota-mobile .app-layout.is-playing .trail-ribbon {
     margin-bottom: 0.4rem;
   }
 
-  /* Edge-to-edge map — no chunky CRT frame eating pixels */
+  /* Edge-to-edge map â€” no chunky CRT frame eating pixels */
   .app-layout.is-playing .land-view-frame {
     border: none;
     box-shadow: none;
@@ -204,9 +204,9 @@ html.emota-mobile .app-layout.is-playing .trail-ribbon {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--hi);
-    text-shadow: 1px 1px 0 var(--shadow), 0 0 14px rgba(57, 255, 122, 0.28);
-    background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(0, 12, 8, 0.98) 100%);
-    border: 2px solid rgba(0, 255, 119, 0.34);
+    text-shadow: 1px 1px 0 var(--shadow), 0 0 14px rgba(255, 196, 120, 0.28);
+    background: linear-gradient(135deg, rgba(0, 32, 18, 0.96) 0%, rgba(18, 13, 8, 0.98) 100%);
+    border: 2px solid rgba(255, 178, 96, 0.34);
     border-radius: 6px;
     box-shadow: 3px 3px 0 var(--shadow), 0 6px 18px rgba(0, 0, 0, 0.38),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);

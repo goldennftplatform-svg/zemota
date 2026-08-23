@@ -1,12 +1,12 @@
-/* Event sign — screen + print */
+﻿/* Event sign â€” screen + print */
 
 :root {
-  --join-bg: #020a06;
-  --join-panel: rgba(0, 28, 16, 0.94);
-  --join-border: rgba(57, 255, 122, 0.35);
-  --join-hi: #c8ffe0;
-  --join-text: #d8eadf;
-  --join-dim: #8aa898;
+  --join-bg: #0b0805;
+  --join-panel: rgba(30, 21, 12, 0.94);
+  --join-border: rgba(255, 196, 120, 0.35);
+  --join-hi: #ffdf9e;
+  --join-text: #f0e4c8;
+  --join-dim: #a98f60;
   --font: "VT323", "Segoe UI", system-ui, sans-serif;
   --font-pixel: "Press Start 2P", monospace;
 }
@@ -64,7 +64,7 @@ body.join-body {
 .join-links {
   margin: 0.75rem 0 0;
   padding: 0.65rem 0.75rem;
-  border: 1px solid rgba(57, 255, 122, 0.35);
+  border: 1px solid rgba(255, 196, 120, 0.35);
   border-radius: 8px;
   background: rgba(0, 20, 12, 0.6);
   text-align: left;
@@ -98,8 +98,8 @@ body.join-body {
 }
 
 .join-card--play {
-  border-color: rgba(57, 255, 122, 0.55);
-  box-shadow: 0 0 24px rgba(0, 255, 119, 0.08);
+  border-color: rgba(255, 196, 120, 0.55);
+  box-shadow: 0 0 24px rgba(255, 178, 96, 0.08);
 }
 
 .join-card__heading {
@@ -184,9 +184,9 @@ body.join-body {
   flex: 1 1 auto;
   min-height: 2.75rem;
   padding: 0.55rem 0.85rem;
-  border: 2px solid rgba(57, 255, 122, 0.45);
+  border: 2px solid rgba(255, 196, 120, 0.45);
   border-radius: 8px;
-  background: linear-gradient(180deg, #2acf62 0%, #1a9a48 100%);
+  background: linear-gradient(180deg, #ffc45e 0%, #d99a3a 100%);
   color: #021208;
   font-family: var(--font);
   font-size: clamp(1.1rem, 3.6vw, 1.3rem);
@@ -216,7 +216,7 @@ body.join-body {
   color: var(--join-dim);
 }
 
-/* Print — one-page sign for table / wall */
+/* Print â€” one-page sign for table / wall */
 
 @media print {
   html,
