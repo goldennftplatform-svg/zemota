@@ -333,7 +333,7 @@ function tryAutoResumeFromSave(): boolean {
   if (!shouldAutoResumeAfterLoad()) return false;
   const meta = peekRunSaveMeta();
   if (!tryResumeRun(engine)) return false;
-  if (engine.phase === "victory") scoreCommitted = true;
+  if (engine.phase === "victory" || engine.phase === "game_over") scoreCommitted = true;
   overheadActive = false;
   chanceActive = false;
   prevPhase = "";
@@ -662,15 +662,17 @@ function render(): void {
 
   if (engine.takeJourneyRecap()) {
     const data = engine.getJourneyRecapData(getDisplayName());
-    if (data.outcome === "victory" && !scoreCommitted) {
+    if (!scoreCommitted && (data.outcome === "victory" || data.outcome === "game_over")) {
       scoreCommitted = true;
       const hop = engine.lastLandResult?.hopKing ?? false;
       const name = getDisplayName();
+      const wiped = data.outcome === "game_over";
       saveLocalScore({ name, score: data.score, at: new Date().toISOString() });
       mp.submitScore(name, data.score, {
         hopKing: hop,
         profile: engine.profile,
         travelerNo: getTravelerNumber(),
+        ...(wiped ? { wipedOut: true, miles: Math.round(engine.miles) } : {}),
       });
     }
     pushNetworkProgress();
@@ -849,10 +851,11 @@ function render(): void {
     canvas.hidden = true;
   }
 
-  if (sc.phase === "victory" && !scoreCommitted) {
+  if ((sc.phase === "victory" || sc.phase === "game_over") && !scoreCommitted) {
     scoreCommitted = true;
     const score = engine.computeScore();
     const hop = engine.lastLandResult?.hopKing ?? false;
+    const wiped = sc.phase === "game_over";
     const name = getDisplayName();
     const row = { name, score, at: new Date().toISOString() };
     saveLocalScore(row);
@@ -860,6 +863,7 @@ function render(): void {
       hopKing: hop,
       profile: engine.profile,
       travelerNo: getTravelerNumber(),
+      ...(wiped ? { wipedOut: true, miles: Math.round(engine.miles) } : {}),
     });
   }
 
@@ -1120,7 +1124,7 @@ function choice(n: number): void {
   if (was === "title" && (n === 1 || n === 2)) clearRunSave();
   if (was === "title" && n === 3) {
     if (tryResumeRun(engine)) {
-      if (engine.phase === "victory") scoreCommitted = true;
+      if (engine.phase === "victory" || engine.phase === "game_over") scoreCommitted = true;
       render();
       return;
     }

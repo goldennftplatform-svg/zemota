@@ -152,12 +152,17 @@ export const TRIVIA_BANK: TriviaItem[] = [
   ...TRIVIA_DRAFT_RAW.map(finalizeDraft),
 ];
 
-export function pickTriviaForDay(day: number, totalDays: number): TriviaItem {
+export function pickTriviaForDay(
+  day: number,
+  totalDays: number,
+  exclude?: ReadonlySet<string>,
+): TriviaItem {
   const progress = totalDays > 0 ? day / totalDays : 0;
   const endBias = progress > 0.8 ? 3 : 1;
   let best: TriviaItem | null = null;
   let bestScore = -1;
   for (const t of TRIVIA_BANK) {
+    if (exclude?.has(t.id)) continue;
     const w = 1 + t.endgameWeight * endBias;
     const s = Math.random() * w;
     if (s > bestScore) {
@@ -165,5 +170,15 @@ export function pickTriviaForDay(day: number, totalDays: number): TriviaItem {
       best = t;
     }
   }
-  return best ?? TRIVIA_BANK[0]!;
+  return best ?? pickTriviaForDay(day, totalDays);
+}
+
+/** Random distinct warm-up questions per run — not hardlocked to the first bank entries. */
+export function pickWarmupTrivia(count = 3): TriviaItem[] {
+  const pool = [...TRIVIA_BANK];
+  const out: TriviaItem[] = [];
+  while (out.length < count && pool.length > 0) {
+    out.push(...pool.splice(Math.floor(Math.random() * pool.length), 1));
+  }
+  return out;
 }

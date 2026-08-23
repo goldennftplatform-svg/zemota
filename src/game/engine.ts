@@ -40,7 +40,7 @@ import {
   resolveTrailPostChoice,
   rollTrailPostStops,
 } from "./trailPosts";
-import { pickTriviaForDay, TRIVIA_BANK, type TriviaItem } from "./trivia";
+import { pickTriviaForDay, pickWarmupTrivia, TRIVIA_BANK, type TriviaItem } from "./trivia";
 import {
   pickMansionTimelineNote,
   pickMansionTrailFlavor,
@@ -202,6 +202,10 @@ export class GameEngine {
   travelLogPhase: "prompt_trivia" | "show_teach" = "prompt_trivia";
 
   currentTrivia: TriviaItem | null = null;
+  /** Daily-quiz ids served this run — repeats only after the whole bank has been seen. */
+  seenTriviaIds = new Set<string>();
+  /** Warm-up quiz ids rolled once per run (randomized across the full bank). */
+  trainingQuizIds: string[] = [];
   landPicked: LandChoice | null = null;
   lastLandResult: ReturnType<typeof resolveLandChoice> | null = null;
 
@@ -267,6 +271,8 @@ export class GameEngine {
     this.day = 1;
     this.miles = 0;
     this.triviaCorrect = 0;
+    this.seenTriviaIds = new Set();
+    this.trainingQuizIds = [];
     this.lastChanceDay = -999;
     this.pendingRiver = null;
     this.riverHandledForMiles = -1;
@@ -461,11 +467,11 @@ export class GameEngine {
       }
 
       case "training_quiz": {
-        const qs = TRIVIA_BANK.slice(0, 3);
+        const qs = this.trainingQuiz();
         const q = qs[this.trainingQuizIndex]!;
         return {
           phase: "training_quiz",
-          badge: `Warm-up · ${this.trainingQuizIndex + 1} of 3`,
+          badge: `Warm-up · ${this.trainingQuizIndex + 1} of ${qs.length}`,
           prompt: q.q,
           coach: "Tap the answer you think is right — real Oregon Trail history.",
           lines: [],
@@ -924,12 +930,13 @@ export class GameEngine {
         break;
 
       case "training_quiz": {
-        const qs = TRIVIA_BANK.slice(0, 3);
+        const qs = this.trainingQuiz();
         const q = qs[this.trainingQuizIndex]!;
         if (n - 1 === q.answer) this.trainingCorrect++;
         if (this.trainingQuizIndex < qs.length - 1) {
           this.trainingQuizIndex++;
         } else {
+          for (const t of qs) this.seenTriviaIds.add(t.id);
           this.phase = "party_names";
         }
         break;
@@ -1726,6 +1733,23 @@ export class GameEngine {
     this.phase = "travel_log";
   }
 
+  private trainingQuiz(): TriviaItem[] {
+    const found = this.trainingQuizIds
+      .map((id) => TRIVIA_BANK.find((t) => t.id === id))
+      .filter((t): t is TriviaItem => !!t);
+    if (found.length === 3) return found;
+    const rolled = pickWarmupTrivia(3);
+    this.trainingQuizIds = rolled.map((t) => t.id);
+    return rolled;
+  }
+
+  private drawDailyTrivia(): TriviaItem {
+    const t = pickTriviaForDay(this.day, TARGET_TRAVEL_DAYS, this.seenTriviaIds);
+    if (this.seenTriviaIds.has(t.id)) this.seenTriviaIds.clear();
+    this.seenTriviaIds.add(t.id);
+    return t;
+  }
+
   private startTrivia(): void {
     if (this.afterRestSkipTrivia) {
       this.afterRestSkipTrivia = false;
@@ -1737,7 +1761,7 @@ export class GameEngine {
       this.phase = "land_pick";
       return;
     }
-    this.currentTrivia = pickTriviaForDay(this.day, TARGET_TRAVEL_DAYS);
+    this.currentTrivia = this.drawDailyTrivia();
     this.phase = "trivia";
   }
 
@@ -1823,6 +1847,8 @@ export class GameEngine {
       pendingHazardMult: this.pendingHazardMult,
       travelLogPhase: this.travelLogPhase,
       currentTriviaId: this.currentTrivia?.id ?? null,
+      seenTriviaIds: [...this.seenTriviaIds],
+      trainingQuizIds: [...this.trainingQuizIds],
       landPicked: this.landPicked,
       lastLandResult: this.lastLandResult,
       chanceStakeCents: this.chanceStakeCents,
@@ -1943,6 +1969,17 @@ export class GameEngine {
       const id = str(tid, "");
       this.currentTrivia = TRIVIA_BANK.find((t) => t.id === id) ?? null;
     }
+
+    const rawSeenTrivia = o.seenTriviaIds;
+    this.seenTriviaIds = new Set(
+      Array.isArray(rawSeenTrivia)
+        ? rawSeenTrivia.filter((x): x is string => typeof x === "string").slice(0, 300)
+        : [],
+    );
+    const rawWarmup = o.trainingQuizIds;
+    this.trainingQuizIds = Array.isArray(rawWarmup)
+      ? rawWarmup.filter((x): x is string => typeof x === "string").slice(0, 3)
+      : [];
 
     const lp = o.landPicked;
     if (lp === null || lp === undefined) this.landPicked = null;
