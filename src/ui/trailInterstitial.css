@@ -5,7 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at center, #0a1810 0%, #020806 72%);
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(42, 26, 12, 0.92) 0%, rgba(6, 4, 2, 0.96) 72%);
   animation: emota-interstitial-fade 0.35s ease-out;
 }
 

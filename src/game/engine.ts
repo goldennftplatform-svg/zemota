@@ -21,7 +21,7 @@ import {
 } from "./config";
 import { huntRegionIndexFromMiles, huntZoneFromMiles, type HuntSessionOptions } from "./huntZones";
 import { pickEncounter, TRAIL_ENCOUNTERS, type EncounterMeta } from "./encounters";
-import { applyDeaths, rollDailyDeaths } from "./deaths";
+import { applyDeaths, dailyDeathChance, rollDailyDeaths, type DeathRollContext } from "./deaths";
 import {
   DEBUG_PLAYTEST_DAY,
   DEBUG_PLAYTEST_MILES,
@@ -217,6 +217,8 @@ export class GameEngine {
   /** ASCII pop-up queue (dismiss in order in UI). */
   popupQueue: EmotaPopup[] = [];
   activeEncounter: EncounterMeta | null = null;
+  /** Encounter ids served recently — no back-to-back déjà-vu. */
+  recentEncounterIds: string[] = [];
   pendingTravelBuffer: string[] = [];
   private lastMilestoneAnnounced = 0;
   /** One-line ack after pace/ration change on the camp menu. */
@@ -300,6 +302,7 @@ export class GameEngine {
   }
 
   pushPopup(p: EmotaPopup): void {
+    if (this.popupQueue.length >= 4) this.popupQueue.shift();
     this.popupQueue.push(p);
   }
 
@@ -351,6 +354,7 @@ export class GameEngine {
       spareParts: `${this.inv.spareWheels} wheel · ${this.inv.spareAxles} axle`,
       pace: this.pace,
       rations: this.rations.replace("_", " "),
+      danger: this.dangerLevel(),
       alive: this.livingCount(),
       partyCap: MAX_PARTY,
       profileTitle: PROFILES[this.profile].title,
@@ -997,9 +1001,11 @@ export class GameEngine {
         break;
 
       case "trail_event":
-        if (n >= 1 && n <= 3 && this.activeEncounter) {
-          this.resolveTrailEvent(n);
+        if (!this.activeEncounter) {
+          this.phase = "travel_menu";
+          break;
         }
+        if (n >= 1 && n <= 3) this.resolveTrailEvent(n);
         break;
 
       case "overhead_hunt":
@@ -1218,12 +1224,16 @@ export class GameEngine {
     const bonus =
       gained > 0 ? Math.round(PROFILES[this.profile].forageBonus * 0.35) : 0;
     const total = gained + bonus;
-    this.inv.foodLbs += total;
+    if (total > 0) {
+      this.inv.foodLbs += total;
+    } else {
+      this.inv.foodLbs += 10;
+    }
     this.inv.ammo = Math.max(0, this.inv.ammo - ammoSpent);
     if (total > 0) {
-      this.campFlash = `Hunt: +${total} lb food${bonus > 0 ? ` (+${bonus} lb trail bonus)` : ""} · ${ammoSpent} shot${ammoSpent === 1 ? "" : "s"}`;
-    } else if (ammoSpent > 0) {
-      this.campFlash = `Hunt: no game bagged · ${ammoSpent} shot${ammoSpent === 1 ? "" : "s"} fired`;
+      this.campFlash = `Hunt: +${total} lb food${bonus > 0 ? ` (+${bonus} lb trail bonus)` : ""} A� ${ammoSpent} shot${ammoSpent === 1 ? "" : "s"}`;
+    } else {
+      this.campFlash = "Hunt: no game A� the crew foraged +10 lb roots & berries.";
     }
     this.phase = "travel_menu";
   }
@@ -1333,13 +1343,36 @@ export class GameEngine {
     }
   }
 
+  private deathCtx(hazardMult: number): DeathRollContext {
+    const living = this.party.filter((p) => p.alive);
+    const avgHealth = living.length
+      ? living.reduce((s, p) => s + p.health, 0) / living.length
+      : 100;
+    return {
+      profile: this.profile,
+      hazardMult,
+      rationsHarsh: this.rations === "bare_bones",
+      starving: this.inv.foodLbs < this.foodPerDay(),
+      avgHealth,
+      grueling: this.pace === "grueling",
+    };
+  }
+
+  dangerLevel(): string {
+    const p = dailyDeathChance(this.deathCtx(1));
+    if (p < 0.015) return "Low";
+    if (p < 0.04) return "Moderate";
+    if (p < 0.08) return "High";
+    return "Extreme";
+  }
+
   private restDay(): void {
     for (const p of this.party) {
-      if (p.alive) p.health = Math.min(100, p.health + 6);
+      if (p.alive) p.health = Math.min(100, p.health + 20);
     }
     this.day++;
     if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
-    this.pendingLog = ["You rest a day. Spirits lift slightly.", "", ...this.randomFluff()];
+    this.pendingLog = ["You rest a day. The crew eats warm and mends fast.", "", ...this.randomFluff()];
     this.travelLogPhase = "prompt_trivia";
     this.phase = "travel_log";
     this.pendingHazardMult = 0.85;
@@ -1349,7 +1382,7 @@ export class GameEngine {
   /** Same cadence as rest day: +day, journal, light hazard — after gift-shop food bundle. */
   private meekerGiftShopRestDay(): void {
     for (const p of this.party) {
-      if (p.alive) p.health = Math.min(100, p.health + 6);
+      if (p.alive) p.health = Math.min(100, p.health + 16);
     }
     this.day++;
     if (Math.random() < 0.36) this._pendingTravelInterstitial = true;
@@ -1422,11 +1455,7 @@ export class GameEngine {
       this.randomEventLine(),
     ];
 
-    const deaths = rollDailyDeaths(this.party, {
-      profile: this.profile,
-      hazardMult: hazard * (this.pendingRiver ? 1.2 : 1),
-      rationsHarsh: this.rations === "bare_bones",
-    });
+    const deaths = rollDailyDeaths(this.party, this.deathCtx(hazard * (this.pendingRiver ? 1.2 : 1)));
     const deathLines = applyDeaths(this.party, deaths);
     logs.push(...deathLines);
 
@@ -1462,7 +1491,9 @@ export class GameEngine {
       return;
     }
     if (Math.random() < 0.3) {
-      this.activeEncounter = pickEncounter();
+      this.activeEncounter = pickEncounter(new Set(this.recentEncounterIds));
+      this.recentEncounterIds.push(this.activeEncounter.id);
+      if (this.recentEncounterIds.length > 4) this.recentEncounterIds.shift();
       this.phase = "trail_event";
     } else {
       this.goToTravelLog(logs);
@@ -1725,11 +1756,7 @@ export class GameEngine {
       `You cross ${r.name}.`,
       cost ? `Paid about ${formatMoney(cost)} (or risk rose if you were short).` : "",
     ].filter(Boolean);
-    const deaths = rollDailyDeaths(this.party, {
-      profile: this.profile,
-      hazardMult: hazard,
-      rationsHarsh: this.rations === "bare_bones",
-    });
+    const deaths = rollDailyDeaths(this.party, this.deathCtx(hazard));
     logs.push(...applyDeaths(this.party, deaths));
     if (this.livingCount() === 0) {
       this.enterGameOver();
@@ -1849,6 +1876,7 @@ export class GameEngine {
       day: this.day,
       miles: this.miles,
       triviaCorrect: this.triviaCorrect,
+      recentEncounterIds: this.recentEncounterIds.slice(-4),
       lastChanceDay: this.lastChanceDay,
       pendingRiverIdx,
       pendingLog: this.pendingLog,
@@ -2113,6 +2141,11 @@ export class GameEngine {
       const eid = str(encId, "");
       this.activeEncounter = TRAIL_ENCOUNTERS.find((e) => e.id === eid) ?? null;
     }
+
+    const renc = o.recentEncounterIds;
+    this.recentEncounterIds = Array.isArray(renc)
+      ? renc.map((x) => str(x, "")).filter(Boolean).slice(-4)
+      : [];
 
     const ptb = o.pendingTravelBuffer;
     this.pendingTravelBuffer = Array.isArray(ptb) ? ptb.map((x) => str(x, "")) : [];

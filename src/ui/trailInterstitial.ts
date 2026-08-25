@@ -1,7 +1,7 @@
 import "./trailInterstitial.css";
 
-const DURATION_MS_MIN = 2000;
-const DURATION_MS_MAX = 2800;
+const DURATION_MS_MIN = 1200;
+const DURATION_MS_MAX = 1800;
 
 const BRANDS = ["WAGON", "THE TRAIL", "OVERLAND"] as const;
 
@@ -83,15 +83,8 @@ export function showTrailInterstitial(): Promise<void> {
 
     const ms = durationMs();
 
-    const onKey = (e: KeyboardEvent): void => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-    window.addEventListener("keydown", onKey, true);
-
     window.setTimeout(() => {
       el.classList.add("emota-trail-interstitial--out");
-      window.removeEventListener("keydown", onKey, true);
       window.setTimeout(() => {
         el.remove();
         resolve();

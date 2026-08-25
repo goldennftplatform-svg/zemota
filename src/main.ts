@@ -1324,7 +1324,7 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (e.target instanceof HTMLInputElement) return;
-  if (engine.peekPopup()) {
+  if (!popupRoot.hidden && engine.peekPopup()) {
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       engine.dismissPopup();

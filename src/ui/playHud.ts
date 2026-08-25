@@ -123,11 +123,11 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
 
   const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - engine.giftShopBoostsUsed;
   if (giftLeft > 0) {
-    rows.splice(rows.length - 1, 0, {
+    rows.push({
       n: 8,
       name: "Hop King gift perk",
       have: `${giftLeft} left`,
-      buyLabel: `+${MEEKER_GIFT_SHOP_FOOD_LB} lb food · rest 1 day`,
+      buyLabel: `+${MEEKER_GIFT_SHOP_FOOD_LB} lb food A� rest 1 day`,
       costCents: 0,
     });
   }

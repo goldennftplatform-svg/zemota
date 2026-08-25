@@ -47,8 +47,9 @@ export function buildTravelMenuMobileHud(s: DashboardSnapshot): string {
       <p class="tmh-loc">${escapeHtml(s.landmark)}</p>
       <p class="tmh-sub">Day ${s.day} · ${Math.round(s.miles)} mi · ${pct}% trail</p>
       <div class="tmh-grid">
-        <div class="tmh-stat"><span class="tmh-k">Pace</span><span class="tmh-v">${escapeHtml(s.pace)}</span></div>
-        <div class="tmh-stat"><span class="tmh-k">Rations</span><span class="tmh-v">${escapeHtml(s.rations)}</span></div>
+    <div class="tmh-stat"><span class="tmh-k">Pace</span><span class="tmh-v">${escapeHtml(s.pace)}</span></div>
+    <div class="tmh-stat"><span class="tmh-k">Rations</span><span class="tmh-v">${escapeHtml(s.rations)}</span></div>
+    <div class="tmh-stat"><span class="tmh-k">Danger</span><span class="tmh-v">${escapeHtml(s.danger)}</span></div>
         <div class="tmh-stat"><span class="tmh-k">Food</span><span class="tmh-v">${s.food} lb</span></div>
         <div class="tmh-stat"><span class="tmh-k">Ammo</span><span class="tmh-v">${escapeHtml(String(s.ammo))}</span></div>
         <div class="tmh-stat"><span class="tmh-k">Day</span><span class="tmh-v">${s.day}/${s.maxDays}</span></div>
@@ -124,6 +125,13 @@ export function buildDashboardSidebar(s: DashboardSnapshot, phase: string): stri
           ${tile("Oxen", String(s.oxen), ico.oxen)}
           ${tile("Pace", s.pace, ico.pace)}
           ${tile("Rations", s.rations, ico.food)}
+          ${tile(
+            "Danger",
+            s.danger,
+            ico.pace,
+            false,
+            s.danger === "High" || s.danger === "Extreme" ? "dash-tile--danger" : undefined,
+          )}
           ${tile("Quiz ✓", String(s.triviaStreak), ico.quiz)}
         </div>
       </section>

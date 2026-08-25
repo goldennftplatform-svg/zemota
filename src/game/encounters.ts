@@ -84,6 +84,8 @@ export const TRAIL_ENCOUNTERS: EncounterMeta[] = [
   })),
 ];
 
-export function pickEncounter(): EncounterMeta {
-  return TRAIL_ENCOUNTERS[Math.floor(Math.random() * TRAIL_ENCOUNTERS.length)]!;
+export function pickEncounter(recent: ReadonlySet<string> = new Set()): EncounterMeta {
+  const fresh = recent.size > 0 ? TRAIL_ENCOUNTERS.filter((e) => !recent.has(e.id)) : TRAIL_ENCOUNTERS;
+  const pool = fresh.length > 0 ? fresh : TRAIL_ENCOUNTERS;
+  return pool[Math.floor(Math.random() * pool.length)]!;
 }

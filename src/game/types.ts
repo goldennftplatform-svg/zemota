@@ -85,6 +85,8 @@ export interface DashboardSnapshot {
   spareParts: string;
   pace: string;
   rations: string;
+  /** Explainable daily-death risk label derived from food/health/pace. */
+  danger: string;
   alive: number;
   partyCap: number;
   profileTitle: string;

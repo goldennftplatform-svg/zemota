@@ -1203,6 +1203,15 @@ body {
   text-shadow: none;
 }
 
+.dash-tile--danger {
+  border-color: #d24a4a;
+}
+
+.dash-tile--danger .dash-tile__val {
+  color: #ff9d7a;
+  text-shadow: 0 0 8px rgba(210, 74, 74, 0.4);
+}
+
 .dash-profile {
   margin: 0;
   padding: 0.5rem 0.55rem;

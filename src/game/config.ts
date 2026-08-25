@@ -1,5 +1,5 @@
-/** Longer run (~25–30+ min); pace scales so you still reach Oregon in time. */
-export const TARGET_TRAVEL_DAYS = 52;
+/** Compressed run (~10-15 min; was 25–30+ min); pace scales so you still reach Oregon in time. */
+export const TARGET_TRAVEL_DAYS = 26;
 /** Original tuning reference — miles/day multiplied by this / TARGET_TRAVEL_DAYS */
 export const PACE_REFERENCE_DAYS = 36;
 export const TOTAL_TRAIL_MILES = 1990;
