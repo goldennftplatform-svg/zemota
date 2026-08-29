@@ -17,6 +17,11 @@ npm run server
 
 With the server running, `npm run dev` proxies WebSocket traffic so travelers appear in the strip at the top. Without the server, the game works offline.
 
+## License
+
+This project uses the custom GLU (Grant of Limited Use) terms in `LICENSE.md`.
+Private, educational, and internal use are allowed; any commercial use or licensing requires prior written approval from the Puyallup Historical Society at Meeker Mansion.
+
 ## Deploy static client (Vercel)
 
 - Connect the repo to Vercel.
