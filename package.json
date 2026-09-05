@@ -8,7 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run validate:content && vite build",
+    "validate:content": "tsx scripts/validate-content.ts",
+    "test:package": "tsx --test tests/package.test.ts",
+    "test:integration": "playwright test --config playwright.local.config.ts",
     "preview": "vite preview",
     "server": "tsx server/index.ts",
     "verify": "node scripts/verify-stack.mjs",

@@ -1,0 +1,17 @@
+.wagon-badge { width: 80px; height: 56px; flex: 0 0 auto; }
+.wagon-identity { border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; min-width: 0; }
+.wagon-identity legend { color: var(--hi); }
+.wagon-identity__preview { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.6rem; }
+.wagon-identity label { display: grid; gap: 0.2rem; min-width: 0; }
+.wagon-identity input, .wagon-identity select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px; font: inherit; font-size: 16px; background: #201710; color: #e8d2a0; border: 1px solid #a8762e; border-radius: 5px; padding: 0.4rem; }
+.trail-passport { box-sizing: border-box; color: #e8d2a0; background: repeating-linear-gradient(0deg, #171008 0 27px, #201710 28px); border: 3px double #a8762e; border-radius: 12px; width: min(640px, calc(100% - 24px)); max-height: 85dvh; padding: 16px; font-family: var(--font); font-size: 17px; line-height: 1.4; box-shadow: 0 18px 70px #000; }
+.trail-passport::backdrop { background: #000b; }
+.trail-passport form { display: flex; justify-content: flex-end; }
+.trail-passport header { display: flex; align-items: center; gap: 1rem; }
+.trail-passport h2 { margin: 0; font-size: 28px; }
+.passport-kicker, .passport-stop small { letter-spacing: 0.12em; color: #efc15b; }
+.trail-passport ol { list-style: none; padding: 0; }
+.passport-stop { display: flex; gap: 1rem; border-top: 1px solid #a8762e66; padding: 1rem 0; }
+.passport-stop h3, .passport-stop p { margin: 0.25rem 0; }
+.passport-stamp { display: grid; place-items: center; flex: 0 0 54px; height: 54px; border: 3px double #9bbf88; border-radius: 50%; color: #9bbf88; font-size: 1.7rem; transform: rotate(-8deg); }
+.is-unvisited .passport-stamp { border-style: dashed; color: #a98f60; border-color: #a98f60; transform: none; }

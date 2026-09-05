@@ -144,7 +144,6 @@ export function resolveChanceFromSimulation(
 
 /** Legacy instant-RNG path (tests / tooling only). */
 export function playChanceGame(id: ChanceGameId, stakeCents: number): ChanceResult {
-  const stake = clampStake(stakeCents);
   switch (id) {
     case "shell":
       return resolveChanceFromSimulation(stakeCents, {

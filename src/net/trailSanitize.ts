@@ -2,6 +2,8 @@
 
 import { MAX_PARTY, MULTIPLAYER_CAP, TOTAL_TRAIL_MILES } from "../game/config";
 import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
+import { trailFeedSourceKey } from "./trailProtocol";
+import { sanitizeWagonIdentity } from "../game/wagonIdentity";
 
 function finiteMiles(n: unknown, fallback = 0): number {
   const x = Number(n);
@@ -43,6 +45,7 @@ export function sanitizeTrailPeers(list: unknown): TrailPeer[] {
       displayName: String(r.displayName ?? "Traveler").slice(0, 24),
       miles: finiteMiles(r.miles),
       day: finiteDay(r.day),
+      identity: sanitizeWagonIdentity(r.identity),
     };
     if (typeof r.alive === "number" && Number.isFinite(r.alive)) {
       peer.alive = Math.max(0, Math.min(10, Math.floor(r.alive)));
@@ -63,6 +66,7 @@ export function sanitizeTrailPeers(list: unknown): TrailPeer[] {
 export function sanitizeTrailFeedList(list: unknown): TrailFeedEvent[] {
   if (!Array.isArray(list)) return [];
   const out: TrailFeedEvent[] = [];
+  const seen = new Set<string>();
   for (const row of list.slice(0, 200)) {
     if (!row || typeof row !== "object") continue;
     const r = row as Record<string, unknown>;
@@ -71,17 +75,33 @@ export function sanitizeTrailFeedList(list: unknown): TrailFeedEvent[] {
     if (!id || !text.trim()) continue;
     const miles = Number(r.miles);
     const day = Number(r.day);
+    const body = feedBody(String(r.displayName ?? ""), text);
+    const sourcePeerId = typeof r.sourcePeerId === "string" ? r.sourcePeerId.trim().slice(0, 64) || undefined : undefined;
+    const displayName = String(r.displayName ?? "").slice(0, 40);
+    const key = `${trailFeedSourceKey({ sourcePeerId, displayName })}|${r.kind}|${day}|${miles}|${body}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
     out.push({
       id,
+      sourcePeerId,
       at: String(r.at ?? ""),
       kind: String(r.kind ?? "system").slice(0, 32),
-      displayName: String(r.displayName ?? "").slice(0, 40),
-      text,
+      displayName,
+      text: body,
       miles: Number.isFinite(miles) ? finiteMiles(miles) : undefined,
       day: Number.isFinite(day) ? finiteDay(day) : undefined,
     });
   }
   return out;
+}
+
+/** Persisted feed and older clients included the wagon name in the body. */
+export function feedBody(name: string, text: string): string {
+  if (!name || !text.startsWith(name)) return text;
+  const rest = text.slice(name.length);
+  if (rest.startsWith("'s ")) return rest.slice(3);
+  if (/^[:\s]/.test(rest)) return rest.replace(/^[:\s]+/, "");
+  return text;
 }
 
 export function sanitizeScoreRows(

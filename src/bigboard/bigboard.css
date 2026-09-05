@@ -1207,8 +1207,7 @@ html.bb-wall .bb-dock__panel--party .party-roster__fig {
 }
 
 .bb-wagon__icon {
-  filter: drop-shadow(0 0 8px rgba(255, 196, 120, 0.55)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85))
-    hue-rotate(calc(var(--h, 0) * 0.28deg)) saturate(1.2) brightness(1.08);
+  filter: drop-shadow(0 0 8px rgba(255, 196, 120, 0.55)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
   transform: scaleX(-1);
 }
 
@@ -1893,4 +1892,11 @@ html.bb-event .bb-lobby {
 
 html.bb-event .bb-lobby strong {
   color: #fff;
+}
+/* Identity is an allowlisted local SVG, readable without color alone. */
+.bb-wagon .wagon-badge { width: 76px; height: 54px; filter: drop-shadow(0 2px 2px #000); }
+#bb-popup-host .wagon-badge { width: 96px; height: 68px; }
+@media (prefers-reduced-motion: reduce) {
+  .bb-root *, #bb-popup-host * { animation: none !important; transition: none !important; }
+  .bb-ticker__strip[aria-hidden="true"] { display: none; }
 }

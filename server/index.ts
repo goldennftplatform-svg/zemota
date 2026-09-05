@@ -4,6 +4,7 @@ import { Server, type Socket } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 import type { TrailFeedEvent, TrailPeer } from "../src/net/trailProtocol";
+import { sanitizeWagonIdentity, type WagonIdentity } from "../src/game/wagonIdentity";
 import { MAX_PARTY, MULTIPLAYER_CAP, TOTAL_TRAIL_MILES } from "../src/game/config";
 import type { TrailPeerPartyRow } from "../src/net/trailProtocol";
 import {
@@ -54,6 +55,7 @@ const io = new Server(httpServer, {
 });
 
 type Peer = {
+  identity?: WagonIdentity;
   displayName: string;
   miles: number;
   day: number;
@@ -197,6 +199,7 @@ function roomSnapshotList(): TrailPeer[] {
     partyCap: v.partyCap,
     profileTitle: v.profileTitle,
     party: v.party,
+    identity: v.identity,
   }));
 }
 
@@ -367,6 +370,7 @@ io.on("connection", (socket) => {
       p.partyCap = Math.max(1, Math.min(10, Math.floor(raw.partyCap)));
     }
     if (raw.profileTitle !== undefined) p.profileTitle = String(raw.profileTitle ?? "").slice(0, 48);
+    if (raw.identity !== undefined) p.identity = sanitizeWagonIdentity(raw.identity);
     if (raw.party !== undefined) {
       const rows = sanitizePartyRows(raw.party);
       p.party = rows && rows.length > 0 ? rows : [];
@@ -386,6 +390,7 @@ io.on("connection", (socket) => {
     if (!text.trim()) return;
     const ev: TrailFeedEvent = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+      sourcePeerId: socket.id,
       at: new Date().toISOString(),
       kind,
       displayName: p.displayName,

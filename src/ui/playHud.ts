@@ -127,7 +127,7 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
       n: 8,
       name: "Hop King gift perk",
       have: `${giftLeft} left`,
-      buyLabel: `+${MEEKER_GIFT_SHOP_FOOD_LB} lb food A� rest 1 day`,
+      buyLabel: `+${MEEKER_GIFT_SHOP_FOOD_LB} lb food & rest 1 day`,
       costCents: 0,
     });
   }

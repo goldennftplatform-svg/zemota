@@ -1,5 +1,6 @@
 import { io, type Socket } from "socket.io-client";
 import { getTravelerNumber } from "../game/playerNumber";
+import type { WagonIdentity } from "../game/wagonIdentity";
 import type { TrailFeedEvent, TrailPeer, TrailPeerPartyRow } from "./trailProtocol";
 import { EMOTA_SOCKET_BASE } from "./socketClientOpts";
 import { clearStoredTrailOrigin, resolveTrailOrigin } from "./socketUrl";
@@ -58,6 +59,7 @@ export function setDisplayName(n: string): void {
 }
 
 export interface TrailUpdateExtras {
+  identity?: WagonIdentity;
   alive?: number;
   landmark?: string;
   phase?: string;
@@ -125,8 +127,9 @@ export class TrailMultiplayer {
         return;
       }
       this.live = true;
-      this.onConnection("live", "Your wagon is on the live trail.");
       s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
+      this.lastUpdateAt = 0;
+      this.onConnection("live", "Your wagon is on the live trail.");
     });
 
     s.on("trail:error", (payload: unknown) => {

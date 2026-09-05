@@ -12,7 +12,6 @@ import {
   HUNT_MIN_AMMO_TO_HUNT,
   MAX_PARTY,
   MEEKER_GIFT_SHOP_FOOD_LB,
-  MEEKER_GIFT_SHOP_URL,
   MEEKER_GIFT_SHOP_USES_PER_RUN,
   MEEKER_MANSION_HISTORY_URL,
   PACE_REFERENCE_DAYS,
@@ -33,7 +32,7 @@ import type { JourneyRecapData } from "../ui/journeyRecap";
 import { resolveStage2Pick, type Stage2Outcome, type Stage2Pick } from "./stage2Bonus";
 import { landmarkAtMiles, nextRiverAhead, LANDMARKS } from "./map";
 import { PROFILES, PROFILE_ORDER } from "./profiles";
-import { idealOutfitCostCents, priceAmmo, priceClothes, priceFood, priceOxen, priceParts } from "./store";
+import { priceAmmo, priceClothes, priceFood, priceOxen, priceParts } from "./store";
 import {
   buildTrailPostOffers,
   landmarksCrossed,
@@ -41,6 +40,8 @@ import {
   rollTrailPostStops,
 } from "./trailPosts";
 import { pickTriviaForDay, pickWarmupTrivia, TRIVIA_BANK, type TriviaItem } from "./trivia";
+import { restoreSeenTrivia } from "./triviaValidation";
+import { sanitizeWagonIdentity } from "./wagonIdentity";
 import {
   pickMansionTimelineNote,
   pickMansionTrailFlavor,
@@ -56,7 +57,7 @@ import type {
   PartyMember,
   ProfileId,
   Rations,
-  type ScreenHeroImage,
+  ScreenHeroImage,
 } from "./types";
 
 export type EnginePhase =
@@ -192,6 +193,7 @@ export class GameEngine {
   rations: Rations = "filling";
 
   day = 1;
+  wagonIdentity = sanitizeWagonIdentity(null);
   miles = 0;
   triviaCorrect = 0;
   lastChanceDay = -999;
@@ -361,6 +363,7 @@ export class GameEngine {
       triviaStreak: this.triviaCorrect,
       party: partyRows,
       travelerNumber: getTravelerNumber(),
+      wagonIdentity: this.wagonIdentity,
     };
   }
 
@@ -1869,6 +1872,7 @@ export class GameEngine {
       trainingQuizIndex: this.trainingQuizIndex,
       trainingCorrect: this.trainingCorrect,
       party: this.party,
+      wagonIdentity: this.wagonIdentity,
       profile: this.profile,
       inv: this.inv,
       pace: this.pace,
@@ -1930,6 +1934,7 @@ export class GameEngine {
     const bool = (x: unknown, d: boolean): boolean => (typeof x === "boolean" ? x : d);
 
     this.phase = o.phase;
+    this.wagonIdentity = sanitizeWagonIdentity(o.wagonIdentity);
     this.trainingPage = Math.max(0, int(o.trainingPage, 0));
     this.trainingQuizIndex = Math.max(0, int(o.trainingQuizIndex, 0));
     this.trainingCorrect = Math.max(0, int(o.trainingCorrect, 0));
@@ -2007,11 +2012,7 @@ export class GameEngine {
     }
 
     const rawSeenTrivia = o.seenTriviaIds;
-    this.seenTriviaIds = new Set(
-      Array.isArray(rawSeenTrivia)
-        ? rawSeenTrivia.filter((x): x is string => typeof x === "string").slice(0, 300)
-        : [],
-    );
+    this.seenTriviaIds = restoreSeenTrivia(rawSeenTrivia, TRIVIA_BANK);
     const rawWarmup = o.trainingQuizIds;
     this.trainingQuizIds = Array.isArray(rawWarmup)
       ? rawWarmup.filter((x): x is string => typeof x === "string").slice(0, 3)

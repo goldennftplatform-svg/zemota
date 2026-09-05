@@ -1,13 +1,18 @@
-/* Run tools dock — Names / Restart, floats above the footer & sticky choices */
+/* Reserved flow bar: never overlaps supplies or the scrollable choice panel. */
 
 .run-tools-dock {
-  position: fixed;
-  right: 0.55rem;
-  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-  z-index: 60;
+  position: relative;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  padding: 0.35rem 0;
   display: flex;
   gap: 0.4rem;
 }
+
+.run-tools-dock[hidden] { display: none !important; }
+
+html.emota-mobile .run-tools-dock { justify-content: stretch; }
+html.emota-mobile .run-tools-dock .run-tool-btn { flex: 1; padding-inline: 0.35rem; }
 
 .run-tool-btn {
   min-height: 42px;

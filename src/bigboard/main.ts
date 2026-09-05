@@ -8,6 +8,7 @@ import { initMobileShellClass } from "../mobile-detect";
 import { GAME_ART } from "../game/artAssets";
 import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { TrailFeedEvent, TrailPeer } from "../net/trailProtocol";
+import { trailFeedSourceKey } from "../net/trailProtocol";
 import { EMOTA_SOCKET_BASE } from "../net/socketClientOpts";
 import { clearStoredTrailOrigin, persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
 import {
@@ -28,6 +29,8 @@ import {
   sanitizeTrailPeers,
 } from "../net/trailSanitize";
 import { bbFeedIcon, bbTrophyIcon } from "./bbIcons";
+import { wagonBadge } from "../ui/wagonIdentity";
+import { SpotlightQueue } from "./spotlights";
 import "./bigboard.css";
 
 initMobileShellClass();
@@ -100,7 +103,6 @@ const LB_WALL = 6;
 const LB_DEFAULT = 12;
 /** Coalesce room/feed/score floods so the projector doesn't full-DOM every tick. */
 const RENDER_COALESCE_MS = 200;
-const POPUP_QUEUE_MAX = 4;
 
 function escapeHtml(s: string): string {
   return s
@@ -112,12 +114,6 @@ function escapeHtml(s: string): string {
 
 function escapeAttr(s: string): string {
   return escapeHtml(s).replace(/'/g, "&#39;");
-}
-
-function hueFor(name: string): number {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  return h % 360;
 }
 
 function feedKindLabel(kind: string): string {
@@ -161,7 +157,7 @@ let feed: TrailFeedEvent[] = [];
 let joinTicker: TrailFeedEvent[] = [];
 let scoreRows: ScoreRow[] = [];
 let popupTimer: ReturnType<typeof setTimeout> | null = null;
-let popupQueue: TrailFeedEvent[] = [];
+const spotlights = new SpotlightQueue();
 let popupShowing = false;
 let renderTimer: ReturnType<typeof setTimeout> | null = null;
 let renderQueued = false;
@@ -225,11 +221,6 @@ function showLossCallout(ev: TrailFeedEvent): void {
     render();
   }, LOSS_CALLOUT_MS);
   startWagonLossFlash(ev.displayName);
-}
-
-/** Ezra + wagon pixel sprite (westbound on the chart). */
-function wagonSpriteHtml(): string {
-  return renderMeekerSpriteHtml("ezraWagon", { anim: "walk-west", size: "wagon" });
 }
 
 function trailHostLabel(): string {
@@ -460,13 +451,12 @@ function paintBoard(): void {
 
   const markersHtml = peers
     .map((p) => {
-      const h = hueFor(p.displayName);
       const flashing = isWagonLossFlashing(p.displayName);
       const meta = wall
         ? `${Math.round(p.miles)} mi`
         : `${Math.round(p.miles)} mi · day ${p.day}${p.alive != null ? ` · ${p.alive} alive` : ""}`;
-      return `<div class="bb-wagon${flashing ? " bb-wagon--loss-flash" : ""}" data-miles="${p.miles}" data-display-name="${escapeAttr(p.displayName)}" style="--h:${h}">
-        <div class="bb-wagon__icon">${wagonSpriteHtml()}</div>
+      return `<div class="bb-wagon${flashing ? " bb-wagon--loss-flash" : ""}" data-miles="${p.miles}" data-display-name="${escapeAttr(p.displayName)}">
+        <div class="bb-wagon__icon">${wagonBadge(p.identity)}</div>
         <div class="bb-wagon__name">${escapeHtml(p.displayName)}</div>
         <div class="bb-wagon__meta">${escapeHtml(meta)}</div>
       </div>`;
@@ -608,30 +598,30 @@ function paintBoard(): void {
 }
 
 function enqueuePopup(ev: TrailFeedEvent): void {
-  if (!["death", "victory", "wipeout"].includes(ev.kind)) return;
-  if (popupQueue.length >= POPUP_QUEUE_MAX) return;
-  popupQueue.push(ev);
+  if (!spotlights.add(ev)) return;
   drainPopupQueue();
 }
 
 function drainPopupQueue(): void {
-  if (popupShowing || popupQueue.length === 0) return;
-  const next = popupQueue.shift();
+  if (popupShowing) return;
+  const next = spotlights.next();
   if (!next) return;
   showBigPopup(next);
 }
 
 function showBigPopup(ev: TrailFeedEvent): void {
-  if (!["death", "victory", "wipeout"].includes(ev.kind)) return;
+  if (!["death", "victory", "wipeout", "milestone"].includes(ev.kind)) return;
   const el = popupHost;
   if (!el) return;
   popupShowing = true;
   const wall = isWallMode();
   el.classList.toggle("bb-popup-host--toast", wall);
   el.hidden = false;
-  const art = ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
+  const art = ev.kind === "milestone" ? "+" : ev.kind === "death" ? "" : ev.kind === "victory" ? "★" : "✖";
   const artHtml =
-    ev.kind === "death" && !wall
+    ev.kind === "milestone"
+      ? wagonBadge(peers.find((p) => ev.sourcePeerId ? p.id === ev.sourcePeerId : p.displayName === ev.displayName)?.identity)
+      : ev.kind === "death" && !wall
       ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("ezraElder", { anim: "idle-west", size: "hero", stage: true })}</div>`
       : ev.kind === "victory" && !wall
         ? `<div class="bb-popup__sprite">${renderMeekerSpriteHtml("hopKingYoung", { anim: "walk-west", size: "hero", stage: true })}</div>`
@@ -641,13 +631,13 @@ function showBigPopup(ev: TrailFeedEvent): void {
   const cardMod =
     ev.kind === "death"
       ? `bb-popup__card--death${wall ? " bb-popup__card--toast" : ""}`
-      : ev.kind === "victory"
+      : ev.kind === "victory" || ev.kind === "milestone"
         ? `bb-popup__card--victory${wall ? " bb-popup__card--toast" : ""}`
         : `bb-popup__card--wipeout${wall ? " bb-popup__card--toast" : ""}`;
   const title =
-    ev.kind === "death" ? "LOSS ON THE TRAIL" : ev.kind === "victory" ? "OREGON REACHED" : "WAGON LOST";
+    ev.kind === "milestone" ? "TRAIL MILESTONE" : ev.kind === "death" ? "LOSS ON THE TRAIL" : ev.kind === "victory" ? "OREGON REACHED" : "WAGON LOST";
   stopMeekerSpriteAnimations(el);
-  el.innerHTML = `<div class="bb-popup${wall ? " bb-popup--toast" : ""}">
+  el.innerHTML = `<div class="bb-popup${wall ? " bb-popup--toast" : ""}" role="status" aria-live="polite" aria-atomic="true">
     <div class="bb-popup__card ${cardMod}">
       <span class="bb-popup__ico">${bbFeedIcon(ev.kind)}</span>
       ${artHtml}
@@ -668,6 +658,7 @@ function showBigPopup(ev: TrailFeedEvent): void {
 }
 
 function prependFeed(ev: TrailFeedEvent): void {
+  if (feed.some((old) => old.id === ev.id || (trailFeedSourceKey(old) === trailFeedSourceKey(ev) && old.kind === ev.kind && old.day === ev.day && old.miles === ev.miles && old.text === ev.text))) return;
   feed = [ev, ...feed].slice(0, 200);
   if (ev.kind === "death" || ev.kind === "wipeout") {
     showLossCallout(ev);
@@ -696,10 +687,18 @@ function wireBigboardSocket(socket: Socket): void {
   bbSocket = socket;
 
   socket.on("connect", () => {
+    roomSyncCount = 0;
     setConn("ok");
     socket.emit("trail:room:request");
   });
-  socket.on("disconnect", () => setConn("bad"));
+  socket.on("disconnect", () => {
+    spotlights.clearPending();
+    if (popupTimer) clearTimeout(popupTimer);
+    popupShowing = false;
+    popupHost.hidden = true;
+    popupHost.innerHTML = "";
+    setConn("bad");
+  });
   socket.on("connect_error", () => {
     setConn("warn");
   });
@@ -723,6 +722,7 @@ function wireBigboardSocket(socket: Socket): void {
         joinTicker = [
           {
             id: `join-${p.id}-${now}-${i}`,
+            sourcePeerId: p.id,
             at: new Date(now).toISOString(),
             kind: "system",
             displayName: p.displayName,
@@ -746,6 +746,7 @@ function wireBigboardSocket(socket: Socket): void {
 
   socket.on("trail:feed:sync", (list: unknown) => {
     feed = sanitizeTrailFeedList(list).reverse();
+    feed.forEach((ev) => spotlights.remember(ev));
     scheduleRender();
   });
 

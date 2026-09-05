@@ -17,7 +17,6 @@ import {
   startBrandSealWatch,
 } from "./ui/meekerSprites";
 import { ChanceMini } from "./ui/chanceGames";
-import { GAME_ART } from "./game/artAssets";
 import { TrailMultiplayer, getDisplayName, setDisplayName, type TrailConnectionState } from "./net/multiplayer";
 import {
   closeTrailMapPopup,
@@ -26,6 +25,8 @@ import {
 } from "./ui/trailMapPopup";
 import type { TrailPeer, TrailPeerPartyRow } from "./net/trailProtocol";
 import { randomHistoricPartyLine } from "./data/historicNames";
+import { identityFields, readIdentityFields, wagonBadge } from "./ui/wagonIdentity";
+import { showTrailPassport } from "./ui/trailPassport";
 import { isDebugPlaytestWagonName } from "./game/debugPlaytest";
 import { renderTrailMinimap } from "./ui/trailMinimap";
 import {
@@ -181,7 +182,6 @@ function saveLocalScore(row: { name: string; score: number; at: string }): void 
   localStorage.setItem(HS_KEY, JSON.stringify(arr.slice(0, 50)));
 }
 
-let netStatus = "";
 let trailConnState: TrailConnectionState = "connecting";
 let trailConnDetail = "";
 let trailPeerCount = 0;
@@ -298,6 +298,11 @@ const footerMansionEl = document.getElementById("footer-mansion-history") as HTM
 if (footerGiftShopEl) footerGiftShopEl.href = MEEKER_GIFT_SHOP_URL;
 if (footerMansionEl) footerMansionEl.href = MEEKER_MANSION_HISTORY_URL;
 const runToolsDockEl = document.getElementById("run-tools-dock")!;
+document.addEventListener("change", (event) => {
+  const fieldset = (event.target as HTMLElement).closest<HTMLElement>(".wagon-identity");
+  if (fieldset) fieldset.querySelector(".wagon-badge")!.outerHTML = wagonBadge(readIdentityFields(fieldset));
+});
+document.getElementById("run-passport")!.addEventListener("click", () => showTrailPassport(engine.miles, engine.wagonIdentity, escapeHtml));
 const runRenameBtn = document.getElementById("run-rename") as HTMLButtonElement | null;
 const runRestartBtn = document.getElementById("run-restart") as HTMLButtonElement | null;
 const runRenameSheetEl = document.getElementById("run-rename-sheet")!;
@@ -375,6 +380,7 @@ function pushNetworkProgress(): void {
   }
   const snap = engine.getDashboardSnapshot();
   mp.updateProgress(engine.miles, engine.day, {
+    identity: engine.wagonIdentity,
     alive: snap.alive,
     landmark: snap.landmark,
     phase: engine.phase,
@@ -401,7 +407,6 @@ function syncTrailBroadcast(): void {
     return;
   }
   const s = engine.getDashboardSnapshot();
-  const name = getDisplayName();
   const m = Math.floor(engine.miles);
 
   if (trailBc.phase === "title") {
@@ -421,8 +426,8 @@ function syncTrailBroadcast(): void {
       kind: "death",
       text:
         lost > 1
-          ? `${name}: ${lost} lost on the trail. ${s.alive}/${s.partyCap} left near ${s.landmark}.`
-          : `${name}: a party member is lost. ${s.alive}/${s.partyCap} remain.`,
+          ? `${lost} lost on the trail. ${s.alive}/${s.partyCap} left near ${s.landmark}.`
+          : `A party member is lost. ${s.alive}/${s.partyCap} remain.`,
       miles: engine.miles,
       day: engine.day,
     });
@@ -431,7 +436,7 @@ function syncTrailBroadcast(): void {
   if (trailBc.landmark && trailBc.landmark !== s.landmark && m > trailBc.miles) {
     mp.emitTrailEvent({
       kind: "milestone",
-      text: `${name} reached ${s.landmark}`,
+      text: `Reached ${s.landmark}`,
       miles: engine.miles,
       day: engine.day,
     });
@@ -441,7 +446,7 @@ function syncTrailBroadcast(): void {
     if (trailBc.miles >= 0 && trailBc.miles < mark && m >= mark) {
       mp.emitTrailEvent({
         kind: "milestone",
-        text: `${name} crossed ${mark} trail miles`,
+        text: `Crossed ${mark} trail miles`,
         miles: m,
         day: engine.day,
       });
@@ -451,7 +456,7 @@ function syncTrailBroadcast(): void {
   if (trailBc.phase !== "victory" && phase === "victory") {
     mp.emitTrailEvent({
       kind: "victory",
-      text: `${name} finished the run! Score ${engine.computeScore()}`,
+      text: `Finished the run! Score ${engine.computeScore()}`,
       miles: engine.miles,
       day: engine.day,
     });
@@ -459,7 +464,7 @@ function syncTrailBroadcast(): void {
   if (trailBc.phase !== "game_over" && phase === "game_over") {
     mp.emitTrailEvent({
       kind: "wipeout",
-      text: `${name}'s wagon company is lost to the trail.`,
+      text: "Wagon company lost to the trail.",
       miles: engine.miles,
       day: engine.day,
     });
@@ -467,7 +472,7 @@ function syncTrailBroadcast(): void {
   if (trailBc.phase !== "river" && phase === "river") {
     mp.emitTrailEvent({
       kind: "river",
-      text: `${name} faces a river crossing.`,
+      text: "Faces a river crossing.",
       miles: engine.miles,
       day: engine.day,
     });
@@ -566,6 +571,7 @@ function openRunRenameSheet(): void {
           <input id="rename-wagon-input" type="text" class="party-setup__input" maxlength="24" value="${escapeAttr(getDisplayName())}" autocomplete="nickname" />
         </div>
         ${travelerRows}
+        ${identityFields(engine.wagonIdentity, escapeAttr)}
         <div class="party-setup__actions">
           <button type="button" class="party-shuffle-btn" data-close-rename="1">Cancel</button>
           <button type="button" class="party-continue-btn" data-save-rename="1">Save</button>
@@ -583,6 +589,7 @@ runRenameSheetEl.addEventListener("click", (e) => {
     const wagonInput = runRenameSheetEl.querySelector<HTMLInputElement>("#rename-wagon-input");
     const wagonName = wagonInput?.value.trim() ?? "";
     if (wagonName) setDisplayName(wagonName);
+    engine.wagonIdentity = readIdentityFields(runRenameSheetEl);
     engine.party.forEach((_m, i) => {
       const el = runRenameSheetEl.querySelector<HTMLInputElement>(`#rename-party-${i}`);
       if (el) engine.setPartyMemberName(i, el.value);
@@ -662,7 +669,6 @@ const mp = new TrailMultiplayer(
   (state, detail) => {
     trailConnState = state;
     trailConnDetail = detail;
-    netStatus = detail;
     updateTrailLiveBanner();
     render();
   },
@@ -1019,6 +1025,7 @@ function render(): void {
     <label class="party-setup__lbl" for="party-names-input">Party · 5</label>
     <input id="party-names-input" class="line-input party-setup__input" type="text" placeholder="${escapeHtml(sc.inputLine.placeholder)}" aria-label="${escapeHtml(sc.inputLine.hint)}" />
   </div>
+  ${identityFields(engine.wagonIdentity, escapeAttr)}
   <div class="party-setup__actions">
     <button type="button" class="party-shuffle-btn">Shuffle names</button>
     <button type="button" class="party-continue-btn">Continue</button>
@@ -1085,14 +1092,6 @@ function render(): void {
     if (runRestartBtn?.dataset.armed === "1") disarmRestart();
   } else {
     runToolsDockEl.hidden = false;
-    let offPx = 8;
-    const footerRect = appFooterEl?.getBoundingClientRect();
-    if (footerRect && footerRect.height > 0) offPx = Math.max(offPx, Math.ceil(footerRect.height) + 6);
-    if (mobile) {
-      const choicesRect = screenEl.querySelector(".choices")?.getBoundingClientRect();
-      if (choicesRect && choicesRect.height > 0) offPx = Math.max(offPx, Math.ceil(choicesRect.height) + 10);
-    }
-    runToolsDockEl.style.bottom = `calc(${offPx}px + env(safe-area-inset-bottom, 0px))`;
   }
 
   const bestLocal = getTodaysBestLocalScore();
@@ -1115,6 +1114,7 @@ function render(): void {
     if (!partyField) return;
     const v = partyField.value.trim();
     if (engine.phase === "party_names" && v) {
+      engine.wagonIdentity = readIdentityFields(screenEl);
       if (trailDisplayInput) {
         const wagon = trailDisplayInput.value.trim();
         setDisplayName(wagon);
@@ -1298,6 +1298,7 @@ function choice(n: number): void {
 }
 
 document.addEventListener("keydown", (e) => {
+  if (document.querySelector("dialog[open]")) return;
   const boot = document.getElementById("emota-boot");
   if (boot) {
     const n = Number(e.key);
@@ -1358,4 +1359,3 @@ void (async () => {
   tryAutoResumeFromSave();
   render();
 })();
-

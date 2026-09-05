@@ -2,7 +2,7 @@ import { GAME_ART } from "../game/artAssets";
 import { TOTAL_TRAIL_MILES } from "../game/config";
 import { trailPortraitNormAt } from "../game/trailChartCoords";
 import type { DashboardSnapshot } from "../game/types";
-import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
+import { wagonBadge } from "./wagonIdentity";
 
 function escapeHtml(s: string): string {
   return s
@@ -10,10 +10,6 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-function wagonSpriteHtml(): string {
-  return renderMeekerSpriteHtml("ezraWagon", { anim: "walk-west", size: "popup" });
 }
 
 export function buildTrailMapPopupHtml(s: DashboardSnapshot, wagonName: string): string {
@@ -36,7 +32,7 @@ export function buildTrailMapPopupHtml(s: DashboardSnapshot, wagonName: string):
           <img class="trail-map-popup__raster" src="${GAME_ART.oregonTrailMap}" alt="" decoding="async" />
           <div class="trail-map-popup__markers">
             <div class="trail-map-popup__wagon" style="left:${left.toFixed(2)}%;top:${top.toFixed(2)}%">
-              <div class="trail-map-popup__wagon-icon">${wagonSpriteHtml()}</div>
+              <div class="trail-map-popup__wagon-icon">${wagonBadge(s.wagonIdentity)}</div>
               <div class="trail-map-popup__wagon-name">${escapeHtml(wagonName)}</div>
               <div class="trail-map-popup__wagon-meta">${miles} mi · day ${s.day}</div>
             </div>
@@ -80,7 +76,6 @@ export function openTrailMapPopup(s: DashboardSnapshot, wagonName: string): void
   el.innerHTML = buildTrailMapPopupHtml(s, wagonName);
   el.hidden = false;
   el.removeAttribute("aria-hidden");
-  startMeekerSpriteAnimations(el);
   el.querySelector<HTMLButtonElement>(".trail-map-popup__close")?.focus();
 }
 

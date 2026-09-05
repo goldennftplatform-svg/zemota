@@ -828,7 +828,7 @@ export class OverheadMini {
 
     if (this.aimDragPointerId === e.pointerId) {
       e.preventDefault();
-      if (hitFireBtn(mx, my) || hitNudgePad(mx, my)) return;
+      if (hitFireBtn(mx, my)) return;
       this.setAim(mx, my);
     }
   }

@@ -7,6 +7,8 @@
 import { TRIVIA_DRAFT_RAW } from "./triviaDraftRaw";
 import { MANSION_TRIVIA_RAW } from "../data/mansionHistory";
 import { shuffleTriviaChoices } from "./triviaShuffle";
+import additional from "../data/triviaAdditional.json" with { type: "json" };
+import { validateTriviaBank } from "./triviaValidation";
 
 export interface TriviaItem {
   id: string;
@@ -146,11 +148,16 @@ const TRIVIA_CORE_RAW: TriviaItem[] = [
   },
 ];
 
-export const TRIVIA_BANK: TriviaItem[] = [
-  ...TRIVIA_CORE_RAW.map(finalizeCore),
-  ...MANSION_TRIVIA_RAW.map(finalizeCore),
-  ...TRIVIA_DRAFT_RAW.map(finalizeDraft),
-];
+export function buildTriviaBank(): TriviaItem[] {
+  return validateTriviaBank([
+    ...TRIVIA_CORE_RAW.map(finalizeCore),
+    ...MANSION_TRIVIA_RAW.map(finalizeCore),
+    ...TRIVIA_DRAFT_RAW.map(finalizeDraft),
+    ...validateTriviaBank(additional).map(finalizeCore),
+  ]);
+}
+
+export const TRIVIA_BANK: TriviaItem[] = buildTriviaBank();
 
 export function pickTriviaForDay(
   day: number,

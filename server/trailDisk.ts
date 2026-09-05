@@ -84,6 +84,7 @@ export function loadPersistedFeed(): TrailFeedEvent[] {
       const day = Number(r.day);
       out.push({
         id,
+        sourcePeerId: typeof r.sourcePeerId === "string" ? r.sourcePeerId.trim().slice(0, 64) || undefined : undefined,
         at,
         kind,
         displayName,

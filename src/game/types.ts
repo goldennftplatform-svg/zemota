@@ -1,3 +1,5 @@
+import type { WagonIdentity } from "./wagonIdentity";
+
 export type ProfileId =
   | "banker"
   | "farmer"
@@ -72,6 +74,7 @@ export interface ScreenHeroImage {
 }
 
 export interface DashboardSnapshot {
+  wagonIdentity: WagonIdentity;
   day: number;
   maxDays: number;
   miles: number;

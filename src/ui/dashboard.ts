@@ -177,10 +177,6 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function escapeAttr(s: string): string {
-  return escapeHtml(s).replace(/'/g, "&#39;");
-}
-
 const chIco = (d: string) =>
   `<svg class="choice-ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${d}"/></svg>`;
 

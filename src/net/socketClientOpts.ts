@@ -5,7 +5,7 @@
  */
 export const EMOTA_SOCKET_BASE = {
   path: "/socket.io",
-  transports: ["polling", "websocket"] as const,
+  transports: ["polling", "websocket"],
   timeout: 20_000,
   withCredentials: false,
-} as const;
+};

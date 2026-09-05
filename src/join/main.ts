@@ -4,6 +4,7 @@
  */
 
 import QRCode from "qrcode";
+import { persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
 import "./join.css";
 
 function escapeHtml(s: string): string {
@@ -47,9 +48,16 @@ function copyText(text: string, btn: HTMLButtonElement): void {
 async function boot(): Promise<void> {
   const root = document.getElementById("join-app")!;
   const origin = window.location.origin;
-  const playUrl = `${origin}/play`;
-  const boardUrl = `${origin}/bigboard?wall=1&event=1`;
-  const signUrl = `${origin}/join`;
+  persistTrailOriginFromQuery();
+  const trail = await resolveTrailOrigin();
+  const link = (path: string) => {
+    const url = new URL(path, origin);
+    if (trail) url.searchParams.set("trail", trail);
+    return url.href;
+  };
+  const playUrl = link("/play");
+  const boardUrl = link("/bigboard?wall=1&event=1");
+  const signUrl = link("/join");
 
   root.innerHTML = `
     <header class="join-header">
@@ -81,7 +89,7 @@ async function boot(): Promise<void> {
       </ol>
       <div class="join-actions">
         <button type="button" class="join-btn" id="join-copy-play">Copy play link</button>
-        <a class="join-btn join-btn--ghost" href="/play">Open game</a>
+        <a class="join-btn join-btn--ghost" href="${escapeHtml(playUrl)}">Open game</a>
       </div>
     </section>
 
@@ -94,7 +102,7 @@ async function boot(): Promise<void> {
       <p class="join-note">Open this on the big screen so everyone sees wagons move on the map.</p>
       <div class="join-actions">
         <button type="button" class="join-btn join-btn--ghost" id="join-copy-board">Copy board link</button>
-        <a class="join-btn join-btn--ghost" href="/bigboard?wall=1&event=1" target="_blank" rel="noopener">Open bigboard</a>
+        <a class="join-btn join-btn--ghost" href="${escapeHtml(boardUrl)}" target="_blank" rel="noopener">Open bigboard</a>
       </div>
     </section>
 
