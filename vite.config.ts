@@ -41,6 +41,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: ".",
+    base: process.env.BASE_PATH ?? "/",
     publicDir: "public",
     plugins: [
       {
