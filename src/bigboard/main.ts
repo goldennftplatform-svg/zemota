@@ -464,9 +464,9 @@ function paintBoard(): void {
     .join("");
 
   const playLink =
-    typeof window !== "undefined" ? `${window.location.host}/play` : "zemota.vercel.app/play";
+    typeof window !== "undefined" ? `${window.location.host}/play` : "emota.aisp.live/play";
   const joinLink =
-    typeof window !== "undefined" ? `${window.location.host}/join` : "zemota.vercel.app/join";
+    typeof window !== "undefined" ? `${window.location.host}/join` : "emota.aisp.live/join";
 
   const lobbyHint =
     conn === "ok" && peers.length === 0

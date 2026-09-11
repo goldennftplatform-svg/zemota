@@ -4,6 +4,7 @@
  */
 
 import QRCode from "qrcode";
+import { PUBLIC_SITE_ORIGIN } from "../game/config";
 import { persistTrailOriginFromQuery, resolveTrailOrigin } from "../net/socketUrl";
 import "./join.css";
 
@@ -47,7 +48,8 @@ function copyText(text: string, btn: HTMLButtonElement): void {
 
 async function boot(): Promise<void> {
   const root = document.getElementById("join-app")!;
-  const origin = window.location.origin;
+  const isLocalHost = /^localhost$|^127(\.\d+){3}$|^::1$/.test(window.location.hostname);
+  const origin = isLocalHost ? window.location.origin : PUBLIC_SITE_ORIGIN;
   persistTrailOriginFromQuery();
   const trail = await resolveTrailOrigin();
   const link = (path: string) => {

@@ -286,7 +286,7 @@ const BIGBOARD_MORE_FACTS: { title: string; body: string }[] = [
   },
   {
     title: "Play the trail",
-    body: "Scan the QR at zemota.vercel.app/play — your wagon shows on this board while you travel.",
+    body: "Scan the QR at emota.aisp.live/play — your wagon shows on this board while you travel.",
   },
 ];
 
