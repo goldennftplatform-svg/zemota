@@ -463,10 +463,10 @@ function paintBoard(): void {
     })
     .join("");
 
-  const playLink =
-    typeof window !== "undefined" ? `${window.location.host}/play` : "emota.aisp.live/play";
-  const joinLink =
-    typeof window !== "undefined" ? `${window.location.host}/join` : "emota.aisp.live/join";
+  const isLocalHost = typeof window !== "undefined" && /^localhost$|^127(\.\d+){3}$|^::1$/.test(window.location.hostname);
+  const publicHost = typeof window !== "undefined" && !isLocalHost ? "emota.aisp.live" : window.location.host;
+  const playLink = typeof window !== "undefined" ? `${publicHost}/play` : "emota.aisp.live/play";
+  const joinLink = typeof window !== "undefined" ? `${publicHost}/join` : "emota.aisp.live/join";
 
   const lobbyHint =
     conn === "ok" && peers.length === 0

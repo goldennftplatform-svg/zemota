@@ -52,9 +52,12 @@ async function boot(): Promise<void> {
   const origin = isLocalHost ? window.location.origin : PUBLIC_SITE_ORIGIN;
   persistTrailOriginFromQuery();
   const trail = await resolveTrailOrigin();
+  // When the site IS the trail server (self-hosted), echoing `?trail=` back at
+  // the same origin is redundant and makes the printed QR ugly. Clean link wins.
+  const trailIsSelf = trail != null && new URL(trail).origin === window.location.origin;
   const link = (path: string) => {
     const url = new URL(path, origin);
-    if (trail) url.searchParams.set("trail", trail);
+    if (trail && !trailIsSelf) url.searchParams.set("trail", trail);
     return url.href;
   };
   const playUrl = link("/play");
