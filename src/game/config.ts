@@ -35,6 +35,9 @@ export const MEEKER_MANSION_HISTORY_URL = "https://thehopking.com/mansion-histor
 /** Public site origin for the printed event sign QR (wagon web app). */
 export const PUBLIC_SITE_ORIGIN = "https://emota.aisp.live";
 
+/** Meeker Mansion Museum donations page (Puyallup Historical Society 501(c)(3)). */
+export const MEEKER_DONATIONS_URL = "https://thehopking.com/donations";
+
 /** Rations packed when a player claims the gift-shop thank-you. */
 export const MEEKER_GIFT_SHOP_FOOD_LB = 100;
 

@@ -1,4 +1,4 @@
-import { MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "../game/config";
+import { MEEKER_DONATIONS_URL, MEEKER_GIFT_SHOP_URL, MEEKER_MANSION_HISTORY_URL } from "../game/config";
 import { renderMeekerSpriteHtml, startMeekerSpriteAnimations } from "./meekerSprites";
 import "./../css/journey-recap.css";
 
@@ -126,6 +126,7 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
           <div class="journey-recap__gold-links">
             <a class="journey-recap__link" href="${escapeAttr(MEEKER_MANSION_HISTORY_URL)}" target="_blank" rel="noopener noreferrer">Meeker Mansion history</a>
             <a class="journey-recap__link" href="${escapeAttr(MEEKER_GIFT_SHOP_URL)}" target="_blank" rel="noopener noreferrer">Hop King gift shop</a>
+            <a class="journey-recap__link" href="${escapeAttr(MEEKER_DONATIONS_URL)}" target="_blank" rel="noopener noreferrer">Support Meeker Mansion</a>
           </div>
         </aside>
         <button type="button" class="journey-recap__cta" disabled>

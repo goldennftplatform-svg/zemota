@@ -1,1 +1,188 @@
-[]
+[
+  {
+    "id": "meeker_known",
+    "q": "Ezra Meeker is known nationally for:",
+    "choices": [
+      "Inventing the first electric light",
+      "His work saving the Oregon Trail",
+      "Commanding Fort Vancouver",
+      "Founding Seattle's first bank"
+    ],
+    "answer": 1,
+    "teach": "Meeker's monument crusade and cross-country retracing made him the public face of 'save the road' — the memory-tourism movement that kept the trail known.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "family_1852",
+    "q": "Ezra, Eliza Jane, and their infant son traveled over the Oregon Trail in what year?",
+    "choices": ["1849", "1852", "1862", "1876"],
+    "answer": 1,
+    "teach": "The family crossed in 1852 — the peak 'flood' year of overland travel, with baby Marion in the wagon.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "free_land_promise",
+    "q": "Many families, including the Meekers, crossed the Oregon Trail for the promise of:",
+    "choices": [
+      "Free land",
+      "Gold certificates",
+      "Tax-exempt railroads",
+      "Free passage to Hawaii"
+    ],
+    "answer": 0,
+    "teach": "Free land was the magnet — donation claims and later homestead laws drew hundreds of thousands west, the Meekers included.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "trail_frayed_rope",
+    "q": "The Oregon Trail is actually made up of multiple starting points, branching trails, and ending points. When describing the trail, historians compare it to:",
+    "choices": [
+      "A single paved highway",
+      "A rope that is frayed on both ends",
+      "One perfectly straight fence line",
+      "A circle with no exits"
+    ],
+    "answer": 1,
+    "teach": "The trail wasn't one road — emigrants began in many towns, split into branches across the West, and finished at many places. A frayed rope, not a thread.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "river_danger",
+    "q": "What was one of the most dangerous natural features pioneers faced on the trail?",
+    "choices": [
+      "Prairie fires only",
+      "Quicksand pits inland",
+      "Rivers — ferries cost money; fords could drown people, animals, and supplies",
+      "Sand dunes at sunset"
+    ],
+    "answer": 2,
+    "teach": "River crossings were the great choke point — pay a ferry, or ford and risk drowning people, stock, and cargo. Diaries cluster tragedy at water.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "no_wagon_trains",
+    "q": "Unlike depictions in popular culture, wagons typically did not travel in large groups called:",
+    "choices": ["Trains", "Companies", "Outfits", "Caravans"],
+    "answer": 0,
+    "teach": "The Hollywood 'wagon train' is mostly myth — most emigrants moved in small, loose companies, not one giant circled column.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "oliver_brother",
+    "q": "Ezra and Eliza Jane Meeker traveled over the Oregon Trail with which member of Ezra's family?",
+    "choices": [
+      "Ezra's older brother Oliver Meeker",
+      "Ezra's uncle Samuel",
+      "A cousin from Boston",
+      "No relatives at all"
+    ],
+    "answer": 0,
+    "teach": "Oliver Meeker crossed with Ezra and Eliza Jane in 1852 — the brothers later filed adjacent claims and sold a wagon-box ferry together.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "donation_acreage",
+    "q": "Donation land claims promised 360 acres of free land to single white males and this much land to married couples:",
+    "choices": ["640 acres", "160 acres", "80 acres", "2,000 acres"],
+    "answer": 0,
+    "teach": "Couples could claim a full section — 640 acres — while single men received 360. That asymmetry is why the era's laws shaped who got land.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "puyallup_arrival",
+    "q": "Ezra Meeker arrived to settle at what is now Puyallup in:",
+    "choices": ["1852", "1862", "1890", "1906"],
+    "answer": 1,
+    "teach": "After the 1852 trail and Puget Sound stops, Ezra's family settled the Puyallup Valley in 1862 — the hop-farming chapter begins there.",
+    "endgameWeight": 4
+  },
+  {
+    "id": "trail_crossings_five",
+    "q": "How many times did Ezra Meeker travel over the Oregon Trail?",
+    "choices": [
+      "Twice",
+      "Five — 1852, 1906, 1910, 1916 by auto, and 1924 by airplane",
+      "Only once, in 1852",
+      "Eleven times"
+    ],
+    "answer": 1,
+    "teach": "Meeker's tally: 1852 by wagon, 1906 monument expedition, 1910 again by ox team, 1916 by automobile, and 1924 by airplane — five crossings.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "transport_1916",
+    "q": "What mode of transportation did Ezra Meeker use in his 1916 trail journey?",
+    "choices": ["Hot air balloon", "Automobile", "Steam locomotive", "Outrigger canoe"],
+    "answer": 1,
+    "teach": "In 1916 Meeker followed the trail by automobile — trading the ox yoke for an engine to prove the route was now a drivable road.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "crusade_end_1908",
+    "q": "Ezra Meeker's first trail-marking crusade ended in 1908 at which local historic landmark:",
+    "choices": [
+      "The Meeker Mansion in Puyallup",
+      "Independence Rock",
+      "Fort Boise",
+      "The Oregon City courthouse"
+    ],
+    "answer": 0,
+    "teach": "The 1906–08 monument expedition finished back at Meeker Mansion in Puyallup — the house Ezra had built from his hop fortune.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "airplane_nineties",
+    "q": "What stunt made headlines on Meeker's 1920s trail tours?",
+    "choices": [
+      "Flying part of the route by airplane in his nineties",
+      "Riding a motorcycle across the Rockies",
+      "Walking the trail backward from Oregon",
+      "Sailing a raft down the Platte"
+    ],
+    "answer": 0,
+    "teach": "In his nineties, Meeker climbed into an airplane to fly over the trail — a publicity stunt worthy of the Hop King's showman instincts.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "lobby_mark_roads",
+    "q": "In his old age, Meeker lobbied hardest for governments to:",
+    "choices": [
+      "Ban automobiles from the plains",
+      "Mark the Oregon Trail and build usable motor roads for memory tourism",
+      "Move the nation's capital west",
+      "Declare all fur trade illegal"
+    ],
+    "answer": 1,
+    "teach": "Meeker's late-life campaign pushed for trail markers and good motor roads so Americans could tour their own history by car — memory tourism decades early.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "flood_year_1852",
+    "q": "Which year is often called the peak 'flood' year of Oregon Trail travel?",
+    "choices": ["1840", "1852", "1871", "1906"],
+    "answer": 1,
+    "teach": "1852 was the great flood year — more emigrants than any prior season, and the year the Meekers themselves crossed in.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "donner_party",
+    "q": "What is the most famous party of pioneers to cross the Oregon Trail?",
+    "choices": ["The Donner Party", "The Corps of Discovery", "The Forty-Niners", "The Lewis Company"],
+    "answer": 0,
+    "teach": "The Donner Party (1846–47) became the trail's most infamous winter disaster — snowbound in the Sierra, it haunts every popular retelling.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "prairie_traveler_oxen",
+    "q": "The 'Prairie Traveler Handbook for Overland Travel' recommends how many of which animal to pull a fully loaded prairie schooner?",
+    "choices": [
+      "One horse for every 500 pounds",
+      "Two oxen for every 2,000 pounds",
+      "Four mules per wagon always",
+      "Six oxen no matter the load"
+    ],
+    "answer": 1,
+    "teach": "The Prairie Traveler's math: roughly two oxen for every 2,000 pounds of load — the standard team-size rule for a loaded wagon.",
+    "endgameWeight": 1
+  }
+]
