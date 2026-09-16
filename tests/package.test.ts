@@ -55,17 +55,34 @@ test("content rejects duplicate IDs, empty questions/answers, invalid indices an
   assert.throws(() => validateTriviaBank([row, row]));
 });
 
-test("import pipeline rejects two/three-option content before shuffling and duplicate IDs across banks", () => {
+test("import pipeline accepts two- and three-option content (True/False) but rejects one-option rows and duplicate IDs across banks", () => {
   for (const choices of [["A", "B"], ["A", "B", "C"]]) {
-    const row = { ...TRIVIA_BANK[0], id: "invalid_options", choices, answer: 0 };
-    assert.throws(() => validateTriviaBank([row]), /exactly 4/);
+    const row = { ...TRIVIA_BANK[0], id: "valid_options", choices, answer: 0 };
+    assert.doesNotThrow(() => validateTriviaBank([row]));
     (additional as unknown[]).push(row);
-    try { assert.throws(() => buildTriviaBank(), /exactly 4/); }
+    try { assert.doesNotThrow(() => buildTriviaBank()); }
     finally { additional.pop(); }
   }
+  const oneOption = { ...TRIVIA_BANK[0], id: "invalid_options", choices: ["A"], answer: 0 };
+  assert.throws(() => validateTriviaBank([oneOption]), /2 to 4/);
+  (additional as unknown[]).push(oneOption);
+  try { assert.throws(() => buildTriviaBank(), /2 to 4/); }
+  finally { additional.pop(); }
   (additional as unknown[]).push(TRIVIA_BANK[0]);
   try { assert.throws(() => buildTriviaBank(), /duplicate id/); }
   finally { additional.pop(); }
+});
+
+test("True/False rows keep canonical order and map the correct answer", () => {
+  const row = { ...TRIVIA_BANK[0], id: "tf_check", choices: ["False", "True"], answer: 1 };
+  (additional as unknown[]).push(row);
+  try {
+    const finalized = buildTriviaBank().find((t) => t.id === "tf_check");
+    assert.deepEqual(finalized?.choices, ["True", "False"]);
+    assert.equal(finalized?.answer, 0);
+  } finally {
+    additional.pop();
+  }
 });
 
 test("same-name sources have independent queue slots, dedupe, and cooldowns", () => {

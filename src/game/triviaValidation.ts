@@ -11,8 +11,8 @@ export function validateTriviaBank(raw: unknown): TriviaItem[] {
     if (ids.has(row.id)) fail("duplicate id");
     ids.add(row.id);
     if (typeof row.q !== "string" || !row.q.trim()) fail("question required");
-    if (!Array.isArray(row.choices) || row.choices.length !== 4 ||
-      row.choices.some((s: unknown) => typeof s !== "string" || !s.trim())) fail("exactly 4 nonempty answers required");
+    if (!Array.isArray(row.choices) || row.choices.length < 2 || row.choices.length > 4 ||
+      row.choices.some((s: unknown) => typeof s !== "string" || !s.trim())) fail("2 to 4 nonempty answers required");
     if (new Set(row.choices.map((s: string) => s.trim().toLowerCase())).size !== row.choices.length) fail("duplicate answers");
     if (!Number.isInteger(row.answer) || row.answer < 0 || row.answer >= row.choices.length) fail("answer index out of range");
     if (typeof row.teach !== "string" || !row.teach.trim()) fail("teaching text required");

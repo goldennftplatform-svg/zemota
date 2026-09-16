@@ -1,49 +1,427 @@
 [
   {
-    "id": "meeker_known",
-    "q": "Ezra Meeker is known nationally for:",
+    "id": "ezra_height",
+    "q": "Though all his accomplishments make Ezra Meeker seem larger than life, he was actually how tall?",
     "choices": [
-      "Inventing the first electric light",
-      "His work saving the Oregon Trail",
-      "Commanding Fort Vancouver",
-      "Founding Seattle's first bank"
+      "About five feet one inch",
+      "Well over six feet, like a mountain man",
+      "Average height for 1850s emigrants",
+      "Tall enough to see over oxen without standing on a crate"
     ],
-    "answer": 1,
-    "teach": "Meeker's monument crusade and cross-country retracing made him the public face of 'save the road' — the memory-tourism movement that kept the trail known.",
+    "answer": 0,
+    "teach": "Ezra was notably short — a 5′1″ fireplug who was still taller than his bride, Eliza Jane, who stood just 4′8″.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "oregon_era",
+    "q": "The Meeker family's original overland emigration to Oregon Territory is associated with which era?",
+    "choices": [
+      "1920s auto tourism only",
+      "1810s fur trade only",
+      "1898 gold rush only",
+      "1852 overland migration"
+    ],
+    "answer": 3,
+    "teach": "The 1852 overland migration is the chapter that defines the Meekers — the great 'flood' year of Oregon Trail travel.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "land_claim",
+    "q": "At journey's end, many families faced land policy questions. A common tension was:",
+    "choices": [
+      "Donation land claims vs later fees and filings as territories matured",
+      "Land was assigned by dice at The Dalles",
+      "Only British crown grants mattered",
+      "Free land with no paperwork anywhere"
+    ],
+    "answer": 0,
+    "teach": "Oregon's donation land era and later Washington filings are both part of how Ezra's generation actually secured farms.",
     "endgameWeight": 2
   },
   {
-    "id": "family_1852",
-    "q": "Ezra, Eliza Jane, and their infant son traveled over the Oregon Trail in what year?",
-    "choices": ["1849", "1852", "1862", "1876"],
+    "id": "claim_age",
+    "q": "How old would a pioneer need to be to file for a donation land claim?",
+    "choices": ["18 years old", "34 years old", "21 years old", "42 years old"],
+    "answer": 2,
+    "teach": "Claimants had to be at least 21 — the age of majority in the 1850s — before they could file.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "major_river",
+    "q": "What major river did pioneers need to cross to proceed along the Oregon Trail?",
+    "choices": ["The Columbia River", "The Sweetwater River", "The Mississippi River", "The Colorado River"],
     "answer": 1,
-    "teach": "The family crossed in 1852 — the peak 'flood' year of overland travel, with baby Marion in the wagon.",
+    "teach": "The Sweetwater, with its granite and diorite reaches, was a defining crossing — and the river where Ezra's youngest brother drowned.",
     "endgameWeight": 1
   },
   {
-    "id": "free_land_promise",
-    "q": "Many families, including the Meekers, crossed the Oregon Trail for the promise of:",
+    "id": "river_crossing",
+    "q": "How might a pioneer have crossed a river along the Oregon Trail?",
+    "choices": ["Gone around it", "Swam across", "Taken a ferry", "Waited for dry season"],
+    "answer": 2,
+    "teach": "Typically pioneers could ford the river and risk losing life, livestock, and cargo; pay a large fee for a ferry; or caulk their wagons and float them across.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "wagon_master",
+    "q": "What is the role of a wagon master?",
     "choices": [
-      "Free land",
-      "Gold certificates",
-      "Tax-exempt railroads",
-      "Free passage to Hawaii"
+      "A professional gambler and card shark",
+      "Guide pioneers over the correct trails",
+      "Wrangle the wagons",
+      "Fix the wagons"
+    ],
+    "answer": 1,
+    "teach": "A wagon master knew the route — ground speed, river crossings, camps — and guided the company safely over the correct trails.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "wa_statehood",
+    "q": "What year did Washington become a state?",
+    "choices": ["1989", "1889", "1890", "1853"],
+    "answer": 1,
+    "teach": "Washington joined the Union on November 11, 1889 — four decades after the Meekers crossed the plains.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "wa_territory",
+    "q": "When did Washington become a territory?",
+    "choices": ["1862", "1890", "1492", "1853"],
+    "answer": 3,
+    "teach": "Congress carved Washington out of the northern half of Oregon Territory in 1853.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "wa_oregon_tf",
+    "q": "True or False: Washington was once a part of the Oregon Territory.",
+    "choices": ["True", "False"],
+    "answer": 0,
+    "teach": "What is now Washington State was once a part of the Oregon Territory.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "portland_landing",
+    "q": "Where did Ezra and Eliza Jane Meeker land after their journey on the Oregon Trail?",
+    "choices": ["El Paso, Texas", "Portland, Oregon", "Puyallup, Washington", "Sacramento, California"],
+    "answer": 1,
+    "teach": "Eliza Jane was so sick on arrival that she had to be carried from the ferry to their lodgings. The Meekers didn't stay long — there was little work and few places to live.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "family_loss",
+    "q": "How many family members did Ezra Meeker lose on the Oregon Trail?",
+    "choices": ["1", "2", "7", "4"],
+    "answer": 1,
+    "teach": "Ezra lost his mother Phoebe, who died of cholera, and his youngest brother Usual, who drowned in the Sweetwater River.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "phoebe_year",
+    "q": "What year did Phoebe Meeker, Ezra Meeker's mother, die on the Oregon Trail?",
+    "choices": ["1854", "1900", "1852", "1860"],
+    "answer": 0,
+    "teach": "Phoebe Meeker died just outside Fort Laramie after contracting cholera.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "trip_origin",
+    "q": "Where did Ezra Meeker's Oregon Trail trip begin?",
+    "choices": ["Huntsville, Ohio", "Puyallup, Washington", "Corning, New York", "Eddyville, Iowa"],
+    "answer": 3,
+    "teach": "The Meekers rolled out of Eddyville, Iowa, in 1852.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "marion_age",
+    "q": "On the 1852 trail, Ezra and Eliza Jane's baby Marion was:",
+    "choices": [
+      "Seven weeks old when they left Iowa",
+      "Not born until Oregon",
+      "Left behind with relatives",
+      "A teenager driving oxen"
     ],
     "answer": 0,
-    "teach": "Free land was the magnet — donation claims and later homestead laws drew hundreds of thousands west, the Meekers included.",
+    "teach": "Marion Jasper Meeker was just seven weeks old when the wagons rolled — Eliza McAuley's diary calls him 'Dickie.'",
     "endgameWeight": 1
   },
   {
-    "id": "trail_frayed_rope",
-    "q": "The Oregon Trail is actually made up of multiple starting points, branching trails, and ending points. When describing the trail, historians compare it to:",
+    "id": "portland_money",
+    "q": "When the Meekers reached Portland in October 1852, they had:",
     "choices": [
-      "A single paved highway",
-      "A rope that is frayed on both ends",
-      "One perfectly straight fence line",
-      "A circle with no exits"
+      "A land patent already",
+      "$3.25 in their pockets",
+      "23 chickens",
+      "A cabin already built"
     ],
     "answer": 1,
-    "teach": "The trail wasn't one road — emigrants began in many towns, split into branches across the West, and finished at many places. A frayed rope, not a thread.",
+    "teach": "Nearly broke after the trail — Ezra worked the Mary Melville wharf for $40 while his brother Oliver ran a boarding house.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "monument_age",
+    "q": "Ezra Meeker began his famous Oregon Trail Monument Expedition at about age:",
+    "choices": ["76 — by ox cart first", "Never retraced it", "90 only by rail", "25 — before hops"],
+    "answer": 0,
+    "teach": "At 76 he launched the Monument Expedition (1906–1908) — and went on to travel the trail by wagon, automobile, and airplane.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "oxen_tf",
+    "q": "True or False: Horses were the most cost-effective animal to pull covered wagons.",
+    "choices": ["True", "False"],
+    "answer": 1,
+    "teach": "Oxen were the workhorses — hardier, able to pull more weight, less likely to be stolen, and able to pull loads for longer stretches.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "family_cross_year",
+    "q": "In what year did the remaining members of Ezra Meeker's family travel over the Oregon Trail?",
+    "choices": ["1862", "1842", "1900", "1854"],
+    "answer": 3,
+    "teach": "The rest of the family crossed in 1854, two years after Ezra made the trip.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "puyallup_first",
+    "q": "Ezra Meeker first saw what is now present-day Puyallup in:",
+    "choices": ["1970", "April 1853", "1890", "1926 only"],
+    "answer": 1,
+    "teach": "Scouting Puget Sound in 1853, brothers Ezra and Oliver entered the Puyallup River — the huge trees discouraged them then.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "bring_family_west",
+    "q": "In order to bring the rest of his family west, Ezra Meeker:",
+    "choices": [
+      "Bought them a train ticket",
+      "Sent his brother Oliver back over the trail to guide them",
+      "Built each of his siblings their own cabin",
+      "Wrote and told them not to come"
+    ],
+    "answer": 1,
+    "teach": "Ezra sent Oliver back over the trail to guide the rest of the family west.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "wagon_donation",
+    "q": "Ezra donated his 1906 covered wagon to the Washington State Historical Society in:",
+    "choices": [
+      "1970",
+      "Never — it was lost",
+      "1852",
+      "1919 — with tens of thousands of pages of papers"
+    ],
+    "answer": 3,
+    "teach": "January 1919 — the wagon, taxidermy oxen, and roughly 50,000 pages of letters; rediscovered in 1953 in a glass case.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "naches_branch",
+    "q": "Which branch of the Oregon Trail did Ezra Meeker's family travel on when joining him in the west?",
+    "choices": ["The Naches Trail", "The Mormon Trail", "By ship around the horn", "The California Trail"],
+    "answer": 0,
+    "teach": "The family came in over the Naches Trail — the only Oregon Trail branch that runs through Washington.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "first_crossing_year",
+    "q": "In what year did Ezra Meeker first travel the Oregon Trail?",
+    "choices": ["1848", "1860", "1852", "1856"],
+    "answer": 2,
+    "teach": "Ezra made his first crossing in 1852 — the peak 'flood' year of overland travel.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "sibling_no_trail",
+    "q": "Only one of Ezra Meeker's full siblings did not travel on the Oregon Trail. Which one was it?",
+    "choices": [
+      "Oliver Perry Meeker",
+      "Usual Clark Meeker",
+      "John Valentine Meeker",
+      "Hannah Jane Meeker"
+    ],
+    "answer": 2,
+    "teach": "John Valentine Meeker sailed west by steamship instead — his ship wrecked and his family spent days stranded on a deserted island before being rescued and reaching Washington Territory.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "retrace_1906",
+    "q": "Why did Ezra Meeker retrace the Oregon Trail in 1906?",
+    "choices": [
+      "To preserve its history and mark the trail",
+      "To find gold",
+      "To establish new settlements",
+      "To map a new route"
+    ],
+    "answer": 0,
+    "teach": "To preserve its history and mark the trail — before its landmarks vanished, Ezra set out to make the route known and remembered.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "transport_1916",
+    "q": "What mode of transportation did Meeker use in his 1916 trail journey?",
+    "choices": ["Train", "Bicycle", "Automobile", "Horse and wagon"],
+    "answer": 2,
+    "teach": "Ezra Meeker traveled in a 1916 Pathfinder car on loan from the Pathfinder company.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "ballard_tf",
+    "q": "True or False: The family of Martin Ballard traveled on the Oregon Trail with the Meekers in 1852.",
+    "choices": ["True", "False"],
+    "answer": 0,
+    "teach": "The Ballard family would reunite with the Meekers 40 years later at a dinner held at the Meeker Mansion.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "trail_deaths",
+    "q": "How many people are thought to have died on the Oregon Trail?",
+    "choices": [
+      "Around 100 people",
+      "Around 1,000–3,000 people",
+      "Around 20,000–30,000 people",
+      "Under 50 people"
+    ],
+    "answer": 2,
+    "teach": "Historians estimate 20,000 to 30,000 people likely died along the trail. Many graves went unmarked, had markers moved, or were marked with biodegradable wood — making exact numbers hard to pin down.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "ox_water",
+    "q": "What was a realistic daily water requirement for one ox on a hot trail day?",
+    "choices": ["Roughly 8–10 gallons", "15–20 gallons", "2–3 gallons", "Under 1 gallon"],
+    "answer": 0,
+    "teach": "A working ox drinks plenty — roughly 8–10 gallons on a hot day, and watering stops drove the whole daily travel schedule.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "dysentery",
+    "q": "Which disease terrorized wagon trains in many trail-era diaries?",
+    "choices": ["Dysentery", "Covid", "The Plague", "Fevers"],
+    "answer": 0,
+    "teach": "Dysentery — and fellow water-borne ills like cholera — filled trail diaries and graves.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "independence_rock",
+    "q": "Which Wyoming landmark did emigrants strive to reach 'by the Fourth'?",
+    "choices": ["Independence Rock", "Chimney Rock", "Devil's Gate", "Scott's Bluff"],
+    "answer": 0,
+    "teach": "Independence Rock was the trail's great milestone — parties pushed hard to reach it by the Fourth of July.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "walk_tf",
+    "q": "True or False: Pioneers typically rode all the way to Oregon in their wagons.",
+    "choices": ["True", "False"],
+    "answer": 1,
+    "teach": "Wagons were packed with most families' possessions and had no springs, so pioneers of all ages typically walked alongside or behind them.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "bloomers_tf",
+    "q": "True or False: In hot, dry climates, pioneer women would take off their heavy dresses and wear only their underclothes on the trail.",
+    "choices": ["True", "False"],
+    "answer": 1,
+    "teach": "A few small groups of ladies experimented with bloomer-style puffy pants, but most pioneer women wore lighter cotton or calico travel dresses with shorter hems.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "buffalo_chips_tf",
+    "q": "True or False: Pioneers burned buffalo chips along the trail to keep warm and to cook meals.",
+    "choices": ["True", "False"],
+    "answer": 0,
+    "teach": "With resources scarce and meals to cook, pioneers made do with what was on hand — dried buffalo dung burned well.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "naches_first",
+    "q": "What is the name of the first wagon party to cross the Naches Trail?",
+    "choices": ["The Donner Party", "The Longmire-Biles Party", "The Lewis and Clark Party", "The Stewart-Jones Party"],
+    "answer": 1,
+    "teach": "The Longmire-Biles Party was the first to bring wagons over the Naches route.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "wagon_speed",
+    "q": "Covered wagons typically travel how fast?",
+    "choices": ["5 miles per hour", "20 miles per hour", "50 miles per hour", "2 miles per hour"],
+    "answer": 3,
+    "teach": "A loaded wagon crept along at about 2 miles per hour — a walking pace, mile after mile.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "airplane_nineties",
+    "q": "What stunt made headlines on Meeker's 1920s Oregon Trail expedition?",
+    "choices": [
+      "Walking every mile barefoot",
+      "Only traveling by submarine",
+      "Refusing to speak in public",
+      "Flying part of the route by airplane in his nineties"
+    ],
+    "answer": 3,
+    "teach": "One of Meeker's favorite ways to travel — the 1924 trip took 23 hours at around 100 mph with five stops, a journey his wagon had made in five months at 2 mph.",
+    "endgameWeight": 3
+  },
+  {
+    "id": "axles_tf",
+    "q": "True or False: Axles on wagons broke more often than Native raids on wagon parties.",
+    "choices": ["True", "False"],
+    "answer": 0,
+    "teach": "Despite the movies, attacks on wagon parties by Native Americans were the exception rather than the rule — broken axles were far more common.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "guidebooks_tf",
+    "q": "True or False: Oregon Trail guidebooks were the best way to navigate the trail.",
+    "choices": ["True", "False"],
+    "answer": 1,
+    "teach": "Guidebooks were often wildly inaccurate — outdated information, occasionally dangerous advice, and some written with no knowledge of the actual trail, often as pure marketing devices.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "famous_pioneer",
+    "q": "Who was the most famous Oregon Trail pioneer?",
+    "choices": ["Mark Twain", "Taylor Swift", "Ezra Meeker", "Daniel Boone"],
+    "answer": 2,
+    "teach": "For the monument crusade, the retracings, and the newsreel fame, no pioneer is more tied to the trail's memory than Ezra Meeker.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "lobby_mark_roads",
+    "q": "In his old age, Meeker lobbied hardest for governments to:",
+    "choices": [
+      "Sell the trail to private mines",
+      "Mark the Oregon Trail and build a highway that would stretch from East to West",
+      "Stop all westbound mail",
+      "Abolish all railroads"
+    ],
+    "answer": 1,
+    "teach": "Meeker's late-life campaign pushed for trail markers and a coast-to-coast highway — memory tourism decades early.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "guestbooks_tf",
+    "q": "True or False: Pioneers left behind guest books.",
+    "choices": ["True", "False"],
+    "answer": 0,
+    "teach": "Pioneers often carved their names and the date they traveled into surrounding rocks — what historians call giant stone guest books.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "conestoga_tf",
+    "q": "True or False: Conestoga wagons were the wagon of choice for most pioneer families.",
+    "choices": ["True", "False"],
+    "answer": 1,
+    "teach": "Families typically chose the compact Prairie Schooner — it needed fewer oxen and survived rough terrain better. Conestogas were massive merchant wagons.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "donation_acreage",
+    "q": "Donation land claims promised 360 acres of free land to single white males and this much land to married couples:",
+    "choices": ["640 acres", "120 acres", "360 acres", "1,200 acres"],
+    "answer": 0,
+    "teach": "Married couples could claim a full section — 640 acres — while single men received 360. That asymmetry shaped who got land.",
     "endgameWeight": 1
   },
   {
@@ -60,10 +438,166 @@
     "endgameWeight": 1
   },
   {
+    "id": "trail_start",
+    "q": "The Oregon Trail typically began in which city?",
+    "choices": ["Huntsville, Ohio", "Washington D.C.", "Independence, Missouri", "Puyallup, Washington"],
+    "answer": 2,
+    "teach": "Independence, Missouri, was the great jumping-off point for overland trains.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "trail_end",
+    "q": "What city was most commonly known as the end of the Oregon Trail?",
+    "choices": ["Oregon City", "Portland", "Sacramento", "Las Vegas"],
+    "answer": 0,
+    "teach": "Oregon City, at the falls of the Willamette, was the trail's traditional end point.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "california_trail",
+    "q": "What made the California Trail so different from the other branches of the Oregon Trail?",
+    "choices": [
+      "Only miners traveled this route",
+      "There were very few resupply points",
+      "The trail was smoother on this route",
+      "This route was only passable during the winter"
+    ],
+    "answer": 1,
+    "teach": "The California branch cut through drier, emptier country with very few places to restock.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "naches_state",
+    "q": "The Naches Trail is the only portion of the Oregon Trail to run through which state?",
+    "choices": ["New Mexico", "Utah", "California", "Washington"],
+    "answer": 3,
+    "teach": "Washington's only stretch of the Oregon Trail is the Naches route over the Cascades.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "applegate",
+    "q": "The Applegate Trail was designed to avoid what?",
+    "choices": [
+      "The dangerous Columbia River passage",
+      "Buffalo herds",
+      "Traffic around Portland",
+      "The Blue Mountains"
+    ],
+    "answer": 0,
+    "teach": "The Applegate cutoff was laid out to dodge the deadly Columbia River passage.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "mormon_trail",
+    "q": "The Mormon Trail ended in which western city?",
+    "choices": ["Seattle", "Oregon City", "Salt Lake City", "Las Vegas"],
+    "answer": 2,
+    "teach": "The Mormon Trail ended at Salt Lake City, the heart of pioneer settlement in the Great Basin.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "trail_length",
+    "q": "Approximately how long was the Oregon Trail?",
+    "choices": ["About 500 miles", "About 3,000 miles", "About 1,000 miles", "About 2,000 miles"],
+    "answer": 3,
+    "teach": "The main route stretched roughly 2,000 miles from the Missouri to the Willamette Valley.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "travel_time",
+    "q": "How long did it typically take to travel the Oregon Trail?",
+    "choices": ["About two weeks", "About 4–6 months", "1–2 months", "About a full year"],
+    "answer": 1,
+    "teach": "Most companies needed four to six months of trail time, setting out in spring and arriving before the snows.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "schooner_nickname",
+    "q": "What was the nickname for the common canvas-topped wagons on the trail?",
+    "choices": ["Mountain movers", "Prairie schooners", "Trail runners", "Desert ships"],
+    "answer": 1,
+    "teach": "From a distance, the white canvas-topped wagons bobbed like sails across the grass — hence 'prairie schooners.'",
+    "endgameWeight": 0
+  },
+  {
+    "id": "flood_year_1852",
+    "q": "Which year is often called the peak 'flood' year of Oregon Trail travel?",
+    "choices": ["1872", "1842", "1862", "1852"],
+    "answer": 3,
+    "teach": "1852 was the great flood year — more emigrants than any prior season, and the year the Meekers themselves crossed in.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "outfit_cost",
+    "q": "Outfitting a family of four for the trail could easily run:",
+    "choices": ["$10 total", "Millions in gold only", "$600–$1,200", "Nothing — the army paid everyone"],
+    "answer": 2,
+    "teach": "A full outfit — wagon, stock, food, and gear — could cost a farm family $600 to $1,200, a fortune in 1850s dollars.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "wagon_load",
+    "q": "Practical guides warned against loading a wagon beyond roughly:",
+    "choices": ["About 2,000 pounds including people", "10,000 pounds", "No limit", "500 pounds always"],
+    "answer": 0,
+    "teach": "Around 2,000 pounds total — people included — before axles and oxen gave out.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "departure_time",
+    "q": "Most companies tried to leave Missouri in:",
+    "choices": ["April–May", "January", "November", "August–September"],
+    "answer": 0,
+    "teach": "Spring departures let trains clear the mud and still beat the mountain snows.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "bulk_flour",
+    "q": "A typical bulk good a family might bring on the Oregon Trail would be:",
+    "choices": ["Sushi", "Jalapeños", "Flour", "Garden greens"],
+    "answer": 2,
+    "teach": "Flour — alongside bacon, beans, and coffee — was the backbone of the trail larder.",
+    "endgameWeight": 0
+  },
+  {
+    "id": "meeker_known",
+    "q": "Ezra Meeker is known nationally for:",
+    "choices": [
+      "Commanding Fort Vancouver",
+      "Inventing the first electric light",
+      "Founding the Seattle Seahawks",
+      "His work saving the Oregon Trail"
+    ],
+    "answer": 3,
+    "teach": "Meeker's monument crusade and cross-country retracing made him the public face of his campaign to save the Oregon Trail.",
+    "endgameWeight": 2
+  },
+  {
+    "id": "free_land_promise",
+    "q": "Many families, including the Meekers, crossed the Oregon Trail for the promise of:",
+    "choices": ["Free land", "Fur trading", "Freedom from taxes", "Religious freedom"],
+    "answer": 0,
+    "teach": "Free land was the magnet — donation claims and later homestead laws drew hundreds of thousands west, the Meekers included.",
+    "endgameWeight": 1
+  },
+  {
+    "id": "trail_frayed_rope",
+    "q": "The Oregon Trail is actually made up of multiple starting points, branching trails, and ending points. When describing the trail, historians compare it to:",
+    "choices": [
+      "A single paved highway",
+      "One perfectly straight fence line",
+      "A rope that is frayed on both ends",
+      "A circle with no exits"
+    ],
+    "answer": 2,
+    "teach": "The trail wasn't one road — emigrants began in many towns, split into branches across the West, and finished at many places. A frayed rope, not a thread.",
+    "endgameWeight": 1
+  },
+  {
     "id": "no_wagon_trains",
     "q": "Unlike depictions in popular culture, wagons typically did not travel in large groups called:",
-    "choices": ["Trains", "Companies", "Outfits", "Caravans"],
-    "answer": 0,
+    "choices": ["Companies", "Caravans", "Outfits", "Trains"],
+    "answer": 3,
     "teach": "The Hollywood 'wagon train' is mostly myth — most emigrants moved in small, loose companies, not one giant circled column.",
     "endgameWeight": 0
   },
@@ -71,28 +605,28 @@
     "id": "oliver_brother",
     "q": "Ezra and Eliza Jane Meeker traveled over the Oregon Trail with which member of Ezra's family?",
     "choices": [
-      "Ezra's older brother Oliver Meeker",
       "Ezra's uncle Samuel",
+      "No relatives at all",
       "A cousin from Boston",
-      "No relatives at all"
+      "Ezra's older brother Oliver Meeker"
     ],
-    "answer": 0,
+    "answer": 3,
     "teach": "Oliver Meeker crossed with Ezra and Eliza Jane in 1852 — the brothers later filed adjacent claims and sold a wagon-box ferry together.",
     "endgameWeight": 1
   },
   {
-    "id": "donation_acreage",
+    "id": "donation_acreage_b",
     "q": "Donation land claims promised 360 acres of free land to single white males and this much land to married couples:",
     "choices": ["640 acres", "160 acres", "80 acres", "2,000 acres"],
     "answer": 0,
     "teach": "Couples could claim a full section — 640 acres — while single men received 360. That asymmetry is why the era's laws shaped who got land.",
-    "endgameWeight": 2
+    "endgameWeight": 1
   },
   {
-    "id": "puyallup_arrival",
-    "q": "Ezra Meeker arrived to settle at what is now Puyallup in:",
-    "choices": ["1852", "1862", "1890", "1906"],
-    "answer": 1,
+    "id": "puyallup_settle",
+    "q": "In what year did Ezra Meeker settle in what is now Puyallup?",
+    "choices": ["1906", "1852", "1890", "1862"],
+    "answer": 3,
     "teach": "After the 1852 trail and Puget Sound stops, Ezra's family settled the Puyallup Valley in 1862 — the hop-farming chapter begins there.",
     "endgameWeight": 4
   },
@@ -100,75 +634,33 @@
     "id": "trail_crossings_five",
     "q": "How many times did Ezra Meeker travel over the Oregon Trail?",
     "choices": [
-      "Twice",
-      "Five — 1852, 1906, 1910, 1916 by auto, and 1924 by airplane",
       "Only once, in 1852",
-      "Eleven times"
+      "Eleven times",
+      "Five — 1852, 1906, 1910, 1916 by auto, and 1924 by airplane",
+      "Twice"
     ],
-    "answer": 1,
+    "answer": 2,
     "teach": "Meeker's tally: 1852 by wagon, 1906 monument expedition, 1910 again by ox team, 1916 by automobile, and 1924 by airplane — five crossings.",
     "endgameWeight": 3
   },
   {
-    "id": "transport_1916",
-    "q": "What mode of transportation did Ezra Meeker use in his 1916 trail journey?",
-    "choices": ["Hot air balloon", "Automobile", "Steam locomotive", "Outrigger canoe"],
-    "answer": 1,
-    "teach": "In 1916 Meeker followed the trail by automobile — trading the ox yoke for an engine to prove the route was now a drivable road.",
-    "endgameWeight": 2
-  },
-  {
     "id": "crusade_end_1908",
-    "q": "Ezra Meeker's first trail-marking crusade ended in 1908 at which local historic landmark:",
+    "q": "Ezra Meeker's first trail-marking crusade ended in 1908 at which local historic landmark?",
     "choices": [
       "The Meeker Mansion in Puyallup",
       "Independence Rock",
-      "Fort Boise",
-      "The Oregon City courthouse"
+      "The Oregon City courthouse",
+      "Fort Boise"
     ],
     "answer": 0,
-    "teach": "The 1906–08 monument expedition finished back at Meeker Mansion in Puyallup — the house Ezra had built from his hop fortune.",
-    "endgameWeight": 2
-  },
-  {
-    "id": "airplane_nineties",
-    "q": "What stunt made headlines on Meeker's 1920s trail tours?",
-    "choices": [
-      "Flying part of the route by airplane in his nineties",
-      "Riding a motorcycle across the Rockies",
-      "Walking the trail backward from Oregon",
-      "Sailing a raft down the Platte"
-    ],
-    "answer": 0,
-    "teach": "In his nineties, Meeker climbed into an airplane to fly over the trail — a publicity stunt worthy of the Hop King's showman instincts.",
-    "endgameWeight": 2
-  },
-  {
-    "id": "lobby_mark_roads",
-    "q": "In his old age, Meeker lobbied hardest for governments to:",
-    "choices": [
-      "Ban automobiles from the plains",
-      "Mark the Oregon Trail and build usable motor roads for memory tourism",
-      "Move the nation's capital west",
-      "Declare all fur trade illegal"
-    ],
-    "answer": 1,
-    "teach": "Meeker's late-life campaign pushed for trail markers and good motor roads so Americans could tour their own history by car — memory tourism decades early.",
-    "endgameWeight": 2
-  },
-  {
-    "id": "flood_year_1852",
-    "q": "Which year is often called the peak 'flood' year of Oregon Trail travel?",
-    "choices": ["1840", "1852", "1871", "1906"],
-    "answer": 1,
-    "teach": "1852 was the great flood year — more emigrants than any prior season, and the year the Meekers themselves crossed in.",
-    "endgameWeight": 1
+    "teach": "The 1906–08 monument expedition finished back at Meeker Mansion in Puyallup — the house Ezra and Eliza Jane built from his hop fortune.",
+    "endgameWeight": 3
   },
   {
     "id": "donner_party",
     "q": "What is the most famous party of pioneers to cross the Oregon Trail?",
-    "choices": ["The Donner Party", "The Corps of Discovery", "The Forty-Niners", "The Lewis Company"],
-    "answer": 0,
+    "choices": ["The Corps of Discovery", "The Lewis Company", "The Donner Party", "The Forty-Niners"],
+    "answer": 2,
     "teach": "The Donner Party (1846–47) became the trail's most infamous winter disaster — snowbound in the Sierra, it haunts every popular retelling.",
     "endgameWeight": 1
   },
@@ -176,12 +668,12 @@
     "id": "prairie_traveler_oxen",
     "q": "The 'Prairie Traveler Handbook for Overland Travel' recommends how many of which animal to pull a fully loaded prairie schooner?",
     "choices": [
-      "One horse for every 500 pounds",
-      "Two oxen for every 2,000 pounds",
+      "Six oxen no matter the load",
       "Four mules per wagon always",
-      "Six oxen no matter the load"
+      "One horse for every 500 pounds",
+      "Two oxen for every 2,000 pounds"
     ],
-    "answer": 1,
+    "answer": 3,
     "teach": "The Prairie Traveler's math: roughly two oxen for every 2,000 pounds of load — the standard team-size rule for a loaded wagon.",
     "endgameWeight": 1
   }

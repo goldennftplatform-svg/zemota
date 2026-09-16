@@ -22,8 +22,13 @@ export function shuffleTriviaChoices(
   correctIndex: number,
   seed: string,
 ): { choices: string[]; answer: number } {
-  if (choices.length !== 4) {
-    throw new Error("shuffleTriviaChoices: expected exactly 4 choices");
+  if (choices.length < 2 || choices.length > 4) {
+    throw new Error("shuffleTriviaChoices: expected 2 to 4 choices");
+  }
+  // True/False pairs must stay in canonical order — a shuffled "True" below
+  // "False" reads badly and needs no determinism win.
+  if (choices.length === 2 && choices.map((s) => s.trim().toLowerCase()).join(",") === "true,false") {
+    return { choices: ["True", "False"], answer: choices[correctIndex]?.trim().toLowerCase() === "false" ? 1 : 0 };
   }
   type E = { text: string; correct: boolean };
   const entry: E[] = choices.map((text, i) => ({ text, correct: i === correctIndex }));
