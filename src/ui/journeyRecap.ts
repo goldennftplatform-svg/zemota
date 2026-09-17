@@ -136,17 +136,28 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
       </div>
     `;
 
+    const background = Array.from(document.body.children).filter(
+      (node): node is HTMLElement => node instanceof HTMLElement,
+    ).map((node) => ({ node, inert: node.inert }));
+    background.forEach(({ node }) => { node.inert = true; });
     document.body.appendChild(el);
+    el.tabIndex = -1;
+    el.focus();
     startMeekerSpriteAnimations(el);
 
     const btn = el.querySelector<HTMLButtonElement>(".journey-recap__cta")!;
     const waitLbl = el.querySelector<HTMLElement>(".journey-recap__cta-wait")!;
     const goLbl = el.querySelector<HTMLElement>(".journey-recap__cta-go")!;
 
+    let closing = false;
     const finish = (): void => {
-      window.removeEventListener("keydown", onKey, true);
+      if (closing) return;
+      closing = true;
+      btn.disabled = true;
       el.classList.add("journey-recap--out");
       window.setTimeout(() => {
+        window.removeEventListener("keydown", onKey, true);
+        background.forEach(({ node, inert }) => { node.inert = inert; });
         el.remove();
         resolve();
       }, 420);
@@ -166,6 +177,12 @@ export function showJourneyRecap(data: JourneyRecapData): Promise<void> {
     });
 
     const onKey = (e: KeyboardEvent): void => {
+      e.stopPropagation();
+      if (/^[1-9]$/.test(e.key) || closing) {
+        e.preventDefault();
+        return;
+      }
+      if (e.target instanceof HTMLAnchorElement) return;
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         if (!btn.disabled) finish();

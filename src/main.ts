@@ -1301,6 +1301,7 @@ function choice(n: number): void {
 
 document.addEventListener("keydown", (e) => {
   if (document.querySelector("dialog[open]")) return;
+  if (document.querySelector(".journey-recap")) return;
   const boot = document.getElementById("emota-boot");
   if (boot) {
     const n = Number(e.key);
