@@ -1557,9 +1557,10 @@ html.bb-wall .bb-map__raster {
 }
 
 html.bb-wall .bb-dock {
-  height: clamp(6.25rem, 14.5vh, 8.75rem);
+  /* Let the tallest panel reserve space before the map takes the remainder. */
+  height: auto;
   min-height: clamp(6.25rem, 14.5vh, 8.75rem);
-  max-height: clamp(6.25rem, 14.5vh, 8.75rem);
+  max-height: none;
   align-items: stretch;
   border-top: none;
 }
@@ -1572,13 +1573,18 @@ html.bb-wall .bb-ticker {
 
 html.bb-wall .bb-dock__panel {
   min-height: 0;
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  overflow: visible;
 }
 
 html.bb-wall .bb-dock__panel--history .bb-dock__history-slot {
   flex: 0 0 auto;
-  height: calc((2 * 1.35em) + 0.2rem + (4 * 1.32em));
+  /* Title/body reserve their own lines at their actual font sizes. */
+  height: auto;
+}
+
+html.bb-wall .bb-dock__list {
+  flex-shrink: 0;
 }
 
 html.bb-wall .bb-dock__chips {
@@ -1690,9 +1696,9 @@ html.bb-event .bb-root {
 }
 
 html.bb-event .bb-dock {
-  height: clamp(6.5rem, 15vh, 9rem);
+  height: auto;
   min-height: clamp(6.5rem, 15vh, 9rem);
-  max-height: clamp(6.5rem, 15vh, 9rem);
+  max-height: none;
   border-top: none;
   background: #001408;
 }
