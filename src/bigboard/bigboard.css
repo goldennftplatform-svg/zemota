@@ -1533,6 +1533,7 @@ html.bb-wall .bb-map-stage {
 
 html.bb-wall {
   --bb-map-fit: 0.96;
+  --bb-map-stretch: 1.3;
 }
 
 html.bb-wall .bb-map-inner {
@@ -1540,9 +1541,12 @@ html.bb-wall .bb-map-inner {
   flex: 0 0 auto;
   left: auto;
   top: auto;
-  width: min(calc(100cqw * var(--bb-map-fit)), calc(100cqh * 976 / 310 * var(--bb-map-fit)));
+  width: min(
+    calc(100cqw * var(--bb-map-fit)),
+    calc(100cqh * 976 / 310 / var(--bb-map-stretch) * var(--bb-map-fit))
+  );
   height: auto;
-  aspect-ratio: 976 / 310;
+  aspect-ratio: calc(976 / 310 / var(--bb-map-stretch));
   max-height: calc(100cqh * var(--bb-map-fit));
   transform: none;
 }
