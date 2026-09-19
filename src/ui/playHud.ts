@@ -118,7 +118,6 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
       buyLabel: "+1 axle",
       costCents: priceParts(p, 0, 1),
     },
-    { n: 7, name: "Leave for the trail", have: "—", buyLabel: "Start journey", costCents: 0, leave: true },
   ];
 
   const giftLeft = MEEKER_GIFT_SHOP_USES_PER_RUN - engine.giftShopBoostsUsed;
@@ -132,6 +131,8 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
     });
   }
 
+  rows.push({ n: 7, name: "START THE JOURNEY", have: "—", buyLabel: "", costCents: 0, leave: true });
+
   const items = rows
     .map((row) => {
       const afford = row.leave || inv.moneyCents >= row.costCents;
@@ -144,8 +145,8 @@ export function renderStoreChoicesHtml(engine: GameEngine, feedback: string): st
         row.leave ? "" : `<span class="store-choice__price">${formatCents(row.costCents)}</span>`;
       return `<li tabindex="0" data-n="${row.n}" role="button" class="store-choice${mod}">
         <span class="store-choice__name">${escapeHtml(row.name)}</span>
-        <span class="store-choice__have">Have: <strong>${escapeHtml(row.have)}</strong></span>
-        <span class="store-choice__buy">${escapeHtml(row.buyLabel)} ${price}</span>
+        ${row.leave ? "" : `<span class="store-choice__have">Have: <strong>${escapeHtml(row.have)}</strong></span>
+        <span class="store-choice__buy">${escapeHtml(row.buyLabel)} ${price}</span>`}
       </li>`;
     })
     .join("");
@@ -231,7 +232,7 @@ export function tryPatchStoreScreen(
       costCents: 0,
     });
   }
-  rows.push({ name: "Leave for the trail", have: "—", costCents: 0, leave: true });
+  rows.push({ name: "START THE JOURNEY", have: "—", costCents: 0, leave: true });
 
   for (const row of rows) {
     let matched = false;

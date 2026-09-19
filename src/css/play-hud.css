@@ -192,10 +192,25 @@
   border-color: rgba(120, 60, 60, 0.55);
 }
 
-.store-choice--leave {
+.choices--store .store-choice--leave {
   margin-top: 0.25rem;
-  border-color: var(--border-hi);
-  background: linear-gradient(180deg, rgba(255, 196, 120, 0.18) 0%, rgba(0, 170, 85, 0.12) 100%);
+  min-height: var(--easy-touch-lg, 4.25rem);
+  align-items: center;
+  text-align: center;
+  border-color: #67e890;
+  background: #146b36;
+}
+
+.choices--store .store-choice--leave:hover,
+.choices--store .store-choice--leave:focus-visible {
+  background: #0d5429;
+  outline: 2px solid #b8ffcc;
+  outline-offset: 2px;
+}
+
+.store-choice--leave .store-choice__name {
+  color: #ffffff;
+  line-height: 1.6;
 }
 
 .store-choice__name {
