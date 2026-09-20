@@ -83,6 +83,18 @@ export class TrailMultiplayer {
     extras?: TrailUpdateExtras;
   } | null = null;
   private updateFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  private latestUpdate: TrailMultiplayer["pendingUpdate"] = null;
+
+  /** Mobile browsers suspend sockets while the player visits another tab/app. */
+  private resumeConnection = (): void => {
+    if (document.visibilityState === "hidden" || this.trailFull || !this.socket) return;
+    if (!this.socket.connected) {
+      this.socket.connect();
+    } else if (this.latestUpdate) {
+      const { miles, day, extras } = this.latestUpdate;
+      this.updateProgress(miles, day, extras);
+    }
+  };
 
   constructor(
     onPeers: (peers: TrailPeer[]) => void,
@@ -99,7 +111,13 @@ export class TrailMultiplayer {
   }
 
   async connect(): Promise<void> {
-    if (this.socket?.connected) return;
+    document.addEventListener("visibilitychange", this.resumeConnection);
+    window.addEventListener("online", this.resumeConnection);
+    window.addEventListener("pageshow", this.resumeConnection);
+    if (this.socket) {
+      this.resumeConnection();
+      return;
+    }
     await this.openSocket(false);
   }
 
@@ -108,7 +126,7 @@ export class TrailMultiplayer {
     const origin = await resolveTrailOrigin();
     const opts = {
       ...EMOTA_SOCKET_BASE,
-      reconnectionAttempts: this.trailFull ? 2 : 8,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: this.trailFull ? 8_000 : 1000,
       autoConnect: false as const,
     };
@@ -129,6 +147,13 @@ export class TrailMultiplayer {
       this.live = true;
       s.emit("trail:hello", { displayName: getDisplayName(), clientId: getTrailClientId() });
       this.lastUpdateAt = 0;
+      // Re-registering starts at mile zero on the server: restore the wagon
+      // immediately, even if the player hasn't made another game choice.
+      if (this.latestUpdate) {
+        if (this.updateFlushTimer) clearTimeout(this.updateFlushTimer);
+        this.pendingUpdate = this.latestUpdate;
+        this.flushUpdate();
+      }
       this.onConnection("live", "Your wagon is on the live trail.");
     });
 
@@ -198,6 +223,7 @@ export class TrailMultiplayer {
   updateProgress(miles: number, day: number, extras?: TrailUpdateExtras): void {
     if (!Number.isFinite(miles) || !Number.isFinite(day)) return;
     this.pendingUpdate = { miles, day, extras };
+    this.latestUpdate = this.pendingUpdate;
     const elapsed = Date.now() - this.lastUpdateAt;
     if (elapsed >= CLIENT_UPDATE_MS) {
       if (this.updateFlushTimer) {
@@ -244,10 +270,14 @@ export class TrailMultiplayer {
   }
 
   disconnect(): void {
+    document.removeEventListener("visibilitychange", this.resumeConnection);
+    window.removeEventListener("online", this.resumeConnection);
+    window.removeEventListener("pageshow", this.resumeConnection);
     if (this.updateFlushTimer) {
       clearTimeout(this.updateFlushTimer);
       this.updateFlushTimer = null;
     }
+    this.socket?.removeAllListeners();
     this.socket?.disconnect();
     this.socket = null;
     this.live = false;

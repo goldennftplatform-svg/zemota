@@ -27,6 +27,10 @@ export function buildTrailMapPopupHtml(s: DashboardSnapshot, wagonName: string):
         <h2 id="trail-map-popup-title" class="trail-map-popup__title">Your wagon on the trail</h2>
         <button type="button" class="trail-map-popup__close" data-close-trail-map="1" aria-label="Close trail map">×</button>
       </header>
+      <nav class="trail-map-popup__links" aria-label="Live event links">
+        <a class="trail-map-popup__link" href="/join" target="_blank" rel="noopener noreferrer">QR / Invite friends<span>Opens in a new tab</span></a>
+        <a class="trail-map-popup__link" href="/bigboard?wall=1&amp;event=1" target="_blank" rel="noopener noreferrer">Live bigboard<span>Opens in a new tab</span></a>
+      </nav>
       <div class="trail-map-popup__stage">
         <div class="trail-map-popup__inner">
           <img class="trail-map-popup__raster" src="${GAME_ART.oregonTrailMap}" alt="" decoding="async" />

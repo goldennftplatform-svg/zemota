@@ -30,10 +30,13 @@
   background: linear-gradient(180deg, rgba(0, 24, 14, 0.98) 0%, rgba(16, 11, 7, 0.99) 100%);
   box-shadow: 0 0 32px rgba(255, 178, 96, 0.18), 8px 8px 0 #2a1a0c;
   border-radius: 4px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .trail-map-popup__head {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -69,7 +72,7 @@
 }
 
 .trail-map-popup__stage {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   min-height: 0;
   padding: 0.45rem 0.55rem 0.35rem;
   display: flex;
@@ -175,6 +178,7 @@
 }
 
 .trail-map-popup__foot {
+  flex-shrink: 0;
   margin: 0;
   padding: 0.4rem 0.65rem 0.55rem;
   font-size: clamp(0.88rem, 2.5vw, 1rem);
@@ -186,6 +190,43 @@
 .trail-map-popup__foot strong {
   color: var(--hi);
   font-weight: normal;
+}
+
+.trail-map-popup__links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  flex-shrink: 0;
+}
+
+.trail-map-popup__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-hi);
+  border-radius: 6px;
+  background: #104b2c;
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.trail-map-popup__link span {
+  font-size: 0.8rem;
+}
+
+.trail-map-popup__link:hover,
+.trail-map-popup__link:focus-visible {
+  background: #166039;
+  outline: 2px solid var(--border-hi);
+  outline-offset: 2px;
 }
 
 .trail-map-trigger {
