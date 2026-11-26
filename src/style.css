@@ -168,7 +168,8 @@ html {
   font-size: 17px;
 }
 
-@media (min-width: 800px) {
+/* Desktop overrides follow the narrow/touch split in mobile-detect.ts. */
+@media (min-width: 900px) and (pointer: fine) {
   html {
     font-size: 18px;
   }
@@ -218,7 +219,7 @@ body {
   image-rendering: pixelated;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .app-layout {
     max-width: 1100px;
     padding-left: max(clamp(0.65rem, 2vw, 1rem), env(safe-area-inset-left, 0px));
@@ -888,7 +889,7 @@ body {
   filter: sepia(0.35) saturate(0.65) brightness(0.85);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .app-body:not(.app-body--solo) {
     grid-template-columns: minmax(220px, 260px) 1fr;
     grid-template-areas: "sidebar main";
@@ -906,7 +907,7 @@ body {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), var(--panel-inset), 0 0 20px rgba(255, 178, 96, 0.06);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .sidebar {
     position: sticky;
     top: 0.35rem;
@@ -993,7 +994,7 @@ body {
   max-height: min(42vw, 160px);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .dash-minimap-host {
     max-height: none;
   }
@@ -1052,7 +1053,7 @@ body {
   font-weight: normal;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .sidebar .dash-primary {
     grid-template-columns: 1fr;
     gap: 0.35rem;
@@ -1448,7 +1449,7 @@ body {
   animation: none;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .travel-menu-mobile-hud {
     display: none !important;
   }
@@ -1463,7 +1464,7 @@ body {
   animation: screen-pulse 5s ease-in-out infinite;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .screen {
     padding: 0.7rem 0.8rem;
     min-height: 14rem;
@@ -1479,7 +1480,7 @@ body {
   animation: phosphor-hum 5.5s ease-in-out infinite;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .screen .block {
     font-size: 1.22rem;
     line-height: 1.45;
@@ -1497,7 +1498,7 @@ body {
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.28), inset 0 1px 0 var(--warm-edge-hi);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .screen-coach {
     max-width: 48ch;
   }
@@ -1549,7 +1550,7 @@ body {
   -webkit-tap-highlight-color: rgba(255, 178, 96, 0.12);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .screen .choices {
     gap: 0.28rem;
   }
@@ -1612,7 +1613,7 @@ body {
   box-shadow: 2px 2px 0 var(--shadow), inset 0 1px 0 rgba(255, 178, 96, 0.08);
 }
 
-@media (min-width: 800px) {
+@media (min-width: 900px) and (pointer: fine) {
   .trail-display-name {
     max-width: 48ch;
   }

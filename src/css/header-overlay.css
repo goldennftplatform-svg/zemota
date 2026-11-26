@@ -118,7 +118,7 @@ html.emota-mobile .app-layout.is-playing .trail-ribbon {
   display: none;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 900px) and (pointer: fine) {
   .app-layout.is-playing .app-header {
     position: relative;
     z-index: 6;
